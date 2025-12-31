@@ -184,7 +184,8 @@ body {
   border-radius: 2px;
 }
 
-.annotation-item:hover {
+.annotation-item:hover,
+.annotation-item.keyboard-selected {
   background: white;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -206,7 +207,8 @@ body {
   flex-shrink: 0;
 }
 
-.annotation-item:hover .annotation-number {
+.annotation-item:hover .annotation-number,
+.annotation-item.keyboard-selected .annotation-number {
   background: hsl(0, 50%, 50%);
   border-color: hsl(0, 50%, 50%);
   color: white;

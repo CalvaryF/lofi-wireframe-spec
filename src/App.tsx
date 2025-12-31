@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { parseComponents, parseWireframe, resolveFrames } from './parser'
 import { render, renderComponentGallery } from './render'
+import { useAnnotationNavigation } from './hooks/useAnnotationNavigation'
 
 // Dynamically get all yaml files from specs folder
 const specModules = import.meta.glob('/specs/*.yaml', { query: '?raw', import: 'default' })
@@ -31,11 +32,21 @@ export default function App() {
   const lastComponentsRef = useRef('')
   const lastWireframeRef = useRef('')
 
+  const {
+    selectedAnnotation,
+    setCursor,
+    navigateAnnotation,
+    clearSelection,
+    markFrameChangeFromAnnotation,
+    shouldSkipFrameReset,
+  } = useAnnotationNavigation()
+
   const loadAndRender = useCallback(async () => {
     if (!containerRef.current) return
 
     try {
       setError(null)
+      setCursor(null)
 
       // Always fetch components
       const componentsRes = await fetch('/specs/components.yaml')
@@ -92,22 +103,46 @@ export default function App() {
       console.error('Error loading specs:', err)
       setError(err instanceof Error ? err.message : String(err))
     }
-  }, [specFile])
+  }, [specFile, setCursor])
 
   // Initial load and when spec changes
   useEffect(() => {
     loadAndRender()
   }, [loadAndRender])
 
-  // Scroll to active item
+  // Scroll to active item and set implicit annotation cursor
   useEffect(() => {
-    if (navItems[activeIndex]) {
-      const el = navItems[activeIndex].element
-      const rect = el.getBoundingClientRect()
-      const top = window.scrollY + rect.top - HEADER_HEIGHT - SCROLL_PADDING
-      window.scrollTo({ top, behavior: 'instant' })
+    if (!navItems[activeIndex]) return
+
+    const el = navItems[activeIndex].element
+    const rect = el.getBoundingClientRect()
+    const top = window.scrollY + rect.top - HEADER_HEIGHT - SCROLL_PADDING
+    window.scrollTo({ top, behavior: 'smooth' })
+
+    // Skip resetting annotation if frame change was from annotation navigation
+    if (shouldSkipFrameReset()) {
+      return
     }
-  }, [activeIndex, navItems])
+
+    // Set implicit cursor to first annotation on this frame (no visual selection)
+    if (showAnnotations && containerRef.current) {
+      const allAnnotations = containerRef.current.querySelectorAll('.annotation-item[data-annotation]')
+      const frameId = navItems[activeIndex].id
+      const frame = containerRef.current.querySelector(`.frame-container[data-frame-id="${frameId}"]`)
+
+      if (frame) {
+        const firstAnnotation = frame.querySelector('.annotation-item[data-annotation]')
+        if (firstAnnotation) {
+          const globalIndex = Array.from(allAnnotations).indexOf(firstAnnotation)
+          setCursor(globalIndex)
+        } else {
+          setCursor(null)
+        }
+      }
+    }
+    // Note: We don't call clearSelection() here to avoid re-render loops
+    // The selection will be cleared naturally when navigating frames via keyboard
+  }, [activeIndex, navItems, showAnnotations, shouldSkipFrameReset, setCursor])
 
   // Keyboard navigation
   useEffect(() => {
@@ -122,16 +157,39 @@ export default function App() {
         return
       }
 
+      // Shift+Up/Down: navigate annotations
+      if (e.shiftKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
+        if (!showAnnotations) return
+        e.preventDefault()
+
+        const allAnnotations = containerRef.current?.querySelectorAll('.annotation-item[data-annotation]')
+        if (!allAnnotations || allAnnotations.length === 0) return
+
+        navigateAnnotation(
+          e.key === 'ArrowDown' ? 'down' : 'up',
+          allAnnotations.length
+        )
+        return
+      }
+
+      // Escape: clear annotation selection
+      if (e.key === 'Escape' && selectedAnnotation !== null) {
+        e.preventDefault()
+        clearSelection()
+        return
+      }
+
       // Up/Down: navigate frames
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         if (navItems.length === 0) return
         e.preventDefault()
 
+        clearSelection() // Clear annotation selection when navigating frames
         setActiveIndex(prev => {
           if (e.key === 'ArrowDown') {
-            return prev < navItems.length - 1 ? prev + 1 : 0
+            return Math.min(prev + 1, navItems.length - 1)
           } else {
-            return prev > 0 ? prev - 1 : navItems.length - 1
+            return Math.max(prev - 1, 0)
           }
         })
       }
@@ -139,6 +197,7 @@ export default function App() {
       // Left/Right: navigate files
       if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
         e.preventDefault()
+        clearSelection() // Clear annotation selection when navigating files
         const currentIndex = SPEC_FILES.indexOf(specFile)
         let nextIndex: number
 
@@ -154,7 +213,72 @@ export default function App() {
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [navItems.length, specFile])
+  }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection])
+
+  // Handle annotation selection - highlight and scroll
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    // Clear all previous highlights
+    containerRef.current.querySelectorAll('.annotation-item.keyboard-selected').forEach(el => {
+      el.classList.remove('keyboard-selected')
+    })
+    containerRef.current.querySelectorAll('.annotation-marker.highlighted').forEach(el => {
+      el.classList.remove('highlighted')
+    })
+    containerRef.current.querySelectorAll('.annotation-line').forEach(svg => {
+      svg.innerHTML = ''
+    })
+
+    if (selectedAnnotation === null) return
+
+    const allAnnotations = containerRef.current.querySelectorAll('.annotation-item[data-annotation]')
+    const selectedItem = allAnnotations[selectedAnnotation] as HTMLElement
+    if (!selectedItem) return
+
+    // Add keyboard-selected class to panel item
+    selectedItem.classList.add('keyboard-selected')
+
+    // Find the frame container for this annotation
+    const frameContainer = selectedItem.closest('.frame-container') as HTMLElement
+    if (!frameContainer) return
+
+    // Highlight the corresponding marker
+    const annotationNum = selectedItem.dataset.annotation
+    const marker = frameContainer.querySelector(`.annotation-marker[data-annotation="${annotationNum}"]`) as HTMLElement
+    if (marker) {
+      marker.classList.add('highlighted')
+
+      // Draw connecting line
+      const lineSvg = frameContainer.querySelector('.annotation-line') as SVGSVGElement
+      const numberEl = selectedItem.querySelector('.annotation-number') as HTMLElement
+      if (lineSvg && numberEl) {
+        const numberRect = numberEl.getBoundingClientRect()
+        const markerRect = marker.getBoundingClientRect()
+        const containerRect = frameContainer.getBoundingClientRect()
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+        line.setAttribute('x1', String(markerRect.right - containerRect.left))
+        line.setAttribute('y1', String(markerRect.top - containerRect.top + 10))
+        line.setAttribute('x2', String(numberRect.left - containerRect.left))
+        line.setAttribute('y2', String(numberRect.top - containerRect.top + 10))
+        lineSvg.appendChild(line)
+      }
+    }
+
+    // Scroll to frame if it's at least partially off screen
+    const frameRect = frameContainer.getBoundingClientRect()
+    const isFrameOffScreen = frameRect.top < HEADER_HEIGHT || frameRect.bottom > window.innerHeight
+
+    if (isFrameOffScreen) {
+      const frameId = frameContainer.dataset.frameId
+      const frameIndex = navItems.findIndex(item => item.id === frameId)
+      if (frameIndex !== -1) {
+        markFrameChangeFromAnnotation()
+        setActiveIndex(frameIndex)
+      }
+    }
+  }, [selectedAnnotation, navItems, markFrameChangeFromAnnotation])
 
   // Hot reload polling
   useEffect(() => {
@@ -217,7 +341,10 @@ export default function App() {
             <div
               key={item.id}
               className={`frame-nav-item ${index === activeIndex ? 'active' : ''}`}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => {
+                clearSelection()
+                setActiveIndex(index)
+              }}
             >
               {item.id}
             </div>

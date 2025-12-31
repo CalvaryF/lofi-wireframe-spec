@@ -1,0 +1,1144 @@
+# Dashboard wireframe showcasing icons, charts, dropdowns, and cursors
+
+frames:
+  # Main Dashboard
+  - Frame:
+      id: Dashboard
+      size: [1280, 800]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: row
+            grow: 1
+            children:
+              # Sidebar
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  children:
+                    # Logo
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        padding: [8, 0]
+                        children:
+                          - Icon: { name: "zap" }
+                          - Text: { content: "Acme", style: h2 }
+
+                    - Box: { padding: 8 }
+
+                    # Nav items with icons
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        background: grey
+                        children:
+                          - Icon: { name: "layout-dashboard" }
+                          - Text: { content: "Dashboard", style: body }
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        children:
+                          - Icon: { name: "users" }
+                          - Text: { content: "Team", style: body }
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        children:
+                          - Icon: { name: "folder" }
+                          - Text: { content: "Projects", style: body }
+                          - Cursor: { type: pointer, anchor: center, tooltip: "View projects" }
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        children:
+                          - Icon: { name: "bar-chart-2" }
+                          - Text: { content: "Analytics", style: body }
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        children:
+                          - Icon: { name: "file-text" }
+                          - Text: { content: "Reports", style: body }
+
+                    - Box: { grow: 1 }
+
+                    # Bottom nav
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        children:
+                          - Icon: { name: "settings" }
+                          - Text: { content: "Settings", style: body }
+                    - Box:
+                        layout: row
+                        padding: 10
+                        gap: 10
+                        align: center
+                        children:
+                          - Icon: { name: "log-out" }
+                          - Text: { content: "Logout", style: caption }
+
+              # Main content
+              - Box:
+                  layout: column
+                  grow: 1
+                  children:
+                    # Top bar
+                    - Box:
+                        layout: row
+                        padding: 16
+                        gap: 16
+                        align: center
+                        outline: thin
+                        children:
+                          - Text: { content: "Dashboard", style: h1 }
+                          - Box: { grow: 1 }
+                          - Box:
+                              layout: row
+                              gap: 8
+                              padding: [8, 12]
+                              outline: thin
+                              align: center
+                              children:
+                                - Icon: { name: "search" }
+                                - Text: { content: "Search...", style: caption }
+                          - Box:
+                              padding: 8
+                              outline: thin
+                              children:
+                                - Icon: { name: "bell" }
+                          - Box:
+                              padding: 8
+                              outline: thin
+                              children:
+                                - Icon: { name: "user" }
+
+                    # Content area
+                    - Box:
+                        layout: column
+                        padding: 24
+                        gap: 24
+                        grow: 1
+                        children:
+                          # Stats row
+                          - Box:
+                              layout: row
+                              gap: 16
+                              children:
+                                # Stat card 1
+                                - Box:
+                                    layout: column
+                                    padding: 16
+                                    gap: 8
+                                    outline: thin
+                                    grow: 1
+                                    children:
+                                      - Box:
+                                          layout: row
+                                          align: center
+                                          gap: 8
+                                          children:
+                                            - Icon: { name: "users" }
+                                            - Text: { content: "Total Users", style: caption }
+                                      - Text: { content: "2,847", style: h1 }
+                                      - Box:
+                                          layout: row
+                                          gap: 4
+                                          align: center
+                                          children:
+                                            - Icon: { name: "trending-up" }
+                                            - Text: { content: "+12.5%", style: caption }
+                                # Stat card 2
+                                - Box:
+                                    layout: column
+                                    padding: 16
+                                    gap: 8
+                                    outline: thin
+                                    grow: 1
+                                    children:
+                                      - Box:
+                                          layout: row
+                                          align: center
+                                          gap: 8
+                                          children:
+                                            - Icon: { name: "activity" }
+                                            - Text: { content: "Active Now", style: caption }
+                                      - Text: { content: "142", style: h1 }
+                                      - Box:
+                                          layout: row
+                                          gap: 4
+                                          align: center
+                                          children:
+                                            - Icon: { name: "circle" }
+                                            - Text: { content: "Live", style: caption }
+                                # Stat card 3
+                                - Box:
+                                    layout: column
+                                    padding: 16
+                                    gap: 8
+                                    outline: thin
+                                    grow: 1
+                                    children:
+                                      - Box:
+                                          layout: row
+                                          align: center
+                                          gap: 8
+                                          children:
+                                            - Icon: { name: "credit-card" }
+                                            - Text: { content: "Revenue", style: caption }
+                                      - Text: { content: "$48.2k", style: h1 }
+                                      - Box:
+                                          layout: row
+                                          gap: 4
+                                          align: center
+                                          children:
+                                            - Icon: { name: "trending-up" }
+                                            - Text: { content: "+8.1%", style: caption }
+                                # Stat card 4
+                                - Box:
+                                    layout: column
+                                    padding: 16
+                                    gap: 8
+                                    outline: thin
+                                    grow: 1
+                                    children:
+                                      - Box:
+                                          layout: row
+                                          align: center
+                                          gap: 8
+                                          children:
+                                            - Icon: { name: "check-circle" }
+                                            - Text: { content: "Uptime", style: caption }
+                                      - Text: { content: "99.9%", style: h1 }
+                                      - Chart: { fn: binary, range: [0, 24], samples: 24, width: 120, height: 24 }
+
+                          # Charts row
+                          - Box:
+                              layout: row
+                              gap: 16
+                              children:
+                                # Main chart
+                                - Box:
+                                    layout: column
+                                    padding: 16
+                                    gap: 12
+                                    outline: thin
+                                    grow: 1
+                                    children:
+                                      - Box:
+                                          layout: row
+                                          align: center
+                                          children:
+                                            - Text: { content: "Revenue Overview", style: h2 }
+                                            - Box: { grow: 1 }
+                                            - Dropdown:
+                                                label: "Last 7 days"
+                                                variant: expanded
+                                                options:
+                                                  - { label: "Last 7 days", icon: "calendar" }
+                                                  - { label: "Last 30 days", icon: "calendar" }
+                                                  - { label: "Last 90 days", icon: "calendar", variant: hover }
+                                                  - { label: "This year", icon: "calendar" }
+                                      - Chart:
+                                          range: [0, 6.28]
+                                          samples: 30
+                                          width: 500
+                                          height: 180
+                                          lines:
+                                            - { fn: sin, label: "Revenue", color: blue, noise: 0.1 }
+                                            - { fn: cos, label: "Expenses", color: red, noise: 0.1 }
+
+                                # Side panel
+                                - Box:
+                                    layout: column
+                                    padding: 16
+                                    gap: 12
+                                    outline: thin
+                                    children:
+                                      - Text: { content: "Quick Actions", style: h2 }
+                                      - Box:
+                                          layout: row
+                                          gap: 8
+                                          padding: [10, 12]
+                                          outline: thin
+                                          align: center
+                                          children:
+                                            - Icon: { name: "plus" }
+                                            - Text: { content: "New Project", style: body }
+                                            - Cursor: { type: pointer, anchor: center }
+                                      - Box:
+                                          layout: row
+                                          gap: 8
+                                          padding: [10, 12]
+                                          outline: thin
+                                          align: center
+                                          children:
+                                            - Icon: { name: "user-plus" }
+                                            - Text: { content: "Invite Member", style: body }
+                                      - Box:
+                                          layout: row
+                                          gap: 8
+                                          padding: [10, 12]
+                                          outline: thin
+                                          align: center
+                                          children:
+                                            - Icon: { name: "download" }
+                                            - Text: { content: "Export Report", style: body }
+                                      - Box:
+                                          layout: row
+                                          gap: 8
+                                          padding: [10, 12]
+                                          outline: thin
+                                          align: center
+                                          children:
+                                            - Icon: { name: "settings" }
+                                            - Text: { content: "Settings", style: body }
+
+                          # Recent activity
+                          - Box:
+                              layout: column
+                              gap: 12
+                              children:
+                                - Box:
+                                    layout: row
+                                    align: center
+                                    children:
+                                      - Text: { content: "Recent Activity", style: h2 }
+                                      - Box: { grow: 1 }
+                                      - Box:
+                                          layout: row
+                                          gap: 4
+                                          padding: [6, 10]
+                                          outline: thin
+                                          align: center
+                                          children:
+                                            - Text: { content: "View all", style: caption }
+                                            - Icon: { name: "arrow-right" }
+                                - Box:
+                                    layout: column
+                                    outline: thin
+                                    children:
+                                      - Box:
+                                          layout: row
+                                          padding: 12
+                                          gap: 12
+                                          align: center
+                                          outline: thin
+                                          children:
+                                            - Icon: { name: "file-plus" }
+                                            - Box:
+                                                grow: 1
+                                                children:
+                                                  - Text: { content: "New project created: Q4 Campaign", style: body }
+                                            - Text: { content: "2 min ago", style: caption }
+                                      - Box:
+                                          layout: row
+                                          padding: 12
+                                          gap: 12
+                                          align: center
+                                          outline: thin
+                                          children:
+                                            - Icon: { name: "user-plus" }
+                                            - Box:
+                                                grow: 1
+                                                children:
+                                                  - Text: { content: "Sarah joined the team", style: body }
+                                            - Text: { content: "1 hour ago", style: caption }
+                                      - Box:
+                                          layout: row
+                                          padding: 12
+                                          gap: 12
+                                          align: center
+                                          outline: thin
+                                          children:
+                                            - Icon: { name: "check-circle" }
+                                            - Box:
+                                                grow: 1
+                                                children:
+                                                  - Text: { content: "Deployment successful: v2.4.1", style: body }
+                                            - Text: { content: "3 hours ago", style: caption }
+
+  # Team page with more complex interactions
+  - Frame:
+      id: TeamPage
+      size: [1280, 700]
+      layout: column
+      padding: 24
+      gap: 24
+      children:
+        # Header
+        - Box:
+            layout: row
+            align: center
+            children:
+              - Box:
+                  layout: row
+                  gap: 12
+                  align: center
+                  children:
+                    - Icon: { name: "users" }
+                    - Text: { content: "Team Members", style: h1 }
+              - Box: { grow: 1 }
+              - Box:
+                  layout: row
+                  gap: 8
+                  children:
+                    - Dropdown:
+                        label: "All Roles"
+                        variant: expanded
+                        options:
+                          - { label: "All Roles", icon: "users" }
+                          - { label: "Admin", icon: "shield", variant: hover }
+                          - { label: "Editor", icon: "edit" }
+                          - { label: "Viewer", icon: "eye" }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        padding: [8, 16]
+                        outline: thick
+                        align: center
+                        children:
+                          - Icon: { name: "user-plus" }
+                          - Text: { content: "Add Member", style: body }
+
+        # Team table
+        - Box:
+            layout: column
+            outline: thin
+            children:
+              # Header row
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 16
+                  align: center
+                  background: grey
+                  outline: thin
+                  children:
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "Name", style: caption }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "Email", style: caption }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "Role", style: caption }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "Status", style: caption }
+                    - Box:
+                        children:
+                          - Text: { content: "Actions", style: caption }
+              # Row 1
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 16
+                  align: center
+                  outline: thin
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "user" }
+                          - Text: { content: "Alice Chen", style: body }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "alice@acme.com", style: body }
+                    - Box:
+                        layout: row
+                        gap: 4
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "shield" }
+                          - Text: { content: "Admin", style: caption }
+                    - Box:
+                        layout: row
+                        gap: 4
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "check-circle" }
+                          - Text: { content: "Active", style: caption }
+                    - Dropdown:
+                        label: "..."
+                        variant: expanded
+                        options:
+                          - { label: "Edit", icon: "edit" }
+                          - { label: "Change Role", icon: "shield", variant: hover }
+                          - { label: "Remove", icon: "trash-2" }
+              # Row 2 (with cursor interaction)
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 16
+                  align: center
+                  outline: thin
+                  background: grey
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "user" }
+                          - Text: { content: "Bob Smith", style: body }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "bob@acme.com", style: body }
+                    - Box:
+                        layout: row
+                        gap: 4
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "edit" }
+                          - Text: { content: "Editor", style: caption }
+                    - Box:
+                        layout: row
+                        gap: 4
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "check-circle" }
+                          - Text: { content: "Active", style: caption }
+                    - Box:
+                        padding: [6, 12]
+                        outline: thin
+                        children:
+                          - Text: { content: "...", style: body }
+                    - Cursor: { type: pointer, anchor: center, tooltip: "Hovering row" }
+              # Row 3
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 16
+                  align: center
+                  outline: thin
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "user" }
+                          - Text: { content: "Carol Davis", style: body }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "carol@acme.com", style: body }
+                    - Box:
+                        layout: row
+                        gap: 4
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "eye" }
+                          - Text: { content: "Viewer", style: caption }
+                    - Box:
+                        layout: row
+                        gap: 4
+                        align: center
+                        grow: 1
+                        children:
+                          - Icon: { name: "clock" }
+                          - Text: { content: "Pending", style: caption }
+                    - Box:
+                        padding: [6, 12]
+                        outline: thin
+                        children:
+                          - Text: { content: "...", style: body }
+
+  # Analytics page with charts
+  - Frame:
+      id: Analytics
+      size: [1200, 800]
+      layout: column
+      padding: 24
+      gap: 24
+      children:
+        # Header
+        - Box:
+            layout: row
+            align: center
+            children:
+              - Box:
+                  layout: row
+                  gap: 12
+                  align: center
+                  children:
+                    - Icon: { name: "bar-chart-2" }
+                    - Text: { content: "Analytics", style: h1 }
+              - Box: { grow: 1 }
+              - Box:
+                  layout: row
+                  gap: 8
+                  children:
+                    - Dropdown:
+                        label: "Last 30 days"
+                        options:
+                          - { label: "Last 7 days", icon: "calendar" }
+                          - { label: "Last 30 days", icon: "calendar" }
+                          - { label: "Last 90 days", icon: "calendar" }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        padding: [8, 16]
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "download" }
+                          - Text: { content: "Export", style: body }
+
+        # Charts grid
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              # Traffic chart
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "trending-up" }
+                          - Text: { content: "Traffic", style: h2 }
+                    - Chart:
+                        range: [0, 10]
+                        samples: 40
+                        width: 340
+                        height: 160
+                        lines:
+                          - { fn: sin, label: "Visitors", color: blue, noise: 0.2 }
+                          - { fn: cos, label: "Page Views", color: purple, noise: 0.15 }
+
+              # Conversions chart
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "target" }
+                          - Text: { content: "Conversions", style: h2 }
+                    - Chart:
+                        range: [0, 10]
+                        samples: 30
+                        width: 340
+                        height: 160
+                        lines:
+                          - { fn: linear, label: "Sign-ups", color: green, noise: 0.3 }
+                          - { fn: sqrt, label: "Purchases", color: orange, noise: 0.2 }
+
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              # Response times
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "clock" }
+                          - Text: { content: "Response Time (ms)", style: h2 }
+                    - Chart: { fn: sin, range: [0, 12], samples: 50, noise: 0.4, width: 340, height: 120 }
+
+              # Uptime
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "activity" }
+                          - Text: { content: "System Uptime", style: h2 }
+                    - Chart: { fn: binary, range: [0, 48], samples: 48, width: 340, height: 120 }
+
+              # Error rate scatter
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "alert-triangle" }
+                          - Text: { content: "Error Distribution", style: h2 }
+                    - Chart: { fn: random, range: [0, 10], samples: 30, scatter: true, width: 340, height: 120 }
+
+        # Bottom stats
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  grow: 1
+                  align: center
+                  children:
+                    - Icon: { name: "eye" }
+                    - Text: { content: "48.2k", style: h1 }
+                    - Text: { content: "Total Views", style: caption }
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  grow: 1
+                  align: center
+                  children:
+                    - Icon: { name: "mouse-pointer-click" }
+                    - Text: { content: "12.8%", style: h1 }
+                    - Text: { content: "Click Rate", style: caption }
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  grow: 1
+                  align: center
+                  children:
+                    - Icon: { name: "clock" }
+                    - Text: { content: "4m 32s", style: h1 }
+                    - Text: { content: "Avg. Session", style: caption }
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  grow: 1
+                  align: center
+                  children:
+                    - Icon: { name: "percent" }
+                    - Text: { content: "2.4%", style: h1 }
+                    - Text: { content: "Bounce Rate", style: caption }
+
+  # Fleet tracking page with maps
+  - Frame:
+      id: FleetTracking
+      size: [1200, 700]
+      layout: column
+      padding: 24
+      gap: 24
+      children:
+        # Header
+        - Box:
+            layout: row
+            align: center
+            children:
+              - Box:
+                  layout: row
+                  gap: 12
+                  align: center
+                  children:
+                    - Icon: { name: "truck" }
+                    - Text: { content: "Fleet Tracking", style: h1 }
+              - Box: { grow: 1 }
+              - Box:
+                  layout: row
+                  gap: 8
+                  children:
+                    - Dropdown:
+                        label: "All Vehicles"
+                        options:
+                          - { label: "All Vehicles", icon: "truck" }
+                          - { label: "Active Only", icon: "circle" }
+                          - { label: "Idle", icon: "pause" }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        padding: [8, 16]
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "refresh-cw" }
+                          - Text: { content: "Refresh", style: body }
+
+        # Main content
+        - Box:
+            layout: row
+            gap: 16
+            grow: 1
+            children:
+              # Map panel
+              - Box:
+                  layout: column
+                  gap: 12
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "map" }
+                          - Text: { content: "Live Map", style: h2 }
+                    - Map:
+                        width: 700
+                        height: 400
+                        trajectories:
+                          - fn: curved
+                            vehicle: 0.65
+                            markers:
+                              - { position: start, label: "Warehouse" }
+                              - { position: end, label: "Customer A" }
+                          - fn: linear
+                            vehicle: 0.30
+                            markers:
+                              - { position: start, label: "Depot" }
+                              - { position: end, label: "Customer B" }
+                          - fn: zigzag
+                            vehicle: 0.80
+                            markers:
+                              - { position: end, label: "Customer C" }
+
+              # Vehicle list panel
+              - Box:
+                  layout: column
+                  gap: 12
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Vehicles", style: h2 }
+                    # Vehicle 1 - blue route
+                    - Box:
+                        layout: row
+                        gap: 12
+                        padding: 12
+                        outline: thin
+                        align: center
+                        background: grey
+                        children:
+                          - Icon: { name: "truck" }
+                          - Box:
+                              layout: column
+                              gap: 2
+                              grow: 1
+                              children:
+                                - Text: { content: "Truck #42", style: body }
+                                - Text: { content: "En route - 65%", style: caption }
+                          - Icon: { name: "navigation" }
+                    # Vehicle 2 - green route
+                    - Box:
+                        layout: row
+                        gap: 12
+                        padding: 12
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "truck" }
+                          - Box:
+                              layout: column
+                              gap: 2
+                              grow: 1
+                              children:
+                                - Text: { content: "Truck #17", style: body }
+                                - Text: { content: "En route - 30%", style: caption }
+                          - Icon: { name: "navigation" }
+                    # Vehicle 3 - orange route
+                    - Box:
+                        layout: row
+                        gap: 12
+                        padding: 12
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "truck" }
+                          - Box:
+                              layout: column
+                              gap: 2
+                              grow: 1
+                              children:
+                                - Text: { content: "Truck #08", style: body }
+                                - Text: { content: "En route - 80%", style: caption }
+                          - Icon: { name: "navigation" }
+
+  # Map trajectory styles showcase
+  - Frame:
+      id: MapStyles
+      size: [1100, 500]
+      layout: column
+      padding: 24
+      gap: 24
+      children:
+        - Text: { content: "Map Trajectory Styles", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            wrap: true
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "loop", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectory: { fn: loop }
+                        vehicle: 0.25
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "linear", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectory: { fn: linear }
+                        vehicle: 0.5
+                        markers:
+                          - { position: start }
+                          - { position: end }
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "curved", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectory: { fn: curved }
+                        vehicle: 0.7
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "wander", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectory: { fn: wander }
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "zigzag", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectory: { fn: zigzag }
+                        vehicle: 0.6
+                        markers:
+                          - { position: start, label: "A" }
+                          - { position: end, label: "B" }
+
+  # Multi-trajectory map showcase
+  - Frame:
+      id: MultiTrajectory
+      size: [1000, 600]
+      layout: column
+      padding: 24
+      gap: 24
+      children:
+        - Text: { content: "Multi-Vehicle Tracking", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            children:
+              # Large map with multiple routes
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "Delivery Routes", style: h2 }
+                    - Map:
+                        width: 500
+                        height: 400
+                        trajectories:
+                          - fn: curved
+                            vehicle: 0.4
+                            markers:
+                              - { position: start, label: "Hub" }
+                              - { position: end, label: "Zone A" }
+                          - fn: loop
+                            vehicle: 0.7
+                            markers:
+                              - { position: start, label: "Depot" }
+                          - fn: linear
+                            vehicle: 0.2
+                            markers:
+                              - { position: start, label: "Port" }
+                              - { position: end, label: "Zone B" }
+                          - fn: wander
+                            vehicle: 0.55
+                            markers:
+                              - { position: end, label: "Zone C" }
+
+              # Route legend
+              - Box:
+                  layout: column
+                  gap: 16
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "Routes", style: h2 }
+                    - Box:
+                        layout: column
+                        gap: 12
+                        children:
+                          - Box:
+                              layout: row
+                              gap: 8
+                              align: center
+                              children:
+                                - Box:
+                                    padding: 4
+                                    outline: thick
+                                    children:
+                                      - Text: { content: "1", style: caption }
+                                - Text: { content: "Hub → Zone A", style: body }
+                                - Text: { content: "40%", style: caption }
+                          - Box:
+                              layout: row
+                              gap: 8
+                              align: center
+                              children:
+                                - Box:
+                                    padding: 4
+                                    outline: thick
+                                    children:
+                                      - Text: { content: "2", style: caption }
+                                - Text: { content: "Depot Loop", style: body }
+                                - Text: { content: "70%", style: caption }
+                          - Box:
+                              layout: row
+                              gap: 8
+                              align: center
+                              children:
+                                - Box:
+                                    padding: 4
+                                    outline: thick
+                                    children:
+                                      - Text: { content: "3", style: caption }
+                                - Text: { content: "Port → Zone B", style: body }
+                                - Text: { content: "20%", style: caption }
+                          - Box:
+                              layout: row
+                              gap: 8
+                              align: center
+                              children:
+                                - Box:
+                                    padding: 4
+                                    outline: thick
+                                    children:
+                                      - Text: { content: "4", style: caption }
+                                - Text: { content: "Roaming → Zone C", style: body }
+                                - Text: { content: "55%", style: caption }
+
+        # Smaller multi-trajectory examples
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "2 Routes", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectories:
+                          - fn: linear
+                            vehicle: 0.3
+                          - fn: curved
+                            vehicle: 0.8
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "3 Routes", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectories:
+                          - fn: loop
+                            vehicle: 0.5
+                          - fn: zigzag
+                            vehicle: 0.2
+                          - fn: linear
+                            vehicle: 0.9
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "Converging", style: caption }
+                    - Map:
+                        width: 200
+                        height: 150
+                        trajectories:
+                          - fn: linear
+                            vehicle: 0.6
+                            markers:
+                              - { position: end, label: "HQ" }
+                          - fn: curved
+                            vehicle: 0.4
+                          - fn: wander
+                            vehicle: 0.7

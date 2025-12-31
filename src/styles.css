@@ -1,0 +1,310 @@
+/* JetBrains Mono font */
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap");
+
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* shadcn-inspired palette - muted, neutral */
+  --background: hsl(0, 0%, 98%);
+  --foreground: hsl(0, 0%, 9%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --border: hsl(0, 0%, 80%);
+  --border-strong: hsl(0, 0%, 20%);
+}
+
+body {
+  font-family: "JetBrains Mono", monospace;
+  background: var(--background);
+  color: var(--foreground);
+  line-height: 1.5;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Frames container - vertical stack with spacing */
+.frames-container {
+  display: flex;
+  flex-direction: column;
+  gap: 64px;
+  padding: 64px;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* Frame - the screen/canvas */
+.frame {
+  background: white;
+  position: relative;
+  margin-top: 32px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+/* Frame label */
+.frame-label {
+  position: absolute;
+  top: -32px;
+  left: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  letter-spacing: -0.01em;
+}
+
+/* Box */
+.box {
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Outline variants */
+.outline-thin {
+  border: 1px solid var(--border);
+}
+
+.outline-dashed {
+  border: 1px dashed var(--border);
+}
+
+.outline-thick {
+  border: 1px solid var(--border-strong);
+}
+
+/* Background */
+.box {
+  background: white;
+}
+
+.background-grey {
+  background: hsl(0, 0%, 95%);
+}
+
+/* Shadow for floating elements (dropdowns, modals, dialogs) */
+.shadow {
+  box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.15);
+  z-index: 100;
+}
+
+/*
+ * Border collapse classes - applied by renderer
+ * when adjacent outlined elements should merge borders
+ */
+.collapse-top {
+  margin-top: -1px;
+}
+
+.collapse-left {
+  margin-left: -1px;
+}
+
+.collapse-bottom {
+  margin-bottom: -1px;
+}
+
+.collapse-right {
+  margin-right: -1px;
+}
+
+/* Text styles */
+.text {
+  display: inline;
+  letter-spacing: -0.011em;
+}
+
+.text-h1 {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+.text-h2 {
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.3;
+  letter-spacing: -0.017em;
+}
+
+.text-body {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.text-caption {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  line-height: 1.4;
+}
+
+.text-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  letter-spacing: 0;
+}
+
+/* Icons */
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Cursor indicator */
+.cursor {
+  position: absolute;
+  z-index: 200;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cursor-tooltip {
+  background: var(--foreground);
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  margin-bottom: 4px;
+  box-shadow: 0 2px 8px hsla(0, 0%, 0%, 0.2);
+}
+
+.cursor-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+}
+
+.cursor-icon::before {
+  content: '';
+  position: absolute;
+  inset: 2px;
+  background: white;
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.cursor-icon svg {
+  width: 24px;
+  height: 24px;
+  filter: drop-shadow(0 1px 2px hsla(0, 0%, 0%, 0.3));
+}
+
+/* Link indicator */
+.has-link {
+  cursor: pointer;
+  position: relative;
+}
+
+.has-link::after {
+  content: "→";
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 12px;
+  color: var(--muted-foreground);
+}
+
+/* Loading state */
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+/* Error state */
+.error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+}
+
+.error > div:first-child {
+  font-size: 14px;
+  font-weight: 500;
+  color: hsl(0, 60%, 40%);
+}
+
+.error pre {
+  background: hsl(0, 50%, 97%);
+  border: 1px solid hsl(0, 40%, 90%);
+  padding: 16px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  max-width: 600px;
+  overflow: auto;
+  color: hsl(0, 50%, 30%);
+}
+
+/* Component Gallery */
+.component-gallery {
+  gap: 48px;
+}
+
+.component-section {
+  background: white;
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.component-header {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.variants-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+}
+
+.variant-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 150px;
+}
+
+.variant-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+
+.variant-content {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}

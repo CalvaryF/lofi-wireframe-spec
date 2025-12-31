@@ -1,0 +1,855 @@
+# Icon Primitive Stress Test
+# Tests icons in various contexts and configurations
+
+frames:
+  # Test 1: Basic icon rendering
+  - Frame:
+      id: IconBasics
+      size: [800, 400]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Basic Icons", style: h1 }
+
+        # Row of standalone icons
+        - Box:
+            layout: row
+            gap: 16
+            align: center
+            children:
+              - Icon: { name: "home" }
+              - Icon: { name: "settings" }
+              - Icon: { name: "user" }
+              - Icon: { name: "search" }
+              - Icon: { name: "bell" }
+              - Icon: { name: "mail" }
+              - Icon: { name: "heart" }
+              - Icon: { name: "star" }
+
+        # Icons with labels
+        - Box:
+            layout: row
+            gap: 24
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  children:
+                    - Icon: { name: "folder" }
+                    - Text: { content: "Files", style: caption }
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  children:
+                    - Icon: { name: "image" }
+                    - Text: { content: "Photos", style: caption }
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  children:
+                    - Icon: { name: "music" }
+                    - Text: { content: "Music", style: caption }
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  children:
+                    - Icon: { name: "video" }
+                    - Text: { content: "Video", style: caption }
+
+  # Test 2: Icons in buttons and interactive elements
+  - Frame:
+      id: IconButtons
+      size: [900, 500]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Icon Buttons", style: h1 }
+
+        # Icon-only buttons
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Box:
+                  padding: 8
+                  outline: thin
+                  children:
+                    - Icon: { name: "plus" }
+              - Box:
+                  padding: 8
+                  outline: thin
+                  children:
+                    - Icon: { name: "minus" }
+              - Box:
+                  padding: 8
+                  outline: thin
+                  children:
+                    - Icon: { name: "x" }
+              - Box:
+                  padding: 8
+                  outline: thin
+                  children:
+                    - Icon: { name: "check" }
+              - Box:
+                  padding: 8
+                  outline: thick
+                  children:
+                    - Icon: { name: "trash-2" }
+              - Box:
+                  padding: 8
+                  outline: dashed
+                  children:
+                    - Icon: { name: "edit" }
+
+        # Icon + text buttons
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: thin
+                  align: center
+                  children:
+                    - Icon: { name: "download" }
+                    - Text: { content: "Download", style: body }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: thin
+                  align: center
+                  children:
+                    - Icon: { name: "upload" }
+                    - Text: { content: "Upload", style: body }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: thick
+                  align: center
+                  children:
+                    - Icon: { name: "save" }
+                    - Text: { content: "Save", style: body }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: dashed
+                  align: center
+                  children:
+                    - Icon: { name: "printer" }
+                    - Text: { content: "Print", style: caption }
+
+        # Text + icon (icon trailing)
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: thin
+                  align: center
+                  children:
+                    - Text: { content: "Next", style: body }
+                    - Icon: { name: "arrow-right" }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: thin
+                  align: center
+                  children:
+                    - Text: { content: "Expand", style: body }
+                    - Icon: { name: "chevron-down" }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: [8, 16]
+                  outline: thin
+                  align: center
+                  children:
+                    - Text: { content: "External", style: body }
+                    - Icon: { name: "external-link" }
+
+  # Test 3: Navigation with icons
+  - Frame:
+      id: IconNavigation
+      size: [300, 600]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: column
+            outline: thin
+            grow: 1
+            children:
+              # Header
+              - Box:
+                  layout: row
+                  padding: 16
+                  gap: 12
+                  align: center
+                  outline: thin
+                  children:
+                    - Icon: { name: "menu" }
+                    - Text: { content: "Navigation", style: h2 }
+
+              # Nav items
+              - Box:
+                  layout: column
+                  padding: 8
+                  gap: 4
+                  children:
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        background: grey
+                        children:
+                          - Icon: { name: "home" }
+                          - Text: { content: "Dashboard", style: body }
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "users" }
+                          - Text: { content: "Team", style: body }
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "folder" }
+                          - Text: { content: "Projects", style: body }
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "calendar" }
+                          - Text: { content: "Schedule", style: body }
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "file-text" }
+                          - Text: { content: "Documents", style: body }
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "bar-chart-2" }
+                          - Text: { content: "Analytics", style: body }
+
+              - Box: { grow: 1 }
+
+              # Footer
+              - Box:
+                  layout: column
+                  padding: 8
+                  gap: 4
+                  outline: thin
+                  children:
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "settings" }
+                          - Text: { content: "Settings", style: body }
+                    - Box:
+                        layout: row
+                        padding: 12
+                        gap: 12
+                        align: center
+                        children:
+                          - Icon: { name: "log-out" }
+                          - Text: { content: "Logout", style: body }
+
+  # Test 4: Icons in cards and list items
+  - Frame:
+      id: IconCards
+      size: [800, 600]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Cards with Icons", style: h1 }
+
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              # Card 1
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "zap" }
+                          - Text: { content: "Quick Actions", style: h2 }
+                    - Text: { content: "Perform common tasks with one click", style: caption }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        children:
+                          - Box:
+                              padding: 8
+                              outline: thin
+                              children:
+                                - Icon: { name: "copy" }
+                          - Box:
+                              padding: 8
+                              outline: thin
+                              children:
+                                - Icon: { name: "scissors" }
+                          - Box:
+                              padding: 8
+                              outline: thin
+                              children:
+                                - Icon: { name: "clipboard" }
+
+              # Card 2
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "shield" }
+                          - Text: { content: "Security", style: h2 }
+                    - Text: { content: "Your account is protected", style: caption }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "check-circle" }
+                          - Text: { content: "2FA Enabled", style: body }
+
+              # Card 3
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: "activity" }
+                          - Text: { content: "Status", style: h2 }
+                    - Box:
+                        layout: column
+                        gap: 4
+                        children:
+                          - Box:
+                              layout: row
+                              gap: 8
+                              align: center
+                              children:
+                                - Icon: { name: "circle" }
+                                - Text: { content: "Online", style: body }
+                          - Box:
+                              layout: row
+                              gap: 8
+                              align: center
+                              children:
+                                - Icon: { name: "wifi" }
+                                - Text: { content: "Connected", style: caption }
+
+        # List with icons
+        - Text: { content: "Recent Activity", style: h2 }
+        - Box:
+            layout: column
+            outline: thin
+            children:
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 12
+                  align: center
+                  outline: thin
+                  children:
+                    - Icon: { name: "file-plus" }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "New file created", style: body }
+                    - Text: { content: "2 min ago", style: caption }
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 12
+                  align: center
+                  outline: thin
+                  children:
+                    - Icon: { name: "user-plus" }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "Team member added", style: body }
+                    - Text: { content: "1 hour ago", style: caption }
+              - Box:
+                  layout: row
+                  padding: 12
+                  gap: 12
+                  align: center
+                  outline: thin
+                  children:
+                    - Icon: { name: "git-commit" }
+                    - Box:
+                        grow: 1
+                        children:
+                          - Text: { content: "Code committed", style: body }
+                    - Text: { content: "3 hours ago", style: caption }
+
+  # Test 5: Icon grid and variety
+  - Frame:
+      id: IconGrid
+      size: [600, 700]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Icon Variety", style: h1 }
+
+        - Text: { content: "Arrows & Chevrons", style: caption }
+        - Box:
+            layout: row
+            gap: 8
+            wrap: true
+            children:
+              - Icon: { name: "arrow-up" }
+              - Icon: { name: "arrow-down" }
+              - Icon: { name: "arrow-left" }
+              - Icon: { name: "arrow-right" }
+              - Icon: { name: "chevron-up" }
+              - Icon: { name: "chevron-down" }
+              - Icon: { name: "chevron-left" }
+              - Icon: { name: "chevron-right" }
+              - Icon: { name: "corner-up-left" }
+              - Icon: { name: "corner-up-right" }
+
+        - Text: { content: "Media Controls", style: caption }
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Icon: { name: "play" }
+              - Icon: { name: "pause" }
+              - Icon: { name: "skip-back" }
+              - Icon: { name: "skip-forward" }
+              - Icon: { name: "volume-2" }
+              - Icon: { name: "volume-x" }
+              - Icon: { name: "repeat" }
+              - Icon: { name: "shuffle" }
+
+        - Text: { content: "Communication", style: caption }
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Icon: { name: "message-circle" }
+              - Icon: { name: "message-square" }
+              - Icon: { name: "phone" }
+              - Icon: { name: "video" }
+              - Icon: { name: "at-sign" }
+              - Icon: { name: "send" }
+              - Icon: { name: "share-2" }
+
+        - Text: { content: "Files & Data", style: caption }
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Icon: { name: "file" }
+              - Icon: { name: "folder" }
+              - Icon: { name: "database" }
+              - Icon: { name: "hard-drive" }
+              - Icon: { name: "cloud" }
+              - Icon: { name: "archive" }
+              - Icon: { name: "package" }
+
+        - Text: { content: "UI Elements", style: caption }
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Icon: { name: "menu" }
+              - Icon: { name: "more-horizontal" }
+              - Icon: { name: "more-vertical" }
+              - Icon: { name: "grid" }
+              - Icon: { name: "list" }
+              - Icon: { name: "filter" }
+              - Icon: { name: "sliders" }
+              - Icon: { name: "maximize" }
+              - Icon: { name: "minimize" }
+
+        - Text: { content: "Status & Alerts", style: caption }
+        - Box:
+            layout: row
+            gap: 8
+            children:
+              - Icon: { name: "check" }
+              - Icon: { name: "x" }
+              - Icon: { name: "alert-circle" }
+              - Icon: { name: "alert-triangle" }
+              - Icon: { name: "info" }
+              - Icon: { name: "help-circle" }
+              - Icon: { name: "loader" }
+
+  # Test 6: Fallback for invalid icons
+  - Frame:
+      id: IconFallback
+      size: [500, 200]
+      layout: column
+      gap: 16
+      padding: 24
+      children:
+        - Text: { content: "Fallback Handling", style: h1 }
+        - Text: { content: "Invalid icon names fall back to circle:", style: caption }
+        - Box:
+            layout: row
+            gap: 16
+            align: center
+            children:
+              - Icon: { name: "this-icon-does-not-exist" }
+              - Icon: { name: "fake-icon" }
+              - Icon: { name: "not-real" }
+              - Text: { content: "(all show circle icon)", style: caption }
+
+  # Test 7: Dropdown with icons
+  - Frame:
+      id: IconDropdown
+      size: [400, 300]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Dropdown with Icons", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            children:
+              # With icons
+              - Dropdown:
+                  label: "Actions"
+                  variant: expanded
+                  options:
+                    - { label: "Edit", icon: "edit" }
+                    - { label: "Duplicate", icon: "copy" }
+                    - { label: "Download", icon: "download", variant: hover }
+                    - { label: "Delete", icon: "trash-2" }
+              # Without icons (optional)
+              - Dropdown:
+                  label: "Status"
+                  variant: expanded
+                  options:
+                    - { label: "Active" }
+                    - { label: "Pending", variant: selected }
+                    - { label: "Archived", variant: disabled }
+
+  # Test 8: Cursor types
+  - Frame:
+      id: CursorTypes
+      size: [800, 400]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Cursor Types", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            wrap: true
+            children:
+              # Pointer
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "pointer", style: caption }
+                    - Cursor: { type: pointer, anchor: center }
+              # Hand
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "hand", style: caption }
+                    - Cursor: { type: hand, anchor: center }
+              # Grab
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "grab", style: caption }
+                    - Cursor: { type: grab, anchor: center }
+              # Grabbing
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "grabbing", style: caption }
+                    - Cursor: { type: grabbing, anchor: center }
+              # Text
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "text", style: caption }
+                    - Cursor: { type: text, anchor: center }
+              # Crosshair
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "crosshair", style: caption }
+                    - Cursor: { type: crosshair, anchor: center }
+              # Move
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "move", style: caption }
+                    - Cursor: { type: move, anchor: center }
+              # Not-allowed
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "not-allowed", style: caption }
+                    - Cursor: { type: not-allowed, anchor: center }
+              # Click
+              - Box:
+                  layout: column
+                  gap: 4
+                  align: center
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "click", style: caption }
+                    - Cursor: { type: click, anchor: center }
+
+  # Test 9: Cursor anchoring and tooltips
+  - Frame:
+      id: CursorAnchoring
+      size: [700, 400]
+      layout: column
+      gap: 24
+      padding: 24
+      children:
+        - Text: { content: "Cursor Anchoring & Tooltips", style: h1 }
+
+        - Box:
+            layout: row
+            gap: 24
+            children:
+              # Anchor positions
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "Anchor positions", style: caption }
+                    - Box:
+                        padding: 32
+                        outline: thin
+                        children:
+                          - Box:
+                              padding: 24
+                              outline: dashed
+                              children:
+                                - Text: { content: "Target element", style: body }
+                                - Cursor: { type: pointer, anchor: top-left }
+                                - Cursor: { type: pointer, anchor: top-right }
+                                - Cursor: { type: pointer, anchor: center }
+                                - Cursor: { type: pointer, anchor: bottom-left }
+                                - Cursor: { type: pointer, anchor: bottom-right }
+
+              # With tooltips
+              - Box:
+                  layout: column
+                  gap: 8
+                  children:
+                    - Text: { content: "With tooltips", style: caption }
+                    - Box:
+                        layout: column
+                        gap: 8
+                        children:
+                          - Box:
+                              layout: row
+                              padding: [8, 16]
+                              gap: 8
+                              align: center
+                              outline: thin
+                              children:
+                                - Icon: { name: "save" }
+                                - Text: { content: "Save draft", style: body }
+                                - Cursor: { type: pointer, anchor: center, tooltip: "Click to save" }
+                          - Box:
+                              layout: row
+                              padding: [8, 16]
+                              gap: 8
+                              align: center
+                              outline: thin
+                              children:
+                                - Icon: { name: "trash-2" }
+                                - Text: { content: "Delete", style: body }
+                                - Cursor: { type: hand, anchor: center, tooltip: "Danger zone!" }
+                          - Box:
+                              layout: row
+                              padding: [8, 16]
+                              gap: 8
+                              align: center
+                              outline: dashed
+                              children:
+                                - Icon: { name: "lock" }
+                                - Text: { content: "Locked", style: caption }
+                                - Cursor: { type: not-allowed, anchor: center, tooltip: "Cannot edit" }
+
+  # Test 10: Icons in a toolbar
+  - Frame:
+      id: IconToolbar
+      size: [700, 150]
+      layout: column
+      gap: 16
+      padding: 24
+      children:
+        - Text: { content: "Editor Toolbar", style: h2 }
+        - Box:
+            layout: row
+            gap: 4
+            padding: 8
+            outline: thin
+            align: center
+            children:
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "bold" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "italic" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "underline" }
+              - Box:
+                  padding: 6
+                  outline: dashed
+                  children:
+                    - Icon: { name: "strikethrough" }
+              - Box: { grow: 0, padding: [0, 8] }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "align-left" }
+              - Box:
+                  padding: 6
+                  background: grey
+                  outline: thin
+                  children:
+                    - Icon: { name: "align-center" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "align-right" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "align-justify" }
+              - Box: { grow: 0, padding: [0, 8] }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "link" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "image" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "code" }
+              - Box: { grow: 1 }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "undo" }
+              - Box:
+                  padding: 6
+                  outline: thin
+                  children:
+                    - Icon: { name: "redo" }

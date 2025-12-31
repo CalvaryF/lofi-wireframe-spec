@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lofi Wireframe Renderer</title>
+    <style>
+      .toolbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: white;
+        border-bottom: 1px solid hsl(0, 0%, 80%);
+        padding: 12px 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+      }
+      .toolbar label {
+        color: hsl(0, 0%, 45%);
+      }
+      .toolbar select {
+        font-family: inherit;
+        font-size: 14px;
+        padding: 6px 12px;
+        border: 1px solid hsl(0, 0%, 80%);
+        background: white;
+        cursor: pointer;
+      }
+      .toolbar select:hover {
+        border-color: hsl(0, 0%, 60%);
+      }
+      #app {
+        padding-top: 60px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <label for="spec-select">Spec file:</label>
+      <select id="spec-select">
+        <option value="wireframe.yaml">wireframe.yaml</option>
+      </select>
+    </div>
+    <div id="app">
+      <div class="loading">Loading wireframes...</div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

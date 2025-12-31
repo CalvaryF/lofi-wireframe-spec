@@ -1,0 +1,200 @@
+# Example wireframe with multiple screens
+
+frames:
+  - Frame:
+      id: Home
+      size: [1200, 600]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: column
+            grow: 1
+            outline: thin
+            children:
+              - TopBar:
+                  title: "Dashboard"
+              - Box:
+                  layout: row
+                  grow: 1
+                  children:
+                    # Sidebar
+                    - Box:
+                        layout: column
+                        padding: 16
+                        gap: 4
+                        outline: thin
+                        children:
+                          - NavItem: { label: "Home", variant: active }
+                          - NavItem:
+                              label: "Assets"
+                              link: { target: AssetList }
+                          - NavItem: { label: "Alerts" }
+                          - NavItem: { label: "Settings" }
+                    # Main content
+                    - Box:
+                        layout: column
+                        padding: 24
+                        gap: 24
+                        grow: 1
+                        children:
+                          - Text: { content: "Welcome back", style: h2 }
+                          - Box:
+                              layout: row
+                              gap: 16
+                              children:
+                                - Card:
+                                    title: "12"
+                                    description: "Active Assets"
+                                - Card:
+                                    title: "3"
+                                    description: "Open Alerts"
+                                - Card:
+                                    title: "98%"
+                                    description: "Uptime"
+
+  - Frame:
+      id: AssetList
+      size: [1200, 700]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: column
+            grow: 1
+            outline: thin
+            children:
+              - TopBar:
+                  title: "Assets"
+              - Box:
+                  layout: column
+                  padding: 24
+                  gap: 16
+                  grow: 1
+                  children:
+                    # Filters row
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Text: { content: "Filters:", style: caption }
+                          - FilterChip: { label: "All", variant: selected }
+                          - FilterChip: { label: "Active" }
+                          - FilterChip: { label: "Warning" }
+                          - FilterChip: { label: "Failed" }
+                          - Box: { grow: 1 }
+                          - Button: { label: "New Asset", variant: primary }
+                    # Asset list
+                    - Box:
+                        layout: column
+                        gap: 8
+                        children:
+                          - AssetRow:
+                              name: "Battery Pack A"
+                              status: "ok"
+                              link: { target: AssetDetail }
+                          - AssetRow:
+                              name: "Battery Pack B"
+                              status: "warning"
+                              link: { target: AssetDetail }
+                          - AssetRow:
+                              name: "Battery Pack C"
+                              status: "failed"
+                              link: { target: AssetDetail }
+                          - AssetRow:
+                              name: "Solar Array 1"
+                              status: "ok"
+
+  - Frame:
+      id: AssetDetail
+      size: [1200, 600]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: column
+            grow: 1
+            outline: thin
+            children:
+              - Box:
+                  layout: row
+                  padding: 16
+                  gap: 16
+                  align: center
+                  outline: thin
+                  children:
+                    - Button: { label: "< Back" }
+                    - Text: { content: "Battery Pack A", style: h1 }
+                    - Box: { grow: 1 }
+                    - Button: { label: "Edit" }
+                    - Button: { label: "Delete", variant: disabled }
+              - Box:
+                  layout: row
+                  grow: 1
+                  children:
+                    # Main info
+                    - Box:
+                        layout: column
+                        padding: 24
+                        gap: 16
+                        grow: 1
+                        children:
+                          - Text: { content: "Details", style: h2 }
+                          - Box:
+                              layout: column
+                              gap: 8
+                              outline: thin
+                              padding: 16
+                              children:
+                                - Box:
+                                    layout: row
+                                    children:
+                                      - Text: { content: "Status:", style: body }
+                                      - Box: { grow: 1 }
+                                      - Text: { content: "Active", style: body }
+                                - Box:
+                                    layout: row
+                                    children:
+                                      - Text: { content: "Last Updated:", style: body }
+                                      - Box: { grow: 1 }
+                                      - Text: { content: "2 hours ago", style: body }
+                                - Box:
+                                    layout: row
+                                    children:
+                                      - Text: { content: "Location:", style: body }
+                                      - Box: { grow: 1 }
+                                      - Text: { content: "Building A", style: body }
+                    # Sidebar
+                    - Box:
+                        layout: column
+                        padding: 24
+                        gap: 16
+                        outline: thin
+                        children:
+                          - Text: { content: "Actions", style: h2 }
+                          - Button: { label: "Run Diagnostic" }
+                          - Button: { label: "View History" }
+                          - Button: { label: "Export Data" }
+
+  - Frame:
+      id: EmptyAssetList
+      size: [1200, 500]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: column
+            grow: 1
+            outline: thin
+            children:
+              - TopBar:
+                  title: "Assets"
+              - Box:
+                  grow: 1
+                  align: center
+                  justify: center
+                  children:
+                    - EmptyState:
+                        title: "No assets yet"
+                        action_label: "Create your first asset"

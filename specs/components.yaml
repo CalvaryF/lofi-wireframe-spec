@@ -1,0 +1,203 @@
+# Shared component definitions
+
+Button:
+  variants:
+    default:
+      - Box:
+          padding: [8, 16]
+          outline: thin
+          align: center
+          justify: center
+          children:
+            - Text: { content: "{{label}}", style: body }
+    disabled:
+      - Box:
+          padding: [8, 16]
+          outline: dashed
+          align: center
+          justify: center
+          children:
+            - Text: { content: "{{label}}", style: caption }
+    primary:
+      - Box:
+          padding: [8, 16]
+          outline: thick
+          align: center
+          justify: center
+          children:
+            - Text: { content: "{{label}}", style: body }
+
+AssetRow:
+  variants:
+    default:
+      - Box:
+          layout: row
+          padding: 12
+          gap: 16
+          outline: thin
+          align: center
+          children:
+            - Box:
+                grow: 1
+                children:
+                  - Text: { content: "{{name}}", style: body }
+            - Text: { content: "{{status}}", style: caption }
+
+EmptyState:
+  variants:
+    default:
+      - Box:
+          layout: column
+          padding: 48
+          gap: 16
+          align: center
+          justify: center
+          outline: dashed
+          children:
+            - Text: { content: "{{title}}", style: h2, align: center }
+            - Button: { label: "{{action_label}}" }
+
+TopBar:
+  variants:
+    default:
+      - Box:
+          layout: row
+          padding: 16
+          gap: 16
+          align: center
+          outline: thin
+          children:
+            - Text: { content: "{{title}}", style: h1 }
+            - Box: { grow: 1 }
+
+Card:
+  variants:
+    default:
+      - Box:
+          layout: column
+          padding: 16
+          gap: 8
+          outline: thin
+          children:
+            - Text: { content: "{{title}}", style: h2 }
+            - Text: { content: "{{description}}", style: body }
+
+FilterChip:
+  variants:
+    default:
+      - Box:
+          padding: [4, 12]
+          outline: thin
+          children:
+            - Text: { content: "{{label}}", style: caption }
+    selected:
+      - Box:
+          padding: [4, 12]
+          outline: thick
+          children:
+            - Text: { content: "{{label}}", style: caption }
+
+NavItem:
+  variants:
+    default:
+      - Box:
+          layout: row
+          padding: 12
+          gap: 8
+          align: center
+          children:
+            - Text: { content: "[icon]", style: caption }
+            - Text: { content: "{{label}}", style: body }
+    active:
+      - Box:
+          layout: row
+          padding: 12
+          gap: 8
+          align: center
+          outline: thin
+          children:
+            - Text: { content: "[icon]", style: caption }
+            - Text: { content: "{{label}}", style: body }
+
+DropdownItem:
+  variants:
+    default:
+      - Box:
+          layout: row
+          padding: [8, 16]
+          gap: 8
+          align: center
+          children:
+            - Icon: { name: "{{icon}}" }
+            - Text: { content: "{{label}}", style: body }
+    hover:
+      - Box:
+          layout: row
+          padding: [8, 16]
+          gap: 8
+          align: center
+          background: grey
+          children:
+            - Icon: { name: "{{icon}}" }
+            - Text: { content: "{{label}}", style: body }
+    selected:
+      - Box:
+          layout: row
+          padding: [8, 16]
+          gap: 8
+          align: center
+          outline: thick
+          children:
+            - Icon: { name: "{{icon}}" }
+            - Text: { content: "{{label}}", style: body }
+    disabled:
+      - Box:
+          layout: row
+          padding: [8, 16]
+          gap: 8
+          align: center
+          children:
+            - Icon: { name: "{{icon}}" }
+            - Text: { content: "{{label}}", style: caption }
+
+DropdownTrigger:
+  variants:
+    default:
+      - Box:
+          layout: row
+          padding: [8, 16]
+          gap: 8
+          align: center
+          outline: thin
+          children:
+            - Text: { content: "{{label}}", style: body }
+            - Text: { content: "[v]", style: caption }
+    open:
+      - Box:
+          layout: row
+          padding: [8, 16]
+          gap: 8
+          align: center
+          outline: thick
+          children:
+            - Text: { content: "{{label}}", style: body }
+            - Text: { content: "[^]", style: caption }
+
+Dropdown:
+  variants:
+    collapsed:
+      - DropdownTrigger: { label: "{{label}}" }
+    expanded:
+      - Box:
+          layout: column
+          children:
+            - DropdownTrigger: { label: "{{label}}", variant: open }
+            - Box:
+                layout: column
+                outline: thick
+                shadow: true
+                position: { x: 0, y: 39 }
+                children:
+                  $each: options
+                  $template:
+                    - DropdownItem: { label: "{{item.label}}", icon: "{{item.icon}}", variant: "{{item.variant}}" }

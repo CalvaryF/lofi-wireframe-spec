@@ -1,0 +1,348 @@
+# Border collapse stress test
+# Testing various nesting and edge cases
+
+frames:
+  # Test 1: Simple sibling collapse in column layout
+  - Frame:
+      id: "Test 1: Column siblings"
+      size: [600, 300]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text: { content: "Box A", style: body }
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text:
+                  { content: "Box B (should collapse top with A)", style: body }
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text:
+                  { content: "Box C (should collapse top with B)", style: body }
+
+  # Test 2: Simple sibling collapse in row layout
+  - Frame:
+      id: "Test 2: Row siblings"
+      size: [600, 150]
+      layout: row
+      children:
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text: { content: "A", style: body }
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text: { content: "B", style: body }
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text: { content: "C", style: body }
+
+  # Test 3: Parent-child collapse - child touches all edges
+  - Frame:
+      id: "Test 3: Parent-child all edges"
+      size: [600, 200]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  grow: 1
+                  padding: 16
+                  children:
+                    - Text:
+                        {
+                          content: "Inner box should collapse all edges with outer",
+                          style: body,
+                        }
+
+  # Test 4: Parent with padding - no collapse
+  - Frame:
+      id: "Test 4: Parent padding blocks collapse"
+      size: [600, 200]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            padding: 16
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  grow: 1
+                  padding: 16
+                  children:
+                    - Text:
+                        {
+                          content: "Should NOT collapse (parent has padding)",
+                          style: body,
+                        }
+
+  # Test 5: Nested non-outlined wrappers
+  - Frame:
+      id: "Test 5: Non-outlined wrappers"
+      size: [600, 200]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  grow: 1
+                  children:
+                    - Box:
+                        grow: 1
+                        children:
+                          - Box:
+                              outline: thin
+                              grow: 1
+                              padding: 16
+                              children:
+                                - Text:
+                                    {
+                                      content: "Deep nested - should still collapse",
+                                      style: body,
+                                    }
+
+  # Test 6: Row inside column - header + sidebar pattern
+  - Frame:
+      id: "Test 6: Header + Row with sidebar"
+      size: [800, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Header", style: h2 }
+              - Box:
+                  layout: row
+                  grow: 1
+                  children:
+                    - Box:
+                        outline: thin
+                        padding: 16
+                        children:
+                          - Text:
+                              {
+                                content: "Sidebar (left+top+bottom should collapse)",
+                                style: body,
+                              }
+                    - Box:
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text:
+                              {
+                                content: "Main content (no outline)",
+                                style: body,
+                              }
+
+  # Test 7: Sidebar on right
+  - Frame:
+      id: "Test 7: Header + Row with right sidebar"
+      size: [800, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Header", style: h2 }
+              - Box:
+                  layout: row
+                  grow: 1
+                  children:
+                    - Box:
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text:
+                              {
+                                content: "Main content (no outline)",
+                                style: body,
+                              }
+                    - Box:
+                        outline: thin
+                        padding: 16
+                        children:
+                          - Text:
+                              {
+                                content: "Sidebar (right+top+bottom should collapse)",
+                                style: body,
+                              }
+
+  # Test 8: Both sidebars
+  - Frame:
+      id: "Test 8: Both sidebars"
+      size: [900, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Header", style: h2 }
+              - Box:
+                  layout: row
+                  grow: 1
+                  children:
+                    - Box:
+                        outline: thin
+                        padding: 16
+                        children:
+                          - Text: { content: "Left", style: body }
+                    - Box:
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text: { content: "Main", style: body }
+                    - Box:
+                        outline: thin
+                        padding: 16
+                        children:
+                          - Text: { content: "Right", style: body }
+
+  # Test 9: Gap prevents collapse
+  - Frame:
+      id: "Test 9: Gap prevents collapse"
+      size: [600, 200]
+      layout: column
+      gap: 8
+      children:
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text: { content: "Box A", style: body }
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text:
+                  { content: "Box B (should NOT collapse - gap)", style: body }
+
+  # Test 10: Mixed outlined/non-outlined siblings
+  - Frame:
+      id: "Test 10: Mixed siblings"
+      size: [600, 300]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text: { content: "Outlined A", style: body }
+        - Box:
+            padding: 16
+            children:
+              - Text: { content: "No outline", style: body }
+        - Box:
+            outline: thin
+            padding: 16
+            children:
+              - Text:
+                  {
+                    content: "Outlined B (should NOT collapse - gap from non-outlined)",
+                    style: body,
+                  }
+
+  # Test 11: Grid-like layout (all should collapse)
+  - Frame:
+      id: "Test 11: Grid layout"
+      size: [600, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  layout: row
+                  children:
+                    - Box:
+                        outline: thin
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text: { content: "1", style: h2 }
+                    - Box:
+                        outline: thin
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text: { content: "2", style: h2 }
+              - Box:
+                  layout: row
+                  children:
+                    - Box:
+                        outline: thin
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text: { content: "3", style: h2 }
+                    - Box:
+                        outline: thin
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text: { content: "4", style: h2 }
+
+  # Test 12: Triple nesting with alternating outlines
+  - Frame:
+      id: "Test 12: Alternating outlines"
+      size: [600, 300]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  grow: 1
+                  padding: 8
+                  children:
+                    - Box:
+                        outline: thin
+                        grow: 1
+                        children:
+                          - Box:
+                              grow: 1
+                              padding: 8
+                              children:
+                                - Box:
+                                    outline: thin
+                                    grow: 1
+                                    padding: 16
+                                    children:
+                                      - Text:
+                                          {
+                                            content: "Deepest (outer has padding, shouldn't collapse)",
+                                            style: body,
+                                          }

@@ -189,6 +189,7 @@ export function computeChildContext(
   parentGap: number | undefined,
   parentPadding: Padding | undefined,
   parentHasOutline: boolean,
+  parentHasGrow: boolean,
   prevChild: ResolvedNode | null,
   parentContext: RenderContext
 ): RenderContext {
@@ -226,8 +227,9 @@ export function computeChildContext(
       if (isFirst && pad.top === 0 && hasLeadingOutline(child, 'top')) {
         collapseTop = true
       }
-      // Last child only touches bottom if it grows to fill the space
-      if (isLast && hasGrow(child) && pad.bottom === 0 && hasTrailingOutline(child, 'bottom')) {
+      // Last child touches bottom if: parent is content-sized OR child grows to fill space
+      const childTouchesBottom = !parentHasGrow || hasGrow(child)
+      if (isLast && childTouchesBottom && pad.bottom === 0 && hasTrailingOutline(child, 'bottom')) {
         collapseBottom = true
       }
       if (pad.left === 0 && hasLeadingOutline(child, 'left')) {
@@ -242,8 +244,9 @@ export function computeChildContext(
       if (isFirst && pad.left === 0 && hasLeadingOutline(child, 'left')) {
         collapseLeft = true
       }
-      // Last child only touches right if it grows to fill the space
-      if (isLast && hasGrow(child) && pad.right === 0 && hasTrailingOutline(child, 'right')) {
+      // Last child touches right if: parent is content-sized OR child grows to fill space
+      const childTouchesRight = !parentHasGrow || hasGrow(child)
+      if (isLast && childTouchesRight && pad.right === 0 && hasTrailingOutline(child, 'right')) {
         collapseRight = true
       }
       if (pad.top === 0 && hasLeadingOutline(child, 'top')) {
@@ -258,12 +261,15 @@ export function computeChildContext(
   // --- Inherit collapse from parent context (for nested non-outlined containers) ---
   // If parent doesn't have outline but is passing down collapse context
   if (!parentHasOutline) {
+    // Last child touches trailing edge if: parent is content-sized OR child grows
+    const childTouchesTrailing = !parentHasGrow || hasGrow(child)
+
     if (isColumn) {
       if (isFirst && pad.top === 0 && parentContext.collapseTop) {
         collapseTop = true
       }
-      // Only inherit bottom collapse if child grows to reach the edge
-      if (isLast && hasGrow(child) && pad.bottom === 0 && parentContext.collapseBottom) {
+      // Only inherit bottom collapse if child reaches the edge
+      if (isLast && childTouchesTrailing && pad.bottom === 0 && parentContext.collapseBottom) {
         collapseBottom = true
       }
       if (pad.left === 0 && parentContext.collapseLeft) {
@@ -276,8 +282,8 @@ export function computeChildContext(
       if (isFirst && pad.left === 0 && parentContext.collapseLeft) {
         collapseLeft = true
       }
-      // Only inherit right collapse if child grows to reach the edge
-      if (isLast && hasGrow(child) && pad.right === 0 && parentContext.collapseRight) {
+      // Only inherit right collapse if child reaches the edge
+      if (isLast && childTouchesTrailing && pad.right === 0 && parentContext.collapseRight) {
         collapseRight = true
       }
       if (pad.top === 0 && parentContext.collapseTop) {
@@ -368,6 +374,7 @@ function renderChildren(
   parentGap: number | undefined,
   parentPadding: Padding | undefined,
   parentHasOutline: boolean,
+  parentHasGrow: boolean,
   parentContext: RenderContext,
   el: HTMLElement
 ): void {
@@ -378,7 +385,7 @@ function renderChildren(
     const ctx = computeChildContext(
       child, i, children.length,
       parentLayout, parentGap, parentPadding,
-      parentHasOutline, prevChild, parentContext
+      parentHasOutline, parentHasGrow, prevChild, parentContext
     )
     el.appendChild(renderNode(child, ctx))
     prevChild = child
@@ -515,12 +522,14 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
     }
 
     // Render children, passing down context for non-outlined containers
+    const nodeHasGrow = !!node.props.grow
     renderChildren(
       node.children,
       node.props.layout,
       node.props.gap,
       node.props.padding,
       nodeHasOutline,
+      nodeHasGrow,
       nodeHasOutline ? defaultContext : ctx, // if we have outline, don't inherit; otherwise pass through
       el
     )

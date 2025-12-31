@@ -346,3 +346,285 @@ frames:
                                             content: "Deepest (outer has padding, shouldn't collapse)",
                                             style: body,
                                           }
+
+  # Test 13: Grow vertical - all children grow
+  - Frame:
+      id: "Test 13: All children grow"
+      size: [600, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  grow: 1
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 1 (grow)", style: body }
+              - Box:
+                  outline: thin
+                  grow: 1
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 2 (grow)", style: body }
+              - Box:
+                  outline: thin
+                  grow: 1
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 3 (grow) - bottom should collapse", style: body }
+
+  # Test 14: Grow vertical - only last child grows
+  - Frame:
+      id: "Test 14: Only last child grows"
+      size: [600, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 1 (no grow)", style: body }
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 2 (no grow)", style: body }
+              - Box:
+                  outline: thin
+                  grow: 1
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 3 (grow) - bottom should collapse", style: body }
+
+  # Test 15: Grow vertical - no children grow
+  - Frame:
+      id: "Test 15: No children grow"
+      size: [600, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 1 (no grow)", style: body }
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 2 (no grow)", style: body }
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Row 3 (no grow) - bottom should NOT collapse", style: body }
+
+  # Test 16: Mixed grow in nested structure
+  - Frame:
+      id: "Test 16: Nested grow"
+      size: [600, 400]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Header (no grow)", style: h2 }
+              - Box:
+                  grow: 1
+                  layout: row
+                  children:
+                    - Box:
+                        outline: thin
+                        padding: 16
+                        children:
+                          - Text: { content: "Sidebar", style: body }
+                    - Box:
+                        outline: thin
+                        grow: 1
+                        padding: 16
+                        children:
+                          - Text: { content: "Main (grow)", style: body }
+
+  # Test 17: Table-like rows without grow
+  - Frame:
+      id: "Test 17: Table rows no grow"
+      size: [600, 300]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              # Header row
+              - Box:
+                  layout: row
+                  outline: thin
+                  children:
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Name", style: caption }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Status", style: caption }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Actions", style: caption }
+              # Data rows
+              - Box:
+                  layout: row
+                  children:
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Item 1", style: body }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Active", style: body }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Edit", style: body }
+              - Box:
+                  layout: row
+                  children:
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Item 2", style: body }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Pending", style: body }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Edit", style: body }
+
+  # Test 18: Single row in growing container
+  - Frame:
+      id: "Test 18: Single row in grow container"
+      size: [600, 300]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              - Box:
+                  layout: row
+                  outline: thin
+                  children:
+                    - Box:
+                        grow: 1
+                        padding: 16
+                        outline: thin
+                        children:
+                          - Text: { content: "Cell A", style: body }
+                    - Box:
+                        grow: 1
+                        padding: 16
+                        outline: thin
+                        children:
+                          - Text: { content: "Cell B", style: body }
+
+  # Test 19: Content-sized table (parent has no grow)
+  # Last row should collapse bottom even without grow on child
+  - Frame:
+      id: "Test 19: Content-sized table"
+      size: [600, 300]
+      layout: column
+      children:
+        - Box:
+            outline: thin
+            grow: 1
+            children:
+              # Table container - NO grow, so it's content-sized
+              - Box:
+                  layout: column
+                  outline: thin
+                  children:
+                    - Box:
+                        layout: row
+                        outline: thin
+                        children:
+                          - Box:
+                              grow: 1
+                              padding: 12
+                              outline: thin
+                              children:
+                                - Text: { content: "Name", style: caption }
+                          - Box:
+                              grow: 1
+                              padding: 12
+                              outline: thin
+                              children:
+                                - Text: { content: "Status", style: caption }
+                    - Box:
+                        layout: row
+                        outline: thin
+                        children:
+                          - Box:
+                              grow: 1
+                              padding: 12
+                              outline: thin
+                              children:
+                                - Text: { content: "Item 1", style: body }
+                          - Box:
+                              grow: 1
+                              padding: 12
+                              outline: thin
+                              children:
+                                - Text: { content: "Active", style: body }
+                    - Box:
+                        layout: row
+                        outline: thin
+                        children:
+                          - Box:
+                              grow: 1
+                              padding: 12
+                              outline: thin
+                              children:
+                                - Text: { content: "Item 2 (last row - should collapse bottom)", style: body }
+                          - Box:
+                              grow: 1
+                              padding: 12
+                              outline: thin
+                              children:
+                                - Text: { content: "Pending", style: body }

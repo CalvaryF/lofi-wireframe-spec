@@ -9,15 +9,15 @@ import {
   hasTrailingOutline,
   computeChildContext
 } from './render'
-import type { ResolvedNode } from './types'
+import type { ResolvedNode, BoxNode } from './types'
 
 // Helper to create a box node
-function box(props: Partial<ResolvedNode & { type: 'box' }['props']> = {}, children: ResolvedNode[] = []): ResolvedNode {
+function box(props: Partial<BoxNode['Box']> = {}, children: ResolvedNode[] = []): ResolvedNode {
   return {
     type: 'box',
     props: { ...props },
     children
-  }
+  } as ResolvedNode
 }
 
 // Helper to create a text node
@@ -25,7 +25,7 @@ function text(content: string): ResolvedNode {
   return {
     type: 'text',
     props: { content }
-  }
+  } as ResolvedNode
 }
 
 describe('getPadding', () => {
@@ -138,6 +138,7 @@ describe('computeChildContext - sibling collapse', () => {
       0, // no gap
       undefined, // no padding
       false, // parent has no outline
+      true, // parent has grow
       prevChild,
       defaultContext
     )
@@ -157,6 +158,7 @@ describe('computeChildContext - sibling collapse', () => {
       0,
       undefined,
       false,
+      true,
       prevChild,
       defaultContext
     )
@@ -176,6 +178,7 @@ describe('computeChildContext - sibling collapse', () => {
       8, // gap prevents collapse
       undefined,
       false,
+      true,
       prevChild,
       defaultContext
     )
@@ -195,6 +198,7 @@ describe('computeChildContext - sibling collapse', () => {
       0,
       undefined,
       false,
+      true,
       prevChild,
       defaultContext
     )
@@ -203,7 +207,7 @@ describe('computeChildContext - sibling collapse', () => {
   })
 })
 
-describe('computeChildContext - parent-child collapse', () => {
+describe('computeChildContext - parent-child collapse (growing parent)', () => {
   it('first child collapses top with outlined parent in column layout', () => {
     const child = box({ outline: 'thin' })
 
@@ -215,6 +219,7 @@ describe('computeChildContext - parent-child collapse', () => {
       0,
       undefined, // no padding
       true, // parent has outline
+      true, // parent has grow
       null,
       defaultContext
     )
@@ -233,6 +238,7 @@ describe('computeChildContext - parent-child collapse', () => {
       0,
       undefined,
       true,
+      true, // parent has grow
       box({}),
       defaultContext
     )
@@ -240,7 +246,7 @@ describe('computeChildContext - parent-child collapse', () => {
     expect(ctx.collapseBottom).toBe(true)
   })
 
-  it('last child WITHOUT grow does NOT collapse bottom', () => {
+  it('last child WITHOUT grow does NOT collapse bottom when parent has grow', () => {
     const child = box({ outline: 'thin' }) // no grow
 
     const ctx = computeChildContext(
@@ -251,6 +257,7 @@ describe('computeChildContext - parent-child collapse', () => {
       0,
       undefined,
       true,
+      true, // parent has grow
       box({}),
       defaultContext
     )
@@ -268,6 +275,7 @@ describe('computeChildContext - parent-child collapse', () => {
       'column',
       0,
       undefined,
+      true,
       true,
       box({}),
       defaultContext
@@ -288,12 +296,53 @@ describe('computeChildContext - parent-child collapse', () => {
       0,
       16, // parent has padding
       true,
+      true,
       null,
       defaultContext
     )
 
     expect(ctx.collapseTop).toBe(false)
     expect(ctx.collapseLeft).toBe(false)
+  })
+})
+
+describe('computeChildContext - parent-child collapse (content-sized parent)', () => {
+  it('last child WITHOUT grow collapses bottom when parent is content-sized', () => {
+    const child = box({ outline: 'thin' }) // no grow
+
+    const ctx = computeChildContext(
+      child,
+      1,
+      2,
+      'column',
+      0,
+      undefined,
+      true, // parent has outline
+      false, // parent has NO grow (content-sized)
+      box({}),
+      defaultContext
+    )
+
+    expect(ctx.collapseBottom).toBe(true)
+  })
+
+  it('last child WITHOUT grow collapses right when parent is content-sized (row)', () => {
+    const child = box({ outline: 'thin' }) // no grow
+
+    const ctx = computeChildContext(
+      child,
+      1,
+      2,
+      'row',
+      0,
+      undefined,
+      true, // parent has outline
+      false, // parent has NO grow (content-sized)
+      box({}),
+      defaultContext
+    )
+
+    expect(ctx.collapseRight).toBe(true)
   })
 })
 
@@ -315,6 +364,7 @@ describe('computeChildContext - inherited collapse', () => {
       0,
       undefined,
       false, // parent has NO outline - passes through context
+      true,
       null,
       parentCtx
     )
@@ -323,7 +373,7 @@ describe('computeChildContext - inherited collapse', () => {
     expect(ctx.collapseLeft).toBe(true)
   })
 
-  it('does NOT inherit bottom collapse without grow', () => {
+  it('does NOT inherit bottom collapse without grow when parent has grow', () => {
     const child = box({ outline: 'thin' }) // no grow
     const parentCtx: RenderContext = {
       collapseTop: false,
@@ -340,6 +390,7 @@ describe('computeChildContext - inherited collapse', () => {
       0,
       undefined,
       false,
+      true, // parent has grow
       null,
       parentCtx
     )
@@ -347,7 +398,7 @@ describe('computeChildContext - inherited collapse', () => {
     expect(ctx.collapseBottom).toBe(false)
   })
 
-  it('inherits bottom collapse WITH grow', () => {
+  it('inherits bottom collapse WITH grow when parent has grow', () => {
     const child = box({ outline: 'thin', grow: 1 })
     const parentCtx: RenderContext = {
       collapseTop: false,
@@ -364,6 +415,32 @@ describe('computeChildContext - inherited collapse', () => {
       0,
       undefined,
       false,
+      true, // parent has grow
+      null,
+      parentCtx
+    )
+
+    expect(ctx.collapseBottom).toBe(true)
+  })
+
+  it('inherits bottom collapse without grow when parent is content-sized', () => {
+    const child = box({ outline: 'thin' }) // no grow
+    const parentCtx: RenderContext = {
+      collapseTop: false,
+      collapseLeft: false,
+      collapseBottom: true,
+      collapseRight: false
+    }
+
+    const ctx = computeChildContext(
+      child,
+      0, // only child (first and last)
+      1,
+      'column',
+      0,
+      undefined,
+      false,
+      false, // parent has NO grow (content-sized)
       null,
       parentCtx
     )
@@ -384,6 +461,7 @@ describe('computeChildContext - row layout specifics', () => {
       0,
       undefined,
       true,
+      true,
       null,
       defaultContext
     )
@@ -402,6 +480,7 @@ describe('computeChildContext - row layout specifics', () => {
       0,
       undefined,
       true,
+      true, // parent has grow
       box({}),
       defaultContext
     )
@@ -409,7 +488,7 @@ describe('computeChildContext - row layout specifics', () => {
     expect(ctx.collapseRight).toBe(true)
   })
 
-  it('last child WITHOUT grow does NOT collapse right', () => {
+  it('last child WITHOUT grow does NOT collapse right when parent has grow', () => {
     const child = box({ outline: 'thin' })
 
     const ctx = computeChildContext(
@@ -420,6 +499,7 @@ describe('computeChildContext - row layout specifics', () => {
       0,
       undefined,
       true,
+      true, // parent has grow
       box({}),
       defaultContext
     )
@@ -437,6 +517,7 @@ describe('computeChildContext - row layout specifics', () => {
       'row',
       0,
       undefined,
+      true,
       true,
       box({}),
       defaultContext

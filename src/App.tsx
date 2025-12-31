@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { parseComponents, parseWireframe, resolveFrames } from './parser'
-import { render, renderComponentGallery } from './render'
 import { useAnnotationNavigation } from './hooks/useAnnotationNavigation'
+import { FramesContainer } from './components/FramesContainer'
+import { ComponentGallery } from './components/gallery/ComponentGallery'
+import type { ResolvedNode } from './types'
+
+type GalleryComponents = Record<string, { variants: Record<string, unknown[]> }>
 
 // Dynamically get all yaml files from specs folder
 const specModules = import.meta.glob('/specs/*.yaml', { query: '?raw', import: 'default' })
@@ -28,6 +32,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null)
   const [navTitle, setNavTitle] = useState('Frames')
   const [showAnnotations, setShowAnnotations] = useState(true)
+  const [frames, setFrames] = useState<ResolvedNode[]>([])
+  const [isComponentGallery, setIsComponentGallery] = useState(false)
+  const [galleryComponents, setGalleryComponents] = useState<GalleryComponents | null>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const lastComponentsRef = useRef('')
   const lastWireframeRef = useRef('')
@@ -42,8 +49,6 @@ export default function App() {
   } = useAnnotationNavigation()
 
   const loadAndRender = useCallback(async () => {
-    if (!containerRef.current) return
-
     try {
       setError(null)
       setCursor(null)
@@ -61,16 +66,10 @@ export default function App() {
         lastComponentsRef.current = componentsYaml
         lastWireframeRef.current = componentsYaml
 
-        renderComponentGallery(components, containerRef.current)
+        setIsComponentGallery(true)
+        setFrames([])
+        setGalleryComponents(components)
         setNavTitle('Components')
-
-        // Get component sections for nav
-        const elements = containerRef.current.querySelectorAll('.component-section[data-component-id]')
-        const items = Array.from(elements).map(el => ({
-          id: (el as HTMLElement).dataset.componentId || '',
-          element: el
-        }))
-        setNavItems(items)
         setActiveIndex(0)
       } else {
         // Load and render wireframe
@@ -85,18 +84,11 @@ export default function App() {
         lastWireframeRef.current = wireframeYaml
 
         const wireframe = parseWireframe(wireframeYaml)
-        const frames = resolveFrames(wireframe, components)
+        const resolvedFrames = resolveFrames(wireframe, components)
 
-        render(frames, containerRef.current)
+        setIsComponentGallery(false)
+        setFrames(resolvedFrames)
         setNavTitle('Frames')
-
-        // Get frames for nav
-        const elements = containerRef.current.querySelectorAll('.frame-container[data-frame-id]')
-        const items = Array.from(elements).map(el => ({
-          id: (el as HTMLElement).dataset.frameId || '',
-          element: el
-        }))
-        setNavItems(items)
         setActiveIndex(0)
       }
     } catch (err) {
@@ -215,56 +207,17 @@ export default function App() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection])
 
-  // Handle annotation selection - highlight and scroll
+  // Handle annotation selection scroll (React components handle highlighting)
   useEffect(() => {
-    if (!containerRef.current) return
-
-    // Clear all previous highlights
-    containerRef.current.querySelectorAll('.annotation-item.keyboard-selected').forEach(el => {
-      el.classList.remove('keyboard-selected')
-    })
-    containerRef.current.querySelectorAll('.annotation-marker.highlighted').forEach(el => {
-      el.classList.remove('highlighted')
-    })
-    containerRef.current.querySelectorAll('.annotation-line').forEach(svg => {
-      svg.innerHTML = ''
-    })
-
-    if (selectedAnnotation === null) return
+    if (!containerRef.current || selectedAnnotation === null) return
 
     const allAnnotations = containerRef.current.querySelectorAll('.annotation-item[data-annotation]')
     const selectedItem = allAnnotations[selectedAnnotation] as HTMLElement
     if (!selectedItem) return
 
-    // Add keyboard-selected class to panel item
-    selectedItem.classList.add('keyboard-selected')
-
     // Find the frame container for this annotation
     const frameContainer = selectedItem.closest('.frame-container') as HTMLElement
     if (!frameContainer) return
-
-    // Highlight the corresponding marker
-    const annotationNum = selectedItem.dataset.annotation
-    const marker = frameContainer.querySelector(`.annotation-marker[data-annotation="${annotationNum}"]`) as HTMLElement
-    if (marker) {
-      marker.classList.add('highlighted')
-
-      // Draw connecting line
-      const lineSvg = frameContainer.querySelector('.annotation-line') as SVGSVGElement
-      const numberEl = selectedItem.querySelector('.annotation-number') as HTMLElement
-      if (lineSvg && numberEl) {
-        const numberRect = numberEl.getBoundingClientRect()
-        const markerRect = marker.getBoundingClientRect()
-        const containerRect = frameContainer.getBoundingClientRect()
-
-        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
-        line.setAttribute('x1', String(markerRect.right - containerRect.left))
-        line.setAttribute('y1', String(markerRect.top - containerRect.top + 10))
-        line.setAttribute('x2', String(numberRect.left - containerRect.left))
-        line.setAttribute('y2', String(numberRect.top - containerRect.top + 10))
-        lineSvg.appendChild(line)
-      }
-    }
 
     // Scroll to frame if it's at least partially off screen
     const frameRect = frameContainer.getBoundingClientRect()
@@ -279,6 +232,42 @@ export default function App() {
       }
     }
   }, [selectedAnnotation, navItems, markFrameChangeFromAnnotation])
+
+  // Update navItems when frames change (after React renders)
+  useEffect(() => {
+    if (isComponentGallery || frames.length === 0) return
+
+    // Wait for React to render frames
+    const timer = setTimeout(() => {
+      if (!containerRef.current) return
+      const elements = containerRef.current.querySelectorAll('.frame-container[data-frame-id]')
+      const items = Array.from(elements).map(el => ({
+        id: (el as HTMLElement).dataset.frameId || '',
+        element: el
+      }))
+      setNavItems(items)
+    }, 0)
+
+    return () => clearTimeout(timer)
+  }, [frames, isComponentGallery])
+
+  // Update navItems when component gallery changes (after React renders)
+  useEffect(() => {
+    if (!isComponentGallery || !galleryComponents) return
+
+    // Wait for React to render gallery
+    const timer = setTimeout(() => {
+      if (!containerRef.current) return
+      const elements = containerRef.current.querySelectorAll('.component-section[data-component-id]')
+      const items = Array.from(elements).map(el => ({
+        id: (el as HTMLElement).dataset.componentId || '',
+        element: el
+      }))
+      setNavItems(items)
+    }, 0)
+
+    return () => clearTimeout(timer)
+  }, [galleryComponents, isComponentGallery])
 
   // Hot reload polling
   useEffect(() => {
@@ -357,6 +346,13 @@ export default function App() {
               <div>Error loading wireframes</div>
               <pre>{error}</pre>
             </div>
+          ) : isComponentGallery && galleryComponents ? (
+            <ComponentGallery components={galleryComponents} />
+          ) : frames.length > 0 ? (
+            <FramesContainer
+              frames={frames}
+              selectedAnnotationIndex={selectedAnnotation}
+            />
           ) : (
             <div className="loading">Loading wireframes...</div>
           )}

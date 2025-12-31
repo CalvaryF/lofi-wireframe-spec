@@ -1,0 +1,199 @@
+import { useEffect, useRef, useMemo } from 'react'
+import type { ResolvedNode } from '../types'
+import { NodeRenderer } from './NodeRenderer'
+import { AnnotationsPanel } from './AnnotationsPanel'
+import { useAnnotationContext } from '../contexts/AnnotationContext'
+
+interface CollectedAnnotation {
+  number: number
+  title: string
+  description?: string
+}
+
+interface FrameProps {
+  node: ResolvedNode & { type: 'frame' }
+}
+
+export function Frame({ node }: FrameProps) {
+  const frameId = node.props.id || 'Untitled'
+  const containerRef = useRef<HTMLDivElement>(null)
+  const frameRef = useRef<HTMLDivElement>(null)
+  const overlayRef = useRef<HTMLDivElement>(null)
+  const { activeAnnotation, isAnnotationActive } = useAnnotationContext()
+
+  // Collect annotations and create a lookup map (annotation object -> number)
+  const { annotations, annotationMap } = useMemo(() => {
+    const collected: CollectedAnnotation[] = []
+    const map = new WeakMap<object, number>()
+    let counter = 1
+
+    function collectAnnotations(n: ResolvedNode): void {
+      if (n.type === 'box' && n.props.annotation) {
+        const num = counter++
+        map.set(n.props.annotation, num)
+        collected.push({
+          number: num,
+          title: n.props.annotation.title,
+          description: n.props.annotation.description
+        })
+      }
+      if (n.type === 'text' && n.props.annotation) {
+        const num = counter++
+        map.set(n.props.annotation, num)
+        collected.push({
+          number: num,
+          title: n.props.annotation.title,
+          description: n.props.annotation.description
+        })
+      }
+      if (n.type === 'icon' && n.props.annotation) {
+        const num = counter++
+        map.set(n.props.annotation, num)
+        collected.push({
+          number: num,
+          title: n.props.annotation.title,
+          description: n.props.annotation.description
+        })
+      }
+      if ('children' in n && n.children) {
+        for (const child of n.children) {
+          collectAnnotations(child)
+        }
+      }
+    }
+
+    for (const child of node.children) {
+      collectAnnotations(child)
+    }
+    return { annotations: collected, annotationMap: map }
+  }, [node.children])
+
+  // Position annotation markers after DOM is rendered
+  useEffect(() => {
+    if (!frameRef.current || !overlayRef.current) return
+
+    const frame = frameRef.current
+    const overlay = overlayRef.current
+    overlay.innerHTML = ''
+
+    const annotatedElements = frame.querySelectorAll('[data-annotation-number]')
+    if (annotatedElements.length === 0) return
+
+    const frameRect = frame.getBoundingClientRect()
+    const frameWrapper = frame.parentElement
+    const labelHeight = frameWrapper?.querySelector('.frame-label')?.getBoundingClientRect().height || 0
+    const gap = 8
+
+    annotatedElements.forEach(el => {
+      const htmlEl = el as HTMLElement
+      const number = htmlEl.dataset.annotationNumber
+      if (!number) return
+
+      const elRect = htmlEl.getBoundingClientRect()
+
+      const marker = document.createElement('span')
+      marker.className = 'annotation-marker'
+      marker.textContent = number
+      marker.dataset.annotation = number
+
+      // Check if this annotation is active (hovered or selected)
+      if (isAnnotationActive(frameId, parseInt(number))) {
+        marker.classList.add('highlighted')
+      }
+
+      // Position relative to frame-wrapper
+      const top = labelHeight + gap + (elRect.top - frameRect.top) - 8
+      const left = (elRect.right - frameRect.left) - 12
+
+      marker.style.top = `${top}px`
+      marker.style.left = `${left}px`
+
+      overlay.appendChild(marker)
+    })
+  }, [annotations, frameId, isAnnotationActive, activeAnnotation])
+
+  // Draw connecting line when annotation is active
+  useEffect(() => {
+    if (!containerRef.current) return
+
+    const lineSvg = containerRef.current.querySelector('.annotation-line') as SVGSVGElement
+    if (!lineSvg) return
+
+    // Always clear the line first
+    lineSvg.innerHTML = ''
+
+    // Only draw if this frame has the active annotation
+    if (!activeAnnotation || activeAnnotation.frameId !== frameId) return
+
+    const marker = containerRef.current.querySelector(
+      `.annotation-marker[data-annotation="${activeAnnotation.number}"]`
+    ) as HTMLElement
+    const panelItem = containerRef.current.querySelector(
+      `.annotation-item[data-annotation="${activeAnnotation.number}"] .annotation-number`
+    ) as HTMLElement
+
+    if (!marker || !panelItem) return
+
+    const markerRect = marker.getBoundingClientRect()
+    const panelRect = panelItem.getBoundingClientRect()
+    const containerRect = containerRef.current.getBoundingClientRect()
+
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+    line.setAttribute('x1', String(markerRect.right - containerRect.left))
+    line.setAttribute('y1', String(markerRect.top - containerRect.top + 10))
+    line.setAttribute('x2', String(panelRect.left - containerRect.left))
+    line.setAttribute('y2', String(panelRect.top - containerRect.top + 10))
+    lineSvg.appendChild(line)
+  }, [activeAnnotation, frameId])
+
+  // Create wrapper node for frame content
+  const wrapperNode: ResolvedNode = {
+    type: 'box',
+    props: {
+      layout: node.props.layout,
+      gap: node.props.gap,
+      padding: node.props.padding,
+      outline: 'thin',
+      grow: 1
+    },
+    children: node.children
+  }
+
+  // Frame size styles
+  const frameStyle: React.CSSProperties = {
+    display: 'flex',
+    flexDirection: 'column'
+  }
+
+  if (node.props.size) {
+    frameStyle.width = `${node.props.size[0]}px`
+    if (node.props.size[1] === 'hug') {
+      frameStyle.height = 'auto'
+    } else {
+      frameStyle.height = `${node.props.size[1]}px`
+      frameStyle.overflow = 'hidden'
+    }
+  }
+
+  return (
+    <div className="frame-container" data-frame-id={frameId} ref={containerRef}>
+      <div className="frame-wrapper">
+        <div className="frame-label">{frameId}</div>
+        <div className="frame" style={frameStyle} ref={frameRef}>
+          <NodeRenderer
+            node={wrapperNode}
+            frameId={frameId}
+            annotationMap={annotationMap}
+          />
+        </div>
+        <div className="annotation-markers-overlay" ref={overlayRef} />
+      </div>
+
+      {annotations.length > 0 && (
+        <AnnotationsPanel annotations={annotations} frameId={frameId} />
+      )}
+
+      <svg className="annotation-line" style={{ width: '100%', height: '100%', top: 0, left: 0 }} />
+    </div>
+  )
+}

@@ -341,9 +341,11 @@ Box:
 - `description` (optional): Extended explanation
 
 **Behavior:**
-- Renders a circled number marker on the annotated element (top-right corner)
+- Renders a numbered marker on the annotated element (top-right corner)
 - Annotations panel appears to the right of the frame
+- Hovering a panel item highlights the marker and draws a connecting line
 - Numbers are assigned in document order (depth-first traversal)
+- Toggle annotations visibility with the 'A' hotkey or toolbar button
 
 **Examples:**
 

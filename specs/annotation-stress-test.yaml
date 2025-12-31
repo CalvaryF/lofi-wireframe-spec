@@ -1,0 +1,275 @@
+# Annotation stress test - testing various annotation scenarios
+
+frames:
+  # Basic annotations on different element types
+  - Frame:
+      id: BasicAnnotations
+      size: [800, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text:
+            content: "Basic Annotation Test"
+            style: h1
+            annotation: { title: "Page Title", description: "Main heading for the view" }
+
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              - Box:
+                  padding: 16
+                  outline: thin
+                  annotation: { title: "Card 1" }
+                  children:
+                    - Text: { content: "First card", style: body }
+              - Box:
+                  padding: 16
+                  outline: thin
+                  annotation: { title: "Card 2", description: "With a longer description that explains what this card does" }
+                  children:
+                    - Text: { content: "Second card", style: body }
+              - Box:
+                  padding: 16
+                  outline: thin
+                  annotation: { title: "Card 3" }
+                  children:
+                    - Icon:
+                        name: "star"
+                        annotation: { title: "Icon annotation" }
+
+  # Edge clipping test - annotations near frame boundaries
+  - Frame:
+      id: EdgeClippingTest
+      size: [600, 300]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: row
+            grow: 1
+            children:
+              - Box:
+                  padding: 12
+                  outline: thin
+                  grow: 1
+                  annotation: { title: "Top-left", description: "Should not be clipped" }
+                  children:
+                    - Text: { content: "Corner", style: body }
+              - Box:
+                  padding: 12
+                  outline: thin
+                  grow: 1
+                  annotation: { title: "Top-right", description: "Should not be clipped" }
+                  children:
+                    - Text: { content: "Corner", style: body }
+        - Box:
+            layout: row
+            grow: 1
+            children:
+              - Box:
+                  padding: 12
+                  outline: thin
+                  grow: 1
+                  annotation: { title: "Bottom-left" }
+                  children:
+                    - Text: { content: "Corner", style: body }
+              - Box:
+                  padding: 12
+                  outline: thin
+                  grow: 1
+                  annotation: { title: "Bottom-right" }
+                  children:
+                    - Text: { content: "Corner", style: body }
+
+  # Many annotations test
+  - Frame:
+      id: ManyAnnotations
+      size: [900, 500]
+      layout: column
+      padding: 16
+      gap: 12
+      children:
+        - Text: { content: "Dashboard with Many Annotations", style: h2 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              # Sidebar
+              - Box:
+                  layout: column
+                  padding: 12
+                  gap: 8
+                  outline: thin
+                  annotation: { title: "Sidebar", description: "Navigation sidebar with menu items" }
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        padding: 8
+                        background: grey
+                        annotation: { title: "Active Item" }
+                        children:
+                          - Icon: { name: "home" }
+                          - Text: { content: "Home", style: body }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        padding: 8
+                        children:
+                          - Icon: { name: "users" }
+                          - Text: { content: "Users", style: body }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        padding: 8
+                        annotation: { title: "Settings Nav" }
+                        children:
+                          - Icon: { name: "settings" }
+                          - Text: { content: "Settings", style: body }
+
+              # Main content
+              - Box:
+                  layout: column
+                  gap: 12
+                  grow: 1
+                  children:
+                    # Header row
+                    - Box:
+                        layout: row
+                        align: center
+                        children:
+                          - Text: { content: "Overview", style: h2 }
+                          - Box: { grow: 1 }
+                          - Box:
+                              padding: [8, 12]
+                              outline: thin
+                              annotation: { title: "Primary CTA", description: "Main action button" }
+                              children:
+                                - Text: { content: "Add New", style: body }
+
+                    # Stats row
+                    - Box:
+                        layout: row
+                        gap: 12
+                        children:
+                          - Box:
+                              padding: 16
+                              outline: thin
+                              grow: 1
+                              annotation: { title: "Metric 1" }
+                              children:
+                                - Text: { content: "1,234", style: h1 }
+                                - Text: { content: "Total Users", style: caption }
+                          - Box:
+                              padding: 16
+                              outline: thin
+                              grow: 1
+                              annotation: { title: "Metric 2" }
+                              children:
+                                - Text: { content: "567", style: h1 }
+                                - Text: { content: "Active Today", style: caption }
+                          - Box:
+                              padding: 16
+                              outline: thin
+                              grow: 1
+                              annotation: { title: "Metric 3" }
+                              children:
+                                - Text: { content: "89%", style: h1 }
+                                - Text: { content: "Conversion", style: caption }
+
+                    # Chart area
+                    - Box:
+                        padding: 16
+                        outline: thin
+                        grow: 1
+                        annotation: { title: "Chart Area", description: "Main data visualization" }
+                        children:
+                          - Text: { content: "Revenue Trend", style: caption }
+                          - Chart: { fn: sin, range: [0, 12], samples: 40, noise: 0.2, width: 500, height: 120 }
+
+  # Nested annotations
+  - Frame:
+      id: NestedAnnotations
+      size: [500, 350]
+      layout: column
+      padding: 16
+      gap: 12
+      children:
+        - Text: { content: "Nested Elements", style: h2 }
+        - Box:
+            padding: 16
+            outline: thin
+            annotation: { title: "Outer Box", description: "Parent container" }
+            children:
+              - Box:
+                  padding: 12
+                  outline: dashed
+                  annotation: { title: "Inner Box", description: "Nested child" }
+                  children:
+                    - Box:
+                        padding: 8
+                        outline: thin
+                        annotation: { title: "Innermost", description: "Deeply nested" }
+                        children:
+                          - Text: { content: "Deep nesting test", style: body }
+
+  # Mixed with cursors and other elements
+  - Frame:
+      id: MixedElements
+      size: [700, 400]
+      layout: column
+      padding: 20
+      gap: 16
+      children:
+        - Text: { content: "Annotations + Cursors", style: h2 }
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              - Box:
+                  padding: 16
+                  outline: thin
+                  annotation: { title: "Clickable Area" }
+                  children:
+                    - Text: { content: "Click here", style: body }
+                    - Cursor: { type: pointer, anchor: center }
+              - Box:
+                  padding: 16
+                  outline: thin
+                  annotation: { title: "Draggable", description: "Can be dragged" }
+                  children:
+                    - Text: { content: "Drag me", style: body }
+                    - Cursor: { type: grab, anchor: center }
+        - Box:
+            layout: row
+            gap: 16
+            children:
+              - Box:
+                  padding: 16
+                  outline: thin
+                  grow: 1
+                  annotation: { title: "Map Widget" }
+                  children:
+                    - Map:
+                        width: 280
+                        height: 150
+                        trajectory: { fn: loop }
+                        vehicle: 0.4
+              - Box:
+                  padding: 16
+                  outline: thin
+                  grow: 1
+                  annotation: { title: "Chart Widget" }
+                  children:
+                    - Chart:
+                        fn: random
+                        range: [0, 10]
+                        samples: 20
+                        width: 200
+                        height: 100

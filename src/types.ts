@@ -22,6 +22,12 @@ export interface Link {
   target: string
 }
 
+// Annotation for documenting design decisions
+export interface Annotation {
+  title: string
+  description?: string
+}
+
 // Base node that all nodes extend
 export interface BaseNode {
   id?: string
@@ -57,6 +63,7 @@ export interface BoxNode extends BaseNode {
     position?: Position
     children?: SpecNode[]
     link?: Link
+    annotation?: Annotation
   }
 }
 
@@ -66,6 +73,7 @@ export interface TextNode extends BaseNode {
     content: string
     style?: TextStyle
     align?: TextAlign
+    annotation?: Annotation
   }
 }
 
@@ -73,6 +81,7 @@ export interface TextNode extends BaseNode {
 export interface IconNode extends BaseNode {
   Icon: {
     name: string  // Lucide icon name (e.g., "settings", "user", "home")
+    annotation?: Annotation
   }
 }
 

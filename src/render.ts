@@ -1,6 +1,168 @@
-import type { ResolvedNode, Padding, Align, Justify, Layout, Outline, TextStyle, CursorType, CursorAnchor } from './types'
+import type { ResolvedNode, Padding, Align, Justify, Layout, Outline, TextStyle, CursorType, CursorAnchor, Annotation } from './types'
 import { isEachBlock, isChildrenSlot } from './parser'
 import { icons } from 'lucide'
+
+// Annotation collector - accumulates annotations during render traversal
+interface CollectedAnnotation {
+  number: number
+  title: string
+  description?: string
+  element: HTMLElement  // Reference to position marker later
+}
+
+interface AnnotationCollector {
+  annotations: CollectedAnnotation[]
+  nextNumber: number
+}
+
+function createAnnotationCollector(): AnnotationCollector {
+  return { annotations: [], nextNumber: 1 }
+}
+
+// Render the annotations panel (to the right of the frame)
+function renderAnnotationsPanel(annotations: CollectedAnnotation[]): HTMLElement {
+  const panel = document.createElement('div')
+  panel.className = 'annotations-panel'
+
+  for (const ann of annotations) {
+    const item = document.createElement('div')
+    item.className = 'annotation-item'
+    item.dataset.annotation = String(ann.number)
+
+    const numberEl = document.createElement('span')
+    numberEl.className = 'annotation-number'
+    numberEl.textContent = String(ann.number)
+    item.appendChild(numberEl)
+
+    const content = document.createElement('div')
+    content.className = 'annotation-content'
+
+    const title = document.createElement('div')
+    title.className = 'annotation-title'
+    title.textContent = ann.title
+    content.appendChild(title)
+
+    if (ann.description) {
+      const desc = document.createElement('div')
+      desc.className = 'annotation-description'
+      desc.textContent = ann.description
+      content.appendChild(desc)
+    }
+
+    item.appendChild(content)
+    panel.appendChild(item)
+  }
+
+  return panel
+}
+
+// Record annotation for later marker positioning (outside overflow:hidden)
+function addAnnotationMarker(el: HTMLElement, annotation: Annotation, collector: AnnotationCollector): void {
+  const number = collector.nextNumber++
+
+  // Mark element with annotation number for later marker positioning
+  el.dataset.annotationNumber = String(number)
+
+  // Record annotation for panel
+  collector.annotations.push({
+    number,
+    title: annotation.title,
+    description: annotation.description,
+    element: el
+  })
+}
+
+// Render annotation markers as overlay (after DOM insertion, called from render())
+function renderAnnotationMarkers(frameWrapper: HTMLElement): void {
+  const frame = frameWrapper.querySelector('.frame') as HTMLElement
+  if (!frame) return
+
+  const annotatedElements = frame.querySelectorAll('[data-annotation-number]')
+  if (annotatedElements.length === 0) return
+
+  // Create overlay for markers (positioned relative to frame-wrapper)
+  const overlay = document.createElement('div')
+  overlay.className = 'annotation-markers-overlay'
+
+  const frameRect = frame.getBoundingClientRect()
+  const labelHeight = frameWrapper.querySelector('.frame-label')?.getBoundingClientRect().height || 0
+  const gap = 8 // gap between label and frame
+
+  annotatedElements.forEach(el => {
+    const htmlEl = el as HTMLElement
+    const number = htmlEl.dataset.annotationNumber
+    if (!number) return
+
+    const elRect = htmlEl.getBoundingClientRect()
+
+    const marker = document.createElement('span')
+    marker.className = 'annotation-marker'
+    marker.textContent = number
+    marker.dataset.annotation = number
+
+    // Position relative to frame-wrapper (accounting for label + gap)
+    const top = labelHeight + gap + (elRect.top - frameRect.top) - 8
+    const left = (elRect.right - frameRect.left) - 12
+
+    marker.style.top = `${top}px`
+    marker.style.left = `${left}px`
+
+    overlay.appendChild(marker)
+  })
+
+  frameWrapper.appendChild(overlay)
+
+  // Set up hover listeners on panel items to highlight corresponding markers
+  const frameContainer = frameWrapper.parentElement
+  if (!frameContainer) return
+
+  // Create SVG for connecting lines
+  const lineSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  lineSvg.classList.add('annotation-line')
+  lineSvg.style.width = '100%'
+  lineSvg.style.height = '100%'
+  lineSvg.style.top = '0'
+  lineSvg.style.left = '0'
+  frameContainer.style.position = 'relative'
+  frameContainer.appendChild(lineSvg)
+
+  const panelItems = frameContainer.querySelectorAll('.annotation-item[data-annotation]')
+  panelItems.forEach(item => {
+    const num = (item as HTMLElement).dataset.annotation
+    if (!num) return
+
+    item.addEventListener('mouseenter', () => {
+      const marker = overlay.querySelector(`.annotation-marker[data-annotation="${num}"]`) as HTMLElement
+      if (!marker) return
+
+      marker.classList.add('highlighted')
+
+      // Draw connecting line between number boxes
+      const numberEl = item.querySelector('.annotation-number') as HTMLElement
+      if (!numberEl) return
+
+      const numberRect = numberEl.getBoundingClientRect()
+      const markerRect = marker.getBoundingClientRect()
+      const containerRect = frameContainer.getBoundingClientRect()
+
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line')
+      // From right edge of marker to left edge of panel number
+      line.setAttribute('x1', String(markerRect.right - containerRect.left))
+      line.setAttribute('y1', String(markerRect.top - containerRect.top + 10))
+      line.setAttribute('x2', String(numberRect.left - containerRect.left))
+      line.setAttribute('y2', String(numberRect.top - containerRect.top + 10))
+      lineSvg.appendChild(line)
+    })
+
+    item.addEventListener('mouseleave', () => {
+      const marker = overlay.querySelector(`.annotation-marker[data-annotation="${num}"]`)
+      marker?.classList.remove('highlighted')
+
+      // Remove line
+      lineSvg.innerHTML = ''
+    })
+  })
+}
 
 // Context passed down during rendering - tracks which edges should collapse
 export interface RenderContext {
@@ -376,7 +538,8 @@ function renderChildren(
   parentHasOutline: boolean,
   parentHasGrow: boolean,
   parentContext: RenderContext,
-  el: HTMLElement
+  el: HTMLElement,
+  collector?: AnnotationCollector
 ): void {
   let prevChild: ResolvedNode | null = null
 
@@ -387,26 +550,33 @@ function renderChildren(
       parentLayout, parentGap, parentPadding,
       parentHasOutline, parentHasGrow, prevChild, parentContext
     )
-    el.appendChild(renderNode(child, ctx))
+    el.appendChild(renderNode(child, ctx, collector))
     prevChild = child
   }
 }
 
 // Render a single node to DOM
-function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HTMLElement {
+function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext, collector?: AnnotationCollector): HTMLElement {
   if (node.type === 'frame') {
-    // Outer container holds label + frame (label outside overflow:hidden)
+    // Create annotation collector for this frame
+    const frameCollector = createAnnotationCollector()
+
+    // Outer container holds frame-wrapper + optional annotations panel
     const container = document.createElement('div')
     container.className = 'frame-container'
     if (node.props.id) {
       container.dataset.frameId = node.props.id
     }
 
+    // Frame wrapper holds label + frame (column layout)
+    const frameWrapper = document.createElement('div')
+    frameWrapper.className = 'frame-wrapper'
+
     // Frame label (outside the frame so it's not clipped)
     const label = document.createElement('div')
     label.className = 'frame-label'
     label.textContent = node.props.id || 'Untitled'
-    container.appendChild(label)
+    frameWrapper.appendChild(label)
 
     // The actual frame
     const el = document.createElement('div')
@@ -442,12 +612,20 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
       children: node.children
     }
 
-    const wrapperEl = renderNode(wrapper, defaultContext)
+    const wrapperEl = renderNode(wrapper, defaultContext, frameCollector)
     wrapperEl.style.flexShrink = '0' // Don't shrink content to fit frame
     wrapperEl.style.minHeight = 'min-content' // Allow natural height
     el.appendChild(wrapperEl)
 
-    container.appendChild(el)
+    frameWrapper.appendChild(el)
+    container.appendChild(frameWrapper)
+
+    // Add annotations panel if there are annotations
+    if (frameCollector.annotations.length > 0) {
+      const panel = renderAnnotationsPanel(frameCollector.annotations)
+      container.appendChild(panel)
+    }
+
     return container
   }
 
@@ -537,8 +715,14 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
       nodeHasOutline,
       nodeHasGrow,
       nodeHasOutline ? defaultContext : ctx, // if we have outline, don't inherit; otherwise pass through
-      el
+      el,
+      collector
     )
+
+    // Add annotation marker if present
+    if (collector && node.props.annotation) {
+      addAnnotationMarker(el, node.props.annotation, collector)
+    }
 
     return el
   }
@@ -552,6 +736,11 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
     if (node.props.align) {
       el.style.textAlign = node.props.align
       el.style.display = 'block'
+    }
+
+    // Add annotation marker if present
+    if (collector && node.props.annotation) {
+      addAnnotationMarker(el, node.props.annotation, collector)
     }
 
     return el
@@ -601,6 +790,11 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
     }
 
     el.appendChild(svg)
+
+    // Add annotation marker if present
+    if (collector && node.props.annotation) {
+      addAnnotationMarker(el, node.props.annotation, collector)
+    }
 
     return el
   }
@@ -1064,7 +1258,10 @@ export function render(frames: ResolvedNode[], container: HTMLElement): void {
 
   container.appendChild(wrapper)
 
-  // Draw arrows after everything is in the DOM (getBoundingClientRect needs this)
+  // Render overlays after everything is in the DOM (getBoundingClientRect needs this)
+  const allFrameWrappers = wrapper.querySelectorAll('.frame-wrapper')
+  allFrameWrappers.forEach(fw => renderAnnotationMarkers(fw as HTMLElement))
+
   const allFrames = wrapper.querySelectorAll('.frame')
   allFrames.forEach(frameEl => renderDragArrows(frameEl as HTMLElement))
 }

@@ -91,11 +91,29 @@ body {
   margin: 0 auto;
 }
 
-/* Frame container - holds label + frame */
+/* Frame container - holds frame-wrapper + optional annotations panel */
 .frame-container {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Frame wrapper - holds label + frame (column layout) */
+.frame-wrapper {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  position: relative;
+}
+
+/* Annotation markers overlay - positioned over frame, outside overflow:hidden */
+.annotation-markers-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 60;
 }
 
 /* Frame label */
@@ -104,6 +122,113 @@ body {
   font-weight: 500;
   color: var(--muted-foreground);
   letter-spacing: -0.01em;
+}
+
+/* Annotation marker - numbered box on annotated elements */
+.annotation-marker {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 1px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  padding-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.annotation-marker.highlighted {
+  background: hsl(0, 50%, 50%);
+  border-color: hsl(0, 50%, 50%);
+  color: white;
+  z-index: 10;
+}
+
+/* Line connecting panel item to marker on hover */
+.annotation-line {
+  position: absolute;
+  pointer-events: none;
+  z-index: 200;
+}
+
+.annotation-line line {
+  stroke: hsl(0, 50%, 50%);
+  stroke-width: 1.5;
+  stroke-dasharray: 4 3;
+}
+
+/* Annotations panel - to the right of frame */
+.annotations-panel {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-top: 28px; /* Align with frame content (after label) */
+  margin-left: 16px;
+}
+
+.annotation-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+  padding: 8px;
+  margin: -8px;
+  border-radius: 2px;
+}
+
+.annotation-item:hover {
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.annotation-number {
+  width: 20px;
+  height: 20px;
+  border-radius: 1px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1;
+  padding-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.annotation-item:hover .annotation-number {
+  background: hsl(0, 50%, 50%);
+  border-color: hsl(0, 50%, 50%);
+  color: white;
+}
+
+.annotation-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-top: 2px;
+}
+
+.annotation-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+.annotation-description {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  line-height: 1.4;
 }
 
 /* Frame - the screen/canvas */
@@ -143,7 +268,7 @@ body {
 /* Shadow for floating elements (dropdowns, modals, dialogs) */
 .shadow {
   box-shadow: 0 4px 12px hsla(0, 0%, 0%, 0.15);
-  z-index: 100;
+  z-index: 50;
 }
 
 /*
@@ -386,4 +511,11 @@ body {
   display: inline-flex;
   flex-direction: column;
   gap: 4px;
+}
+
+/* Hide annotations mode */
+.hide-annotations .annotations-panel,
+.hide-annotations .annotation-markers-overlay,
+.hide-annotations .annotation-line {
+  display: none;
 }

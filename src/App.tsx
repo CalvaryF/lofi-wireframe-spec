@@ -26,6 +26,7 @@ export default function App() {
   const [activeIndex, setActiveIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [navTitle, setNavTitle] = useState('Frames')
+  const [showAnnotations, setShowAnnotations] = useState(true)
   const containerRef = useRef<HTMLDivElement>(null)
   const lastComponentsRef = useRef('')
   const lastWireframeRef = useRef('')
@@ -114,6 +115,13 @@ export default function App() {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return
       if (e.target instanceof HTMLSelectElement) return
 
+      // Toggle annotations
+      if (e.key === 'a' || e.key === 'A') {
+        e.preventDefault()
+        setShowAnnotations(prev => !prev)
+        return
+      }
+
       // Up/Down: navigate frames
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         if (navItems.length === 0) return
@@ -191,6 +199,15 @@ export default function App() {
             <option key={file} value={file}>{file}</option>
           ))}
         </select>
+        <button
+          className={`toolbar-button ${showAnnotations ? 'active' : ''}`}
+          onClick={() => setShowAnnotations(!showAnnotations)}
+          title="Toggle annotations (A)"
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+          </svg>
+        </button>
       </div>
 
       <div className="main-layout">
@@ -207,7 +224,7 @@ export default function App() {
           ))}
         </nav>
 
-        <div id="app" ref={containerRef}>
+        <div id="app" ref={containerRef} className={showAnnotations ? '' : 'hide-annotations'}>
           {error ? (
             <div className="error">
               <div>Error loading wireframes</div>

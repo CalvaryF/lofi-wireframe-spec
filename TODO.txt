@@ -8,3 +8,8 @@
 - timeline
 - Filter component
 - Tree view
+- Procedures
+
+- Adding context and descriptions to designs
+- Giving feedback on deisgns (so LLMs can update them autonomously)
+- Rendering context template (goal of the wireframe, etc)

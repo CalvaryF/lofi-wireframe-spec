@@ -27,7 +27,7 @@ Edit wireframes in `renderer/specs/`:
 - `components.yaml` - Reusable components with variants
 - `wireframe.yaml` - Screens/frames using those components
 
-## The Seven Primitives
+## The Eight Primitives
 
 ### Frame
 A screen that contains all other elements.
@@ -322,6 +322,55 @@ Each line can have its own `fn`, `label`, `color`, `noise`, and `scatter` proper
       - Text: { content: "Power Output", style: caption }
       - Chart: { fn: sin, range: [0, 12], samples: 40, noise: 0.15, width: 250, height: 80 }
 ```
+
+### Annotation
+
+Annotations document design decisions, requirements, or callouts on any element. They render as numbered markers on annotated elements with a labels panel to the right of the frame.
+
+```yaml
+Box:
+  padding: 16
+  outline: thin
+  annotation: { title: "Hero Section", description: "Primary CTA above the fold" }
+  children:
+    - Text: { content: "Welcome", style: h1 }
+```
+
+**Properties:**
+- `title` (required): Brief label shown in annotations panel
+- `description` (optional): Extended explanation
+
+**Behavior:**
+- Renders a circled number marker on the annotated element (top-right corner)
+- Annotations panel appears to the right of the frame
+- Numbers are assigned in document order (depth-first traversal)
+
+**Examples:**
+
+```yaml
+# Annotation on a box
+- Box:
+    layout: row
+    annotation:
+      title: "Navigation Bar"
+      description: "Sticky header that collapses on mobile"
+    children:
+      - NavItem: { label: "Home" }
+      - NavItem: { label: "About" }
+
+# Annotation on text
+- Text:
+    content: "Terms of Service"
+    style: caption
+    annotation: { title: "Legal Link", description: "Opens in modal, not new tab" }
+
+# Annotations in components work via prop flow
+- Button:
+    label: "Submit"
+    annotation: { title: "Primary CTA" }
+```
+
+**Supported elements:** Box, Text, Icon
 
 ## Layout System
 

@@ -34,9 +34,6 @@
       .toolbar select:hover {
         border-color: hsl(0, 0%, 60%);
       }
-      #app {
-        padding-top: 60px;
-      }
     </style>
   </head>
   <body>
@@ -46,8 +43,11 @@
         <option value="wireframe.yaml">wireframe.yaml</option>
       </select>
     </div>
-    <div id="app">
-      <div class="loading">Loading wireframes...</div>
+    <div class="main-layout">
+      <nav class="frame-nav" id="frame-nav"></nav>
+      <div id="app">
+        <div class="loading">Loading wireframes...</div>
+      </div>
     </div>
     <script type="module" src="/src/main.ts"></script>
   </body>

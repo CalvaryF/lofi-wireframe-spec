@@ -395,11 +395,22 @@ function renderChildren(
 // Render a single node to DOM
 function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HTMLElement {
   if (node.type === 'frame') {
+    // Outer container holds label + frame (label outside overflow:hidden)
+    const container = document.createElement('div')
+    container.className = 'frame-container'
+    if (node.props.id) {
+      container.dataset.frameId = node.props.id
+    }
+
+    // Frame label (outside the frame so it's not clipped)
+    const label = document.createElement('div')
+    label.className = 'frame-label'
+    label.textContent = node.props.id || 'Untitled'
+    container.appendChild(label)
+
+    // The actual frame
     const el = document.createElement('div')
     el.className = 'frame'
-    if (node.props.id) {
-      el.dataset.frameId = node.props.id
-    }
 
     // Size - fixed width, height can be fixed or 'hug' content
     if (node.props.size) {
@@ -416,12 +427,6 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
     // Frame uses block layout so content flows naturally
     el.style.display = 'flex'
     el.style.flexDirection = 'column'
-
-    // Frame label
-    const label = document.createElement('div')
-    label.className = 'frame-label'
-    label.textContent = node.props.id || 'Untitled'
-    el.appendChild(label)
 
     // Inject a wrapper box with outline that holds all frame children
     // This wrapper participates in normal border collapse logic
@@ -442,7 +447,8 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
     wrapperEl.style.minHeight = 'min-content' // Allow natural height
     el.appendChild(wrapperEl)
 
-    return el
+    container.appendChild(el)
+    return container
   }
 
   if (node.type === 'box') {
@@ -1077,6 +1083,7 @@ export function renderComponentGallery(
     // Component section
     const section = document.createElement('div')
     section.className = 'component-section'
+    section.dataset.componentId = componentName
 
     // Component name header
     const header = document.createElement('div')

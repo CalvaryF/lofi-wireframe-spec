@@ -11,7 +11,8 @@ const SPEC_FILES = [
   'wireframe.yaml',
   'example-app.yaml',
   'stress-test.yaml',
-  'icon-stress-test.yaml'
+  'icon-stress-test.yaml',
+  'cursor-stress-test.yaml'
 ]
 
 let currentSpecFile = 'wireframe.yaml'

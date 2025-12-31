@@ -82,6 +82,14 @@ function hasOutline(node: ResolvedNode): boolean {
   return false
 }
 
+// Check if a node grows to fill available space
+function hasGrow(node: ResolvedNode): boolean {
+  if (node.type === 'box') {
+    return node.props.grow === 1
+  }
+  return false
+}
+
 // Check if a node (or its descendants) has an outline on a leading edge
 // For cross-axis edges, we need to check ALL children (they all share that edge)
 // For main-axis edges, we only check the first child
@@ -212,13 +220,14 @@ function computeChildContext(
 
   // --- Collapse with parent's edges (parent-child collapse) ---
   if (parentHasOutline) {
-    // In column layout: first child touches parent's top, last touches parent's bottom
+    // In column layout: first child touches parent's top, last touches parent's bottom (if it grows)
     // All children touch parent's left and right
     if (isColumn) {
       if (isFirst && pad.top === 0 && hasLeadingOutline(child, 'top')) {
         collapseTop = true
       }
-      if (isLast && pad.bottom === 0 && hasTrailingOutline(child, 'bottom')) {
+      // Last child only touches bottom if it grows to fill the space
+      if (isLast && hasGrow(child) && pad.bottom === 0 && hasTrailingOutline(child, 'bottom')) {
         collapseBottom = true
       }
       if (pad.left === 0 && hasLeadingOutline(child, 'left')) {
@@ -228,12 +237,13 @@ function computeChildContext(
         collapseRight = true
       }
     } else {
-      // In row layout: first child touches parent's left, last touches parent's right
+      // In row layout: first child touches parent's left, last touches parent's right (if it grows)
       // All children touch parent's top and bottom
       if (isFirst && pad.left === 0 && hasLeadingOutline(child, 'left')) {
         collapseLeft = true
       }
-      if (isLast && pad.right === 0 && hasTrailingOutline(child, 'right')) {
+      // Last child only touches right if it grows to fill the space
+      if (isLast && hasGrow(child) && pad.right === 0 && hasTrailingOutline(child, 'right')) {
         collapseRight = true
       }
       if (pad.top === 0 && hasLeadingOutline(child, 'top')) {
@@ -252,7 +262,8 @@ function computeChildContext(
       if (isFirst && pad.top === 0 && parentContext.collapseTop) {
         collapseTop = true
       }
-      if (isLast && pad.bottom === 0 && parentContext.collapseBottom) {
+      // Only inherit bottom collapse if child grows to reach the edge
+      if (isLast && hasGrow(child) && pad.bottom === 0 && parentContext.collapseBottom) {
         collapseBottom = true
       }
       if (pad.left === 0 && parentContext.collapseLeft) {
@@ -265,7 +276,8 @@ function computeChildContext(
       if (isFirst && pad.left === 0 && parentContext.collapseLeft) {
         collapseLeft = true
       }
-      if (isLast && pad.right === 0 && parentContext.collapseRight) {
+      // Only inherit right collapse if child grows to reach the edge
+      if (isLast && hasGrow(child) && pad.right === 0 && parentContext.collapseRight) {
         collapseRight = true
       }
       if (pad.top === 0 && parentContext.collapseTop) {
@@ -278,6 +290,75 @@ function computeChildContext(
   }
 
   return { collapseTop, collapseLeft, collapseBottom, collapseRight }
+}
+
+// Draw an arrow between two elements
+// Designed for reuse with future Arrow primitive
+function drawArrowBetweenElements(
+  container: HTMLElement,
+  fromEl: HTMLElement,
+  toEl: HTMLElement,
+  style: 'drag' | 'solid' = 'drag'
+): SVGSVGElement {
+  const containerRect = container.getBoundingClientRect()
+  const fromRect = fromEl.getBoundingClientRect()
+  const toRect = toEl.getBoundingClientRect()
+
+  // Calculate centers relative to container
+  const fromX = fromRect.left + fromRect.width / 2 - containerRect.left
+  const fromY = fromRect.top + fromRect.height / 2 - containerRect.top
+  const toX = toRect.left + toRect.width / 2 - containerRect.left
+  const toY = toRect.top + toRect.height / 2 - containerRect.top
+
+  // Create SVG
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.classList.add('drag-arrow')
+  svg.setAttribute('width', '100%')
+  svg.setAttribute('height', '100%')
+
+  // Calculate control point for curve (perpendicular offset)
+  const midX = (fromX + toX) / 2
+  const midY = (fromY + toY) / 2
+  const dx = toX - fromX
+  const dy = toY - fromY
+  const dist = Math.sqrt(dx * dx + dy * dy)
+
+  // Handle zero distance edge case
+  if (dist === 0) {
+    return svg
+  }
+
+  const offset = Math.min(30, dist * 0.2)
+  const ctrlX = midX - (dy / dist) * offset
+  const ctrlY = midY + (dx / dist) * offset
+
+  // Draw curved path
+  const path = document.createElementNS('http://www.w3.org/2000/svg', 'path')
+  path.classList.add('arrow-line')
+  path.setAttribute('d', `M ${fromX},${fromY} Q ${ctrlX},${ctrlY} ${toX},${toY}`)
+  if (style === 'solid') {
+    path.style.strokeDasharray = 'none'
+  }
+  svg.appendChild(path)
+
+  // Calculate arrowhead direction from curve tangent at end
+  const t = 0.95
+  const tangentX = 2 * (1 - t) * (ctrlX - fromX) + 2 * t * (toX - ctrlX)
+  const tangentY = 2 * (1 - t) * (ctrlY - fromY) + 2 * t * (toY - ctrlY)
+  const angle = Math.atan2(tangentY, tangentX)
+
+  // Draw arrowhead
+  const headSize = 8
+  const head = document.createElementNS('http://www.w3.org/2000/svg', 'polygon')
+  head.classList.add('arrow-head')
+  const p1x = toX - headSize * Math.cos(angle - Math.PI / 6)
+  const p1y = toY - headSize * Math.sin(angle - Math.PI / 6)
+  const p2x = toX - headSize * Math.cos(angle + Math.PI / 6)
+  const p2y = toY - headSize * Math.sin(angle + Math.PI / 6)
+  head.setAttribute('points', `${toX},${toY} ${p1x},${p1y} ${p2x},${p2y}`)
+  svg.appendChild(head)
+
+  return svg
 }
 
 // Render children with border collapse logic
@@ -590,6 +671,11 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
 
       cursorIcon.appendChild(svg)
       el.appendChild(cursorIcon)
+    }
+
+    // Store from reference for drag arrow rendering
+    if (node.props.from) {
+      el.dataset.from = node.props.from
     }
 
     return el
@@ -925,6 +1011,30 @@ function renderNode(node: ResolvedNode, ctx: RenderContext = defaultContext): HT
   return el
 }
 
+// Render drag arrows for cursors with 'from' references
+function renderDragArrows(frameEl: HTMLElement): void {
+  const cursorsWithFrom = frameEl.querySelectorAll('.cursor[data-from]')
+  cursorsWithFrom.forEach(cursorEl => {
+    const fromId = cursorEl.getAttribute('data-from')
+    const fromEl = frameEl.querySelector(`[data-id="${fromId}"]`)
+    if (!fromEl) {
+      console.warn(`Cursor references unknown element: ${fromId}`)
+      return
+    }
+    // Get the frame's content wrapper (first .box child)
+    const contentWrapper = frameEl.querySelector('.box')
+    if (contentWrapper) {
+      const arrow = drawArrowBetweenElements(
+        contentWrapper as HTMLElement,
+        fromEl as HTMLElement,
+        cursorEl as HTMLElement,
+        'drag'
+      )
+      contentWrapper.appendChild(arrow)
+    }
+  })
+}
+
 // Render all frames to the container
 export function render(frames: ResolvedNode[], container: HTMLElement): void {
   container.innerHTML = ''
@@ -933,10 +1043,15 @@ export function render(frames: ResolvedNode[], container: HTMLElement): void {
   wrapper.className = 'frames-container'
 
   for (const frame of frames) {
-    wrapper.appendChild(renderNode(frame))
+    const frameEl = renderNode(frame)
+    wrapper.appendChild(frameEl)
   }
 
   container.appendChild(wrapper)
+
+  // Draw arrows after everything is in the DOM (getBoundingClientRect needs this)
+  const allFrames = wrapper.querySelectorAll('.frame')
+  allFrames.forEach(frameEl => renderDragArrows(frameEl as HTMLElement))
 }
 
 // Render component gallery - shows all components with their variants

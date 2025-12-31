@@ -90,6 +90,7 @@ export interface CursorNode extends BaseNode {
     position?: { x: number; y: number }  // Absolute position (alternative to anchor)
     offset?: { x: number; y: number }    // Fine-tune offset from anchor point
     tooltip?: string                // Optional label above cursor
+    from?: string                   // Source element ID for drag arrow
   }
 }
 

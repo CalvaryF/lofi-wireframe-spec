@@ -1142,3 +1142,84 @@ frames:
                             vehicle: 0.4
                           - fn: wander
                             vehicle: 0.7
+
+  # Drag and Drop demo
+  - Frame:
+      id: DragDropDemo
+      size: [800, 400]
+      layout: column
+      padding: 24
+      gap: 24
+      children:
+        - Text: { content: "Drag and Drop", style: h1 }
+        - Box:
+            layout: row
+            gap: 32
+            grow: 1
+            children:
+              # Source column
+              - Box:
+                  layout: column
+                  gap: 12
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "Backlog", style: h2 }
+                    - Box:
+                        id: Task1
+                        layout: row
+                        gap: 8
+                        padding: 12
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "grip-vertical" }
+                          - Text: { content: "Task #1", style: body }
+                    - Box:
+                        id: Task2
+                        layout: row
+                        gap: 8
+                        padding: 12
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "grip-vertical" }
+                          - Text: { content: "Task #2", style: body }
+                    - Box:
+                        id: Task3
+                        layout: row
+                        gap: 8
+                        padding: 12
+                        outline: dashed
+                        align: center
+                        children:
+                          - Icon: { name: "grip-vertical" }
+                          - Text: { content: "Task #3", style: caption }
+
+              # Target column (drop zone)
+              - Box:
+                  layout: column
+                  gap: 12
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "In Progress", style: h2 }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        padding: 12
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "grip-vertical" }
+                          - Text: { content: "Task #0", style: body }
+                    - Box:
+                        padding: 24
+                        outline: dashed
+                        background: grey
+                        align: center
+                        justify: center
+                        children:
+                          - Text: { content: "Drop here", style: caption }
+                          - Cursor: { type: grabbing, anchor: center, from: Task1 }

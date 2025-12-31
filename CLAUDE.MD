@@ -134,9 +134,12 @@ Cursor:
   position: { x: 100, y: 200 }   # absolute position (alternative to anchor)
   offset: { x: 5, y: 5 }         # fine-tune from anchor point
   tooltip: "Click here"          # optional label above cursor
+  from: SourceElementId          # draws arrow from source element to cursor (for drag flows)
 ```
 
 **Positioning**: Use `anchor` (preferred) to position relative to parent element, or `position` for absolute coordinates.
+
+**Drag arrows**: Use `from` to draw a dashed arrow from a source element (referenced by its `id`) to the cursor position. Useful for documenting drag-and-drop workflows.
 
 **Examples:**
 
@@ -161,6 +164,27 @@ Cursor:
 
 # With offset for fine-tuning
 - Cursor: { type: pointer, anchor: bottom-right, offset: { x: -5, y: -5 } }
+
+# Drag-and-drop workflow with arrow
+- Box:
+    layout: row
+    gap: 24
+    children:
+      # Source element (must have id)
+      - Box:
+          id: TaskCard
+          padding: 12
+          outline: thin
+          children:
+            - Text: { content: "Task #1", style: body }
+      # Drop zone with cursor showing drag in progress
+      - Box:
+          padding: 24
+          outline: dashed
+          background: grey
+          children:
+            - Text: { content: "Drop here", style: caption }
+            - Cursor: { type: grabbing, anchor: center, from: TaskCard }
 ```
 
 ### Map

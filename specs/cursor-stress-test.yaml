@@ -1,0 +1,680 @@
+# Cursor system stress test - movements and drag-drop arrows
+
+frames:
+  # Cursor types showcase
+  - Frame:
+      id: CursorTypes
+      size: [900, 200]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Cursor Types", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            wrap: true
+            children:
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "pointer", style: caption }
+                    - Cursor: { type: pointer, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "hand", style: caption }
+                    - Cursor: { type: hand, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "grab", style: caption }
+                    - Cursor: { type: grab, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "grabbing", style: caption }
+                    - Cursor: { type: grabbing, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "text", style: caption }
+                    - Cursor: { type: text, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "crosshair", style: caption }
+                    - Cursor: { type: crosshair, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "move", style: caption }
+                    - Cursor: { type: move, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "not-allowed", style: caption }
+                    - Cursor: { type: not-allowed, anchor: center }
+              - Box:
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Text: { content: "click", style: caption }
+                    - Cursor: { type: click, anchor: center }
+
+  # Anchor positions
+  - Frame:
+      id: AnchorPositions
+      size: [700, 350]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Anchor Positions", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            grow: 1
+            children:
+              - Box:
+                  grow: 1
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "top-left", style: caption }
+                    - Cursor: { type: pointer, anchor: top-left }
+              - Box:
+                  grow: 1
+                  outline: thin
+                  padding: 16
+                  align: center
+                  children:
+                    - Text: { content: "top-right", style: caption }
+                    - Cursor: { type: pointer, anchor: top-right }
+              - Box:
+                  grow: 1
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "center", style: caption }
+                    - Cursor: { type: pointer, anchor: center }
+              - Box:
+                  grow: 1
+                  outline: thin
+                  padding: 16
+                  children:
+                    - Text: { content: "bottom-left", style: caption }
+                    - Cursor: { type: pointer, anchor: bottom-left }
+              - Box:
+                  grow: 1
+                  outline: thin
+                  padding: 16
+                  align: center
+                  children:
+                    - Text: { content: "bottom-right", style: caption }
+                    - Cursor: { type: pointer, anchor: bottom-right }
+
+  # Tooltips
+  - Frame:
+      id: CursorTooltips
+      size: [800, 200]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Cursor Tooltips", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            children:
+              - Box:
+                  padding: [32, 48]
+                  outline: thin
+                  children:
+                    - Text: { content: "Button", style: body }
+                    - Cursor: { type: pointer, anchor: center, tooltip: "Click me" }
+              - Box:
+                  padding: [32, 48]
+                  outline: thin
+                  children:
+                    - Text: { content: "Link", style: body }
+                    - Cursor: { type: hand, anchor: center, tooltip: "Open link" }
+              - Box:
+                  padding: [32, 48]
+                  outline: thin
+                  children:
+                    - Text: { content: "Disabled", style: caption }
+                    - Cursor: { type: not-allowed, anchor: center, tooltip: "Cannot click" }
+              - Box:
+                  padding: [32, 48]
+                  outline: thin
+                  children:
+                    - Text: { content: "Draggable", style: body }
+                    - Cursor: { type: grab, anchor: center, tooltip: "Drag to move" }
+
+  # Simple drag and drop
+  - Frame:
+      id: SimpleDragDrop
+      size: [600, 300]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Simple Drag & Drop", style: h1 }
+        - Box:
+            layout: row
+            gap: 48
+            grow: 1
+            align: center
+            justify: center
+            children:
+              - Box:
+                  id: SourceBox
+                  padding: 24
+                  outline: thin
+                  children:
+                    - Text: { content: "Source", style: body }
+              - Box:
+                  padding: 24
+                  outline: dashed
+                  background: grey
+                  children:
+                    - Text: { content: "Target", style: body }
+                    - Cursor: { type: grabbing, anchor: center, from: SourceBox }
+
+  # Kanban drag
+  - Frame:
+      id: KanbanDrag
+      size: [900, 450]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Kanban Board Drag", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            grow: 1
+            children:
+              # Todo column
+              - Box:
+                  layout: column
+                  gap: 12
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Todo", style: h2 }
+                    - Box:
+                        id: KanbanTask1
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Design homepage", style: body }
+                    - Box:
+                        id: KanbanTask2
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Write tests", style: body }
+                    - Box:
+                        id: KanbanTask3
+                        padding: 12
+                        outline: dashed
+                        children:
+                          - Text: { content: "Review PR", style: caption }
+
+              # In Progress column
+              - Box:
+                  layout: column
+                  gap: 12
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "In Progress", style: h2 }
+                    - Box:
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Build API", style: body }
+                    - Box:
+                        padding: 16
+                        outline: dashed
+                        background: grey
+                        align: center
+                        children:
+                          - Text: { content: "Drop here", style: caption }
+                          - Cursor: { type: grabbing, anchor: center, from: KanbanTask1 }
+
+              # Done column
+              - Box:
+                  layout: column
+                  gap: 12
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Done", style: h2 }
+                    - Box:
+                        padding: 12
+                        outline: thin
+                        children:
+                          - Text: { content: "Setup repo", style: body }
+
+  # Multiple arrows from same source
+  - Frame:
+      id: MultipleTargets
+      size: [700, 350]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Multiple Drop Targets", style: h1 }
+        - Box:
+            layout: row
+            gap: 32
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 12
+                  justify: center
+                  children:
+                    - Box:
+                        id: MultiSource
+                        padding: 16
+                        outline: thick
+                        children:
+                          - Text: { content: "Drag me", style: body }
+              - Box:
+                  layout: column
+                  gap: 12
+                  grow: 1
+                  children:
+                    - Box:
+                        padding: 16
+                        outline: dashed
+                        background: grey
+                        children:
+                          - Text: { content: "Option A", style: caption }
+                          - Cursor: { type: grabbing, anchor: center, from: MultiSource }
+                    - Box:
+                        padding: 16
+                        outline: dashed
+                        children:
+                          - Text: { content: "Option B", style: caption }
+                          - Cursor: { type: grab, anchor: center, from: MultiSource }
+                    - Box:
+                        padding: 16
+                        outline: dashed
+                        children:
+                          - Text: { content: "Option C", style: caption }
+                          - Cursor: { type: grab, anchor: center, from: MultiSource }
+
+  # File upload drag
+  - Frame:
+      id: FileUploadDrag
+      size: [600, 350]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "File Upload", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  padding: 16
+                  outline: thin
+                  children:
+                    - Text: { content: "Files", style: h2 }
+                    - Box:
+                        id: File1
+                        layout: row
+                        gap: 8
+                        padding: 8
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "file" }
+                          - Text: { content: "report.pdf", style: body }
+                    - Box:
+                        id: File2
+                        layout: row
+                        gap: 8
+                        padding: 8
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "file-image" }
+                          - Text: { content: "photo.jpg", style: body }
+                    - Box:
+                        layout: row
+                        gap: 8
+                        padding: 8
+                        outline: thin
+                        align: center
+                        children:
+                          - Icon: { name: "file-text" }
+                          - Text: { content: "notes.txt", style: body }
+              - Box:
+                  grow: 1
+                  outline: dashed
+                  padding: 24
+                  align: center
+                  justify: center
+                  layout: column
+                  gap: 12
+                  background: grey
+                  children:
+                    - Icon: { name: "upload" }
+                    - Text: { content: "Drop files here", style: body }
+                    - Cursor: { type: grabbing, anchor: center, from: File1 }
+
+  # List reordering
+  - Frame:
+      id: ListReorder
+      size: [400, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "List Reordering", style: h1 }
+        - Box:
+            layout: column
+            gap: 0
+            outline: thin
+            children:
+              - Box:
+                  id: ListItem1
+                  layout: row
+                  gap: 12
+                  padding: 12
+                  outline: thin
+                  align: center
+                  children:
+                    - Icon: { name: "grip-vertical" }
+                    - Text: { content: "1. First item", style: body }
+              - Box:
+                  id: ListItem2
+                  layout: row
+                  gap: 12
+                  padding: 12
+                  outline: thin
+                  align: center
+                  children:
+                    - Icon: { name: "grip-vertical" }
+                    - Text: { content: "2. Second item", style: body }
+                    - Cursor: { type: grabbing, anchor: center, tooltip: "Moving..." }
+              - Box:
+                  layout: row
+                  gap: 12
+                  padding: 12
+                  outline: dashed
+                  align: center
+                  background: grey
+                  children:
+                    - Text: { content: "Drop position", style: caption }
+                    - Cursor: { type: grabbing, anchor: center, from: ListItem2 }
+              - Box:
+                  id: ListItem3
+                  layout: row
+                  gap: 12
+                  padding: 12
+                  outline: thin
+                  align: center
+                  children:
+                    - Icon: { name: "grip-vertical" }
+                    - Text: { content: "3. Third item", style: body }
+              - Box:
+                  id: ListItem4
+                  layout: row
+                  gap: 12
+                  padding: 12
+                  outline: thin
+                  align: center
+                  children:
+                    - Icon: { name: "grip-vertical" }
+                    - Text: { content: "4. Fourth item", style: body }
+
+  # Long distance drag
+  - Frame:
+      id: LongDistanceDrag
+      size: [1000, 300]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Long Distance Drag", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            grow: 1
+            children:
+              - Box:
+                  id: FarSource
+                  padding: 24
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Icon: { name: "package" }
+                    - Text: { content: "Origin", style: body }
+              - Box: { grow: 1 }
+              - Box: { grow: 1 }
+              - Box: { grow: 1 }
+              - Box:
+                  padding: 24
+                  outline: dashed
+                  background: grey
+                  align: center
+                  justify: center
+                  children:
+                    - Icon: { name: "inbox" }
+                    - Text: { content: "Destination", style: body }
+                    - Cursor: { type: grabbing, anchor: center, from: FarSource }
+
+  # Vertical drag
+  - Frame:
+      id: VerticalDrag
+      size: [300, 500]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Vertical Drag", style: h1 }
+        - Box:
+            layout: column
+            gap: 24
+            grow: 1
+            children:
+              - Box:
+                  id: TopItem
+                  padding: 16
+                  outline: thin
+                  align: center
+                  children:
+                    - Text: { content: "Top", style: body }
+              - Box: { grow: 1 }
+              - Box:
+                  padding: 16
+                  outline: dashed
+                  background: grey
+                  align: center
+                  children:
+                    - Text: { content: "Middle drop zone", style: caption }
+                    - Cursor: { type: grabbing, anchor: center, from: TopItem }
+              - Box: { grow: 1 }
+              - Box:
+                  id: BottomItem
+                  padding: 16
+                  outline: thin
+                  align: center
+                  children:
+                    - Text: { content: "Bottom", style: body }
+
+  # UI interaction flow
+  - Frame:
+      id: InteractionFlow
+      size: [800, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Form Interaction Flow", style: h1 }
+        - Box:
+            layout: column
+            gap: 16
+            padding: 24
+            outline: thin
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  children:
+                    - Text: { content: "Email", style: caption }
+                    - Box:
+                        padding: [8, 12]
+                        outline: thin
+                        children:
+                          - Text: { content: "user@example.com", style: body }
+                          - Cursor: { type: text, anchor: center, offset: { x: 50, y: 0 } }
+              - Box:
+                  layout: column
+                  gap: 4
+                  children:
+                    - Text: { content: "Password", style: caption }
+                    - Box:
+                        padding: [8, 12]
+                        outline: thin
+                        children:
+                          - Text: { content: "••••••••", style: body }
+              - Box:
+                  layout: row
+                  gap: 12
+                  children:
+                    - Box:
+                        padding: [8, 16]
+                        outline: thick
+                        children:
+                          - Text: { content: "Sign In", style: body }
+                          - Cursor: { type: pointer, anchor: center, tooltip: "Step 2: Click" }
+                    - Box:
+                        padding: [8, 16]
+                        outline: thin
+                        children:
+                          - Text: { content: "Cancel", style: body }
+
+  # Sidebar collapse interaction
+  - Frame:
+      id: SidebarInteraction
+      size: [700, 350]
+      layout: row
+      padding: 0
+      children:
+        # Sidebar
+        - Box:
+            layout: column
+            padding: 16
+            gap: 8
+            outline: thin
+            children:
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: 8
+                  align: center
+                  children:
+                    - Icon: { name: "panel-left-close" }
+                    - Text: { content: "Collapse", style: caption }
+                    - Cursor: { type: pointer, anchor: center, tooltip: "Toggle sidebar" }
+              - Box: { padding: 4 }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: 8
+                  align: center
+                  background: grey
+                  children:
+                    - Icon: { name: "home" }
+                    - Text: { content: "Home", style: body }
+              - Box:
+                  layout: row
+                  gap: 8
+                  padding: 8
+                  align: center
+                  children:
+                    - Icon: { name: "settings" }
+                    - Text: { content: "Settings", style: body }
+                    - Cursor: { type: hand, anchor: center }
+        # Main content
+        - Box:
+            grow: 1
+            padding: 24
+            children:
+              - Text: { content: "Main Content Area", style: h2 }
+
+  # Resize handle
+  - Frame:
+      id: ResizeInteraction
+      size: [500, 300]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Resize Interaction", style: h1 }
+        - Box:
+            layout: row
+            grow: 1
+            children:
+              - Box:
+                  padding: 16
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Text: { content: "Resizable panel", style: body }
+              - Box:
+                  padding: [0, 4]
+                  outline: thin
+                  align: center
+                  justify: center
+                  children:
+                    - Icon: { name: "grip-vertical" }
+                    - Cursor: { type: move, anchor: center, tooltip: "Drag to resize" }
+              - Box:
+                  padding: 16
+                  outline: thin
+                  grow: 1
+                  children:
+                    - Text: { content: "Another panel", style: body }

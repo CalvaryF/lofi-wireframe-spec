@@ -94,21 +94,22 @@ body {
 /*
  * Border collapse classes - applied by renderer
  * when adjacent outlined elements should merge borders
+ * Simply removes the border on the collapsing side
  */
 .collapse-top {
-  margin-top: -1px;
+  border-top-width: 0;
 }
 
 .collapse-left {
-  margin-left: -1px;
+  border-left-width: 0;
 }
 
 .collapse-bottom {
-  margin-bottom: -1px;
+  border-bottom-width: 0;
 }
 
 .collapse-right {
-  margin-right: -1px;
+  border-right-width: 0;
 }
 
 /* Text styles */
@@ -210,6 +211,29 @@ body {
   width: 24px;
   height: 24px;
   filter: drop-shadow(0 1px 2px hsla(0, 0%, 0%, 0.3));
+}
+
+/* Drag arrows */
+.drag-arrow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 150;
+  overflow: visible;
+}
+
+.drag-arrow path.arrow-line {
+  fill: none;
+  stroke: hsl(0, 45%, 55%);
+  stroke-width: 2;
+  stroke-dasharray: 6 4;
+}
+
+.drag-arrow polygon.arrow-head {
+  fill: hsl(0, 45%, 55%);
 }
 
 /* Link indicator */

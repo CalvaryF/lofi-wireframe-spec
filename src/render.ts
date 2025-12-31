@@ -3,14 +3,14 @@ import { isEachBlock, isChildrenSlot } from './parser'
 import { icons } from 'lucide'
 
 // Context passed down during rendering - tracks which edges should collapse
-interface RenderContext {
+export interface RenderContext {
   collapseTop: boolean
   collapseLeft: boolean
   collapseBottom: boolean
   collapseRight: boolean
 }
 
-const defaultContext: RenderContext = {
+export const defaultContext: RenderContext = {
   collapseTop: false,
   collapseLeft: false,
   collapseBottom: false,
@@ -18,7 +18,7 @@ const defaultContext: RenderContext = {
 }
 
 // Helper to get padding values
-function getPadding(padding?: Padding): { top: number; right: number; bottom: number; left: number } {
+export function getPadding(padding?: Padding): { top: number; right: number; bottom: number; left: number } {
   if (!padding) return { top: 0, right: 0, bottom: 0, left: 0 }
   if (typeof padding === 'number') return { top: padding, right: padding, bottom: padding, left: padding }
   // [vertical, horizontal]
@@ -75,7 +75,7 @@ function outlineClass(outline?: Outline): string {
 }
 
 // Check if a node has an outline
-function hasOutline(node: ResolvedNode): boolean {
+export function hasOutline(node: ResolvedNode): boolean {
   if (node.type === 'box') {
     return node.props.outline !== undefined && node.props.outline !== 'none'
   }
@@ -83,7 +83,7 @@ function hasOutline(node: ResolvedNode): boolean {
 }
 
 // Check if a node grows to fill available space
-function hasGrow(node: ResolvedNode): boolean {
+export function hasGrow(node: ResolvedNode): boolean {
   if (node.type === 'box') {
     return node.props.grow === 1
   }
@@ -93,7 +93,7 @@ function hasGrow(node: ResolvedNode): boolean {
 // Check if a node (or its descendants) has an outline on a leading edge
 // For cross-axis edges, we need to check ALL children (they all share that edge)
 // For main-axis edges, we only check the first child
-function hasLeadingOutline(node: ResolvedNode, direction: 'top' | 'left'): boolean {
+export function hasLeadingOutline(node: ResolvedNode, direction: 'top' | 'left'): boolean {
   if (hasOutline(node)) return true
 
   if (node.type === 'box' || node.type === 'frame') {
@@ -132,7 +132,7 @@ function hasLeadingOutline(node: ResolvedNode, direction: 'top' | 'left'): boole
 // Check if node has trailing outline
 // For cross-axis edges, check ALL children
 // For main-axis edges, check only the last child
-function hasTrailingOutline(node: ResolvedNode, direction: 'bottom' | 'right'): boolean {
+export function hasTrailingOutline(node: ResolvedNode, direction: 'bottom' | 'right'): boolean {
   if (hasOutline(node)) return true
 
   if (node.type === 'box' || node.type === 'frame') {
@@ -181,7 +181,7 @@ function textStyleClass(style?: TextStyle): string {
 }
 
 // Compute context for a child based on its position within parent
-function computeChildContext(
+export function computeChildContext(
   child: ResolvedNode,
   index: number,
   totalChildren: number,

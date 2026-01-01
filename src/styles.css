@@ -94,6 +94,8 @@ body {
 /* Frame container - holds frame-wrapper + line svg */
 .frame-container {
   position: relative;
+  padding: 12px;
+  background: var(--background);
 }
 
 /* Frame wrapper - holds header + body */

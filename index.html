@@ -45,15 +45,52 @@
         background: white;
         cursor: pointer;
         color: hsl(0, 0%, 45%);
-        margin-left: auto;
       }
-      .toolbar-button:hover {
+      .toolbar-button:hover:not(:disabled) {
         border-color: hsl(0, 0%, 60%);
         color: hsl(0, 0%, 20%);
       }
       .toolbar-button.active {
         background: hsl(0, 0%, 96%);
         color: hsl(0, 0%, 20%);
+      }
+      .toolbar-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .export-dropdown-container {
+        position: relative;
+      }
+      .export-dropdown {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 4px;
+        background: white;
+        border: 1px solid hsl(0, 0%, 80%);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        z-index: 110;
+        min-width: 180px;
+      }
+      .export-dropdown button {
+        display: block;
+        width: 100%;
+        padding: 8px 12px;
+        border: none;
+        background: none;
+        text-align: left;
+        font-family: inherit;
+        font-size: 13px;
+        cursor: pointer;
+        color: hsl(0, 0%, 20%);
+      }
+      .export-dropdown button:hover {
+        background: hsl(0, 0%, 96%);
+      }
+      .export-dropdown-divider {
+        height: 1px;
+        background: hsl(0, 0%, 85%);
+        margin: 4px 0;
       }
     </style>
   </head>

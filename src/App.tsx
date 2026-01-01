@@ -4,6 +4,9 @@ import { useAnnotationNavigation } from './hooks/useAnnotationNavigation'
 import { FramesContainer } from './components/FramesContainer'
 import { ComponentGallery } from './components/gallery/ComponentGallery'
 import { FrameProvider, useNotifyFrameChange } from './contexts/FrameContext'
+import { captureFrame, captureAllFrames, downloadBlob, generateFilename } from './utils/export'
+import { ExportDropdown } from './components/ExportDropdown'
+import type { ExportOptions } from './components/ExportDropdown'
 import type { ResolvedNode } from './types'
 
 type GalleryComponents = Record<string, { variants: Record<string, unknown[]> }>
@@ -61,6 +64,42 @@ function AppContent() {
     setSelectedAnnotation(globalIndex)
     setCursor(globalIndex)
   }, [setSelectedAnnotation, setCursor])
+
+  // Handle frame export
+  const handleExportFrame = useCallback(async (options: ExportOptions = { mode: 'frame' }) => {
+    if (isComponentGallery) return
+
+    try {
+      if (options.batch) {
+        // Batch export all frames
+        const result = await captureAllFrames({
+          mode: options.mode,
+          onProgress: (current, total, frameId) => {
+            console.log(`Exporting ${current}/${total}: ${frameId}`)
+          }
+        })
+        const filename = `wireframes_${options.mode}.zip`
+        downloadBlob(result.blob, filename)
+      } else {
+        // Single frame export
+        const currentFrame = navItems[activeIndex]
+        if (!currentFrame) return
+
+        const results = await captureFrame({
+          frameId: currentFrame.id,
+          mode: options.mode,
+          asZip: options.asZip
+        })
+
+        for (const result of results) {
+          const filename = generateFilename(currentFrame.id, result.suffix, result.isZip)
+          downloadBlob(result.blob, filename)
+        }
+      }
+    } catch (err) {
+      console.error('Export failed:', err)
+    }
+  }, [navItems, activeIndex, isComponentGallery])
 
   // Persist spec file selection
   useEffect(() => {
@@ -199,6 +238,13 @@ function AppContent() {
         return
       }
 
+      // Export current frame
+      if (e.key === 'e' || e.key === 'E') {
+        e.preventDefault()
+        handleExportFrame({ mode: 'frame' })
+        return
+      }
+
       // Shift+Up/Down: navigate annotations
       if (e.shiftKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
         if (!showAnnotations || !containerRef.current) return
@@ -265,7 +311,7 @@ function AppContent() {
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection])
+  }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection, handleExportFrame])
 
   // Update activeIndex based on scroll position (user-initiated scroll only)
   useEffect(() => {
@@ -422,18 +468,24 @@ function AppContent() {
             <option key={file} value={file}>{file}</option>
           ))}
         </select>
-        <button
-          className={`toolbar-button ${showAnnotations ? 'active' : ''}`}
-          onClick={() => {
-            if (showAnnotations) clearSelection()
-            setShowAnnotations(!showAnnotations)
-          }}
-          title="Toggle annotations (A)"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-          </svg>
-        </button>
+        <div style={{ display: 'flex', gap: '8px', marginLeft: 'auto' }}>
+          <button
+            className={`toolbar-button ${showAnnotations ? 'active' : ''}`}
+            onClick={() => {
+              if (showAnnotations) clearSelection()
+              setShowAnnotations(!showAnnotations)
+            }}
+            title="Toggle annotations (A)"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+          </button>
+          <ExportDropdown
+            onExport={handleExportFrame}
+            disabled={isComponentGallery || navItems.length === 0}
+          />
+        </div>
       </div>
 
       <div className="main-layout">

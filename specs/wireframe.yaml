@@ -4,6 +4,7 @@ frames:
   # Main Dashboard
   - Frame:
       id: Dashboard
+      description: "Primary landing page after login. Shows KPIs, revenue trends, and recent activity."
       size: [1280, 800]
       layout: column
       padding: 0
@@ -380,6 +381,7 @@ frames:
   # Team page with more complex interactions
   - Frame:
       id: TeamPage
+      description: "Admin-only view for managing team members. Supports role changes and bulk actions."
       size: [1280, 700]
       layout: column
       padding: 24
@@ -584,6 +586,7 @@ frames:
   # Analytics page with charts
   - Frame:
       id: Analytics
+      description: "Deep-dive metrics for power users. Exportable charts and customizable date ranges."
       size: [1200, 800]
       layout: column
       padding: 24
@@ -783,6 +786,7 @@ frames:
   # Fleet tracking page with maps
   - Frame:
       id: FleetTracking
+      description: "Real-time vehicle tracking with live map updates. Used by dispatch operators."
       size: [1200, 700]
       layout: column
       padding: 24
@@ -923,6 +927,7 @@ frames:
   # Map trajectory styles showcase
   - Frame:
       id: MapStyles
+      description: "Reference sheet showing available trajectory patterns for map components."
       size: [1100, 500]
       layout: column
       padding: 24
@@ -994,6 +999,7 @@ frames:
   # Multi-trajectory map showcase
   - Frame:
       id: MultiTrajectory
+      description: "Demo of overlapping vehicle routes with shared depot/destination points."
       size: [1000, 600]
       layout: column
       padding: 24
@@ -1148,6 +1154,7 @@ frames:
   # Drag and Drop demo
   - Frame:
       id: DragDropDemo
+      description: "Kanban-style task board with drag indicators. Shows grab cursor and drop zones."
       size: [800, 400]
       layout: column
       padding: 24

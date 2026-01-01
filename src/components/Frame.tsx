@@ -81,9 +81,6 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
     if (annotatedElements.length === 0) return
 
     const frameRect = frame.getBoundingClientRect()
-    const frameWrapper = frame.parentElement
-    const labelHeight = frameWrapper?.querySelector('.frame-label')?.getBoundingClientRect().height || 0
-    const gap = 8
 
     annotatedElements.forEach(el => {
       const htmlEl = el as HTMLElement
@@ -104,8 +101,8 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
         marker.classList.add('hovered')
       }
 
-      // Position relative to frame-wrapper
-      const top = labelHeight + gap + (elRect.top - frameRect.top) - 8
+      // Position relative to frame (overlay is now sibling of frame in frame-content-area)
+      const top = (elRect.top - frameRect.top) - 8
       const left = (elRect.right - frameRect.left) - 12
 
       marker.style.top = `${top}px`
@@ -181,20 +178,29 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
   return (
     <div className="frame-container" data-frame-id={frameId} ref={containerRef}>
       <div className="frame-wrapper">
-        <div className="frame-label">{frameId}</div>
-        <div className="frame" style={frameStyle} ref={frameRef}>
-          <NodeRenderer
-            node={wrapperNode}
-            frameId={frameId}
-            annotationMap={annotationMap}
-          />
+        <div className="frame-header">
+          <div className="frame-label">{frameId}</div>
+          {node.props.description && (
+            <div className="frame-description">{node.props.description}</div>
+          )}
         </div>
-        <div className="annotation-markers-overlay" ref={overlayRef} />
-      </div>
+        <div className="frame-body">
+          <div className="frame-content-area">
+            <div className="frame" style={frameStyle} ref={frameRef}>
+              <NodeRenderer
+                node={wrapperNode}
+                frameId={frameId}
+                annotationMap={annotationMap}
+              />
+            </div>
+            <div className="annotation-markers-overlay" ref={overlayRef} />
+          </div>
 
-      {annotations.length > 0 && (
-        <AnnotationsPanel annotations={annotations} frameId={frameId} onAnnotationClick={onAnnotationClick} />
-      )}
+          {annotations.length > 0 && (
+            <AnnotationsPanel annotations={annotations} frameId={frameId} onAnnotationClick={onAnnotationClick} />
+          )}
+        </div>
+      </div>
 
       <svg className="annotation-line" style={{ width: '100%', height: '100%', top: 0, left: 0 }} />
     </div>

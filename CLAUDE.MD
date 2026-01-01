@@ -35,12 +35,15 @@ A screen that contains all other elements.
 ```yaml
 Frame:
   id: AssetList              # required, unique
+  description: "Main asset listing with filters and search"  # optional context
   size: [1440, 900]          # [width, height] or [width, hug] to fit content
   layout: column             # column | row | absolute
   gap: 16                    # spacing between children
   padding: 24                # inner padding
   children: [...]
 ```
+
+The `description` field provides design context - use it to explain the purpose, user flow, or design rationale for the frame.
 
 ### Box
 A container for layout or visual grouping.

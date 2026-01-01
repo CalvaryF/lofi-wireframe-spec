@@ -91,20 +91,28 @@ body {
   margin: 0 auto;
 }
 
-/* Frame container - holds frame-wrapper + optional annotations panel */
+/* Frame container - holds frame-wrapper + line svg */
 .frame-container {
-  display: flex;
-  flex-direction: row;
-  gap: 24px;
-  align-items: flex-start;
   position: relative;
 }
 
-/* Frame wrapper - holds label + frame (column layout) */
+/* Frame wrapper - holds header + body */
 .frame-wrapper {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Frame body - holds frame-content-area + annotations panel side by side */
+.frame-body {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+/* Container for frame + markers overlay - positions overlay relative to frame content */
+.frame-content-area {
   position: relative;
 }
 
@@ -118,11 +126,26 @@ body {
 }
 
 /* Frame label */
+.frame-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .frame-label {
   font-size: 13px;
   font-weight: 500;
   color: var(--muted-foreground);
   letter-spacing: -0.01em;
+}
+
+.frame-description {
+  font-size: 12px;
+  color: var(--muted-foreground);
+  opacity: 0.8;
+  max-width: 400px;
+  line-height: 1.4;
+  padding-bottom: 16px;
 }
 
 /* Annotation marker - numbered box on annotated elements */
@@ -177,8 +200,6 @@ body {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding-top: 28px; /* Align with frame content (after label) */
-  margin-left: 16px;
 }
 
 .annotation-item {

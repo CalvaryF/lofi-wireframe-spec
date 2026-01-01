@@ -38,6 +38,7 @@ export interface BaseNode {
 export interface FrameNode extends BaseNode {
   Frame: {
     id: string
+    description?: string
     size?: [number, number | 'hug']
     layout?: Layout
     gap?: number

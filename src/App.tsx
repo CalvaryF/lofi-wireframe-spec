@@ -360,7 +360,7 @@ export default function App() {
           ))}
         </nav>
 
-        <div id="app" ref={containerRef} className={showAnnotations ? '' : 'hide-annotations'}>
+        <div id="app" ref={containerRef} className={showAnnotations ? '' : 'hide-annotations'} onClick={clearSelection}>
           {error ? (
             <div className="error">
               <div>Error loading wireframes</div>

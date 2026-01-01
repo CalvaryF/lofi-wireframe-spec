@@ -28,7 +28,10 @@ export function AnnotationsPanel({ annotations, frameId, onAnnotationClick }: An
             data-annotation={ann.number}
             onMouseEnter={() => setHoveredAnnotation({ frameId, number: ann.number })}
             onMouseLeave={() => setHoveredAnnotation(null)}
-            onClick={() => onAnnotationClick?.(frameId, ann.number)}
+            onClick={(e) => {
+              e.stopPropagation()
+              onAnnotationClick?.(frameId, ann.number)
+            }}
           >
             <span className="annotation-number">{ann.number}</span>
             <div className="annotation-content">

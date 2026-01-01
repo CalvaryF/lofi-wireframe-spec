@@ -1,6 +1,212 @@
 # Globe3D Stress Test - showcasing all 3D globe variations
 
 frames:
+  # Multi-trajectory globe (multiple routes on same globe)
+  - Frame:
+      id: MultiTrajectory
+      description: "Multiple trajectories on a single globe with legend"
+      size: [1100, 500]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Multi-Trajectory Globe", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Three Flight Routes", style: caption }
+                    - Globe3D:
+                        width: 320
+                        height: 300
+                        style: terrain
+                        trajectories:
+                          - fn: greatCircle
+                            altitude: 0.5
+                            vehicle: 0.4
+                            label: "NYC → London"
+                          - fn: polar
+                            altitude: 0.6
+                            vehicle: 0.6
+                            label: "LA → Moscow"
+                          - fn: equatorial
+                            altitude: 0.3
+                            vehicle: 0.2
+                            label: "Equatorial"
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Two Circuits", style: caption }
+                    - Globe3D:
+                        width: 320
+                        height: 300
+                        trajectories:
+                          - fn: circuit
+                            altitude: 0.4
+                            vehicle: 0.3
+                            label: "Regional A"
+                          - fn: circuit
+                            altitude: 0.5
+                            vehicle: 0.7
+                            label: "Regional B"
+
+  # Annotation test for Globe3D
+  - Frame:
+      id: Globe3DAnnotations
+      description: "Testing annotation highlighting on Globe3D components"
+      size: [1100, 550]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Globe3D with Annotations", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  annotation: { title: "Flight Tracker", description: "Real-time transatlantic flight visualization. Click on aircraft to see flight details." }
+                  children:
+                    - Text: { content: "Transatlantic Route", style: caption }
+                    - Globe3D:
+                        width: 280
+                        height: 240
+                        style: terrain
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.5
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  annotation: { title: "Regional Circuits", description: "Delivery routes that return to origin. Each color represents a different fleet region." }
+                  children:
+                    - Text: { content: "Circuit Routes", style: caption }
+                    - Globe3D:
+                        width: 280
+                        height: 240
+                        trajectories:
+                          - fn: circuit
+                            altitude: 0.4
+                            vehicle: 0.3
+                            label: "West Region"
+                          - fn: circuit
+                            altitude: 0.5
+                            vehicle: 0.7
+                            label: "East Region"
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  annotation: { title: "Polar Coverage", description: "Satellite ground tracks showing polar orbit coverage patterns over 24 hours." }
+                  children:
+                    - Text: { content: "Polar Orbit", style: caption }
+                    - Globe3D:
+                        width: 280
+                        height: 240
+                        trajectory:
+                          fn: polar
+                          altitude: 0.6
+                        vehicle: 0.5
+
+  # Circuit trajectory function
+  - Frame:
+      id: CircuitTrajectories
+      description: "Closed-loop circuit paths that start and end at same point"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Circuit Trajectories (Closed Loops)", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "circuit (wireframe)", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: circuit
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "circuit + altitude", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: circuit
+                          altitude: 0.6
+                        vehicle: 0.3
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "circuit (terrain)", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        style: terrain
+                        trajectory:
+                          fn: circuit
+                          altitude: 0.4
+                        vehicle: 0.7
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "circuit (no vehicle)", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: circuit
+                          altitude: 0.3
+
   # All trajectory function types
   - Frame:
       id: TrajectoryFunctions

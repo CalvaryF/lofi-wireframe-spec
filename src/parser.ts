@@ -352,6 +352,35 @@ function generateGlobeTrajectory(
       }
       return generateGlobeTrajectory('custom', randomWaypoints, altitude)
     }
+    case 'circuit': {
+      // Closed loop that starts and ends at same point
+      // Organic shape with 5-7 waypoints around a center
+      const numWaypoints = 5 + Math.floor(Math.random() * 3)
+      const centerLat = Math.random() * 60 - 30  // Center between -30 and 30 lat
+      const centerLon = Math.random() * 300 - 150  // Center between -150 and 150 lon
+      const baseRadius = 25 + Math.random() * 20  // 25-45 degrees radius
+
+      const circuitWaypoints: [number, number][] = []
+      for (let i = 0; i < numWaypoints; i++) {
+        const angle = (i / numWaypoints) * Math.PI * 2
+        // Add organic variation to radius (0.6 to 1.4 of base)
+        const radiusVariation = 0.6 + Math.random() * 0.8
+        const radius = baseRadius * radiusVariation
+        // Add slight angle offset for organic feel
+        const angleOffset = (Math.random() - 0.5) * 0.4
+        const lat = centerLat + radius * Math.sin(angle + angleOffset) * 0.7  // Squish vertically
+        const lon = centerLon + radius * Math.cos(angle + angleOffset)
+        // Clamp lat to valid range
+        circuitWaypoints.push([
+          Math.max(-70, Math.min(70, lat)),
+          lon
+        ])
+      }
+      // Close the loop - add first point again
+      circuitWaypoints.push([...circuitWaypoints[0]])
+
+      return generateGlobeTrajectory('custom', circuitWaypoints, altitude)
+    }
     case 'custom': {
       if (!waypoints || waypoints.length < 2) {
         return generateGlobeTrajectory('greatCircle', undefined, altitude)
@@ -745,28 +774,49 @@ function resolveNode(
   // Handle Globe3D
   if (isGlobe3D(node)) {
     const props = node.Globe3D
-    const altitude = props.trajectory?.altitude ?? 0
+    const trajectories: Globe3DTrajectoryData[] = []
 
-    // Generate trajectory
-    let trajectoryPoints: Globe3DPoint[] = []
-    if (props.trajectory?.waypoints) {
-      trajectoryPoints = generateGlobeTrajectory('custom', props.trajectory.waypoints, altitude)
-    } else if (props.trajectory?.fn) {
-      trajectoryPoints = generateGlobeTrajectory(props.trajectory.fn, undefined, altitude)
+    if (props.trajectories && props.trajectories.length > 0) {
+      // Multiple trajectories mode
+      for (const traj of props.trajectories) {
+        const altitude = traj.altitude ?? 0
+        let points: Globe3DPoint[] = []
+        if (traj.waypoints) {
+          points = generateGlobeTrajectory('custom', traj.waypoints, altitude)
+        } else if (traj.fn) {
+          points = generateGlobeTrajectory(traj.fn, undefined, altitude)
+        } else {
+          points = generateGlobeTrajectory('greatCircle', undefined, altitude)
+        }
+        trajectories.push({
+          points,
+          vehicle: traj.vehicle,
+          markers: traj.markers,
+          label: traj.label
+        })
+      }
     } else {
-      trajectoryPoints = generateGlobeTrajectory('greatCircle', undefined, altitude)
-    }
-
-    const trajectory: Globe3DTrajectoryData = {
-      points: trajectoryPoints,
-      vehicle: props.vehicle,
-      markers: props.markers
+      // Single trajectory mode (backward compatible)
+      const altitude = props.trajectory?.altitude ?? 0
+      let points: Globe3DPoint[] = []
+      if (props.trajectory?.waypoints) {
+        points = generateGlobeTrajectory('custom', props.trajectory.waypoints, altitude)
+      } else if (props.trajectory?.fn) {
+        points = generateGlobeTrajectory(props.trajectory.fn, undefined, altitude)
+      } else {
+        points = generateGlobeTrajectory('greatCircle', undefined, altitude)
+      }
+      trajectories.push({
+        points,
+        vehicle: props.vehicle,
+        markers: props.markers
+      })
     }
 
     return {
       type: 'globe3d',
       props,
-      trajectory
+      trajectories
     }
   }
 

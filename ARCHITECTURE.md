@@ -25,11 +25,19 @@ src/
 │   │   ├── Cursor.tsx
 │   │   ├── Chart.tsx
 │   │   ├── Map.tsx
-│   │   └── Scatter3D/    # 3D primitives are folders
-│   │       ├── index.tsx
-│   │       ├── ScatterScene.tsx
-│   │       ├── PointCloud.tsx
-│   │       └── AxisIndicators.tsx
+│   │   ├── Scatter3D/    # 3D primitives are folders
+│   │   │   ├── index.tsx
+│   │   │   ├── ScatterScene.tsx
+│   │   │   ├── PointCloud.tsx
+│   │   │   └── AxisIndicators.tsx
+│   │   └── Globe3D/
+│   │       ├── index.tsx         # Main: Canvas, WebGL slots, legend
+│   │       ├── GlobeScene.tsx    # Scene composition
+│   │       ├── GlobeMesh.tsx     # Wireframe lat/lon grid
+│   │       ├── ContinentMesh.tsx # Terrain style: Earth continents
+│   │       ├── TrajectoryLine.tsx
+│   │       ├── VehicleMarker.tsx
+│   │       └── CameraController.tsx
 │   │
 │   └── gallery/          # Component gallery (components.yaml view)
 │       ├── ComponentGallery.tsx
@@ -102,7 +110,7 @@ The `resolveNode()` function transforms `SpecNode` → `ResolvedNode`:
 - `Chart` → samples mathematical functions → `series: ChartSeries[]`
 - `Map` → generates trajectory points → `trajectories: MapTrajectoryData[]`
 - `Scatter3D` → generates 3D points → `series: Scatter3DSeriesData[]`
-- `Globe3D` → generates lat/lon path → `trajectory: Globe3DTrajectoryData`
+- `Globe3D` → generates lat/lon paths → `trajectories: Globe3DTrajectoryData[]`
 
 ### 3. Rendering (`NodeRenderer.tsx`)
 
@@ -371,11 +379,14 @@ This prevents double borders when outlined boxes are adjacent.
 3D primitives (Scatter3D, Globe3D) follow this structure:
 
 ```
-Scatter3D/
-├── index.tsx        # Main component with Canvas, visibility, slots
-├── ScatterScene.tsx # Scene composition (lights, controls, children)
-├── PointCloud.tsx   # Instanced geometry for performance
-└── AxisIndicators.tsx
+Scatter3D/                          Globe3D/
+├── index.tsx        # Main         ├── index.tsx         # Main + legend
+├── ScatterScene.tsx # Scene        ├── GlobeScene.tsx    # Scene
+├── PointCloud.tsx   # Instanced    ├── GlobeMesh.tsx     # Wireframe sphere
+└── AxisIndicators.tsx              ├── ContinentMesh.tsx # Terrain continents
+                                    ├── TrajectoryLine.tsx
+                                    ├── VehicleMarker.tsx
+                                    └── CameraController.tsx
 ```
 
 **Key patterns:**
@@ -383,6 +394,77 @@ Scatter3D/
 - Pass `onContextCreated` to Canvas for context tracking
 - Use instanced rendering for many objects (InstancedMesh)
 - Calculate zoom/size responsively based on container dimensions
+
+### Globe3D Implementation Details
+
+**Trajectory Functions** (`parser.ts`):
+| Function | Description |
+|----------|-------------|
+| `greatCircle` | NYC → London arc (slerp interpolation) |
+| `polar` | Over-the-pole route (LA → Moscow style) |
+| `equatorial` | Equator-following path |
+| `random` | Random waypoints with great circle interpolation |
+| `circuit` | Closed loop returning to origin (organic shape) |
+| `custom` | User-provided `[lat, lon][]` waypoints |
+
+**Coordinate System**:
+- `latLonToCartesian(lat, lon)` → unit sphere `{x, y, z}`
+- `slerp(start, end, t)` → spherical linear interpolation for great circles
+- Trajectories elevated slightly above sphere (radius 1.02) for visibility
+
+**Flight Altitude Arc**:
+```typescript
+// Parabolic arc for flight paths (peaks at midpoint)
+function calculateFlightElevation(t: number, altitude: number): number {
+  const maxHeight = 0.4
+  const parabola = 1 - 4 * Math.pow(t - 0.5, 2)
+  return 1.0 + altitude * maxHeight * parabola
+}
+```
+
+**Globe Styles**:
+- `wireframe` (default): Lat/lon grid lines via `GlobeMesh.tsx`
+- `terrain`: Earth-like continents via `ContinentMesh.tsx`
+
+**ContinentMesh.tsx** (Terrain Style):
+- Manually crafted simplified continent coordinates (~15-30 points each)
+- 7 landmasses: North America, South America, Europe, Africa, Asia, Australia, Greenland
+- Uses fan triangulation from centroid with concentric rings for smooth fill
+- Edge subdivision (3x) for higher resolution mesh
+- Slightly elevated above ocean sphere (radius 1.008)
+
+**Tone Mapping Fix**:
+React Three Fiber applies ACES filmic tone mapping by default, which darkens whites. Disabled with:
+```tsx
+<Canvas gl={{ preserveDrawingBuffer: true, toneMapping: 0 }}>
+```
+
+**Multi-Trajectory Support**:
+```yaml
+# Single trajectory (backward compatible)
+Globe3D:
+  trajectory:
+    fn: greatCircle
+  vehicle: 0.5
+
+# Multiple trajectories with legend
+Globe3D:
+  trajectories:
+    - fn: greatCircle
+      altitude: 0.5
+      vehicle: 0.4
+      label: "NYC → London"
+    - fn: circuit
+      altitude: 0.4
+      vehicle: 0.7
+      label: "Regional"
+```
+
+**Camera Presets**:
+- `overview`: Fixed position, auto-rotate, see entire globe
+- `follow`: Camera follows vehicle position
+- `side`: Perpendicular to trajectory plane
+- `track`: Camera above vehicle, globe rotates underneath
 
 ## Hot Reload
 

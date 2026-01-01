@@ -1,5 +1,4 @@
 - Table component
-- 3d map
 - Value table
 - Workbook sidebar
 - HMI layout
@@ -9,6 +8,7 @@
 - Filter component
 - Tree view
 - Procedures
+- P&ID
 
 - Adding context and descriptions to designs
 - Giving feedback on deisgns (so LLMs can update them autonomously)

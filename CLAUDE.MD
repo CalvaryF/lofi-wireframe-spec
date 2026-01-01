@@ -260,7 +260,7 @@ Globe3D:
   height: 300
   style: wireframe | terrain                       # rendering style
   trajectory:
-    fn: greatCircle | polar | equatorial | random  # trajectory function
+    fn: greatCircle | polar | equatorial | random | circuit  # trajectory function
     waypoints: [[40.7, -74.0], [51.5, -0.1]]       # [lat, lon] pairs (for custom)
     altitude: 0.5                                   # arc height above sphere (0-1)
   vehicle: 0.5                    # position along path (0-1)
@@ -272,7 +272,7 @@ Globe3D:
 | Style | Description |
 |-------|-------------|
 | `wireframe` | Lat/lon grid lines (default) |
-| `terrain` | Random terrain blobs like 2D Map |
+| `terrain` | Earth-like continent shapes |
 
 **Trajectory functions:**
 
@@ -282,6 +282,7 @@ Globe3D:
 | `polar` | LAX to Moscow over north pole |
 | `equatorial` | Path roughly along equator |
 | `random` | Random waypoints connected by great circles |
+| `circuit` | Closed loop returning to origin (organic shape) |
 
 **Camera presets:**
 
@@ -318,15 +319,62 @@ Globe3D:
     trajectory:
       fn: polar
     vehicle: 0.2
-    camera: overview
+
+# Circuit path (closed loop)
+- Globe3D:
+    width: 300
+    height: 300
+    trajectory:
+      fn: circuit
+      altitude: 0.4
+    vehicle: 0.5
+
+# Custom waypoints
+- Globe3D:
+    width: 350
+    height: 280
+    trajectory:
+      waypoints:
+        - [40.7, -74.0]   # NYC
+        - [48.8, 2.3]     # Paris
+        - [51.5, -0.1]    # London
+      altitude: 0.5
+    vehicle: 0.6
 ```
+
+#### Multi-trajectory mode
+
+Display multiple routes on a single globe with automatic legend:
+
+```yaml
+Globe3D:
+  width: 400
+  height: 350
+  style: terrain
+  trajectories:
+    - fn: greatCircle
+      altitude: 0.5
+      vehicle: 0.4
+      label: "NYC → London"
+    - fn: polar
+      altitude: 0.6
+      vehicle: 0.6
+      label: "LA → Moscow"
+    - fn: circuit
+      altitude: 0.3
+      vehicle: 0.2
+      label: "Regional"
+```
+
+Each trajectory can have its own `fn`, `altitude`, `vehicle`, and `label`. Colors auto-cycle through the palette (blue, green, orange, purple, red, teal). Legend appears automatically when multiple trajectories are present.
 
 **Visual elements:**
 - Wireframe: lat/lon grid lines on sphere
-- Terrain: random blob patches (like 2D Map)
+- Terrain: simplified Earth continents (North America, South America, Europe, Africa, Asia, Australia, Greenland)
 - Colored trajectory line (elevated above surface)
 - Cone vehicle pointing in direction of travel
 - Auto-rotation in overview mode
+- Legend for multi-trajectory mode
 
 ### Chart
 

@@ -333,7 +333,7 @@ export function NodeRenderer({
       <Globe3D
         width={node.props.width}
         height={node.props.height}
-        trajectories={[node.trajectory]}
+        trajectories={node.trajectories}
         camera={node.props.camera}
         style={node.props.style}
       />

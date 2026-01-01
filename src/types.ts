@@ -210,7 +210,7 @@ export interface ChartDataPoint {
 // ============ Globe3D Types ============
 
 // Trajectory function types for globe
-export type Globe3DTrajectoryFn = 'greatCircle' | 'polar' | 'equatorial' | 'random' | 'custom'
+export type Globe3DTrajectoryFn = 'greatCircle' | 'polar' | 'equatorial' | 'random' | 'circuit' | 'custom'
 
 // Camera preset types
 export type Globe3DCameraPreset = 'follow' | 'side' | 'track' | 'overview'
@@ -224,12 +224,23 @@ export interface Globe3DMarker {
   label?: string
 }
 
+// Single trajectory definition for Globe3D (used in trajectories array)
+export interface Globe3DTrajectoryDef {
+  fn?: Globe3DTrajectoryFn
+  waypoints?: [number, number][]  // [lat, lon] pairs
+  altitude?: number  // 0-1 arc height above sphere (0 = surface, 1 = max arc)
+  vehicle?: number
+  markers?: Globe3DMarker[]
+  label?: string
+}
+
 // Globe3D node definition
 export interface Globe3DNode extends BaseNode {
   Globe3D: {
     width?: number
     height?: number
     style?: Globe3DStyle  // 'wireframe' (default) or 'terrain'
+    // Single trajectory (backward compatible)
     trajectory?: {
       fn?: Globe3DTrajectoryFn
       waypoints?: [number, number][]  // [lat, lon] pairs
@@ -237,6 +248,8 @@ export interface Globe3DNode extends BaseNode {
     }
     vehicle?: number
     markers?: Globe3DMarker[]
+    // Multiple trajectories
+    trajectories?: Globe3DTrajectoryDef[]
     camera?: Globe3DCameraPreset
     rotation?: number
   }
@@ -323,5 +336,5 @@ export type ResolvedNode =
   | { type: 'cursor'; props: CursorNode['Cursor'] }
   | { type: 'map'; props: MapNode['Map']; trajectories: MapTrajectoryData[] }
   | { type: 'chart'; props: ChartNode['Chart']; series: ChartSeries[] }
-  | { type: 'globe3d'; props: Globe3DNode['Globe3D']; trajectory: Globe3DTrajectoryData }
+  | { type: 'globe3d'; props: Globe3DNode['Globe3D']; trajectories: Globe3DTrajectoryData[] }
   | { type: 'scatter3d'; props: Scatter3DNode['Scatter3D']; series: Scatter3DSeriesData[] }

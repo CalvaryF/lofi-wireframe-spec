@@ -47,8 +47,19 @@ async function waitForFrames(page: Page): Promise<void> {
   // Wait for at least one frame container to appear
   await page.waitForSelector('.frame-container', { timeout: RENDER_TIMEOUT })
 
-  // Wait a bit for 3D components and animations to settle
+  // Wait for 3D/WebGL components to initialize
+  // Check for canvas elements and wait for them to render
   await page.waitForTimeout(500)
+
+  // If there are canvases (3D components), wait longer for WebGL to initialize
+  const hasCanvases = await page.evaluate(() => {
+    return document.querySelectorAll('canvas').length > 0
+  })
+
+  if (hasCanvases) {
+    // WebGL components need more time to initialize and render
+    await page.waitForTimeout(2000)
+  }
 }
 
 async function captureFrames(
@@ -70,9 +81,26 @@ async function captureFrames(
       continue
     }
 
-    // Scroll frame into view
-    await container.scrollIntoViewIfNeeded()
-    await page.waitForTimeout(300) // Wait for 3D components
+    // Use app's scroll function which accounts for header height
+    await page.evaluate((id) => {
+      if (window.scrollToFrame) {
+        window.scrollToFrame(id)
+      }
+    }, frameId)
+
+    // Wait for inView polling to detect visibility (polls every 500ms)
+    // This is needed for 3D components that only render when in view
+    await page.waitForTimeout(700)
+
+    // Check if this frame has canvases (3D components)
+    const hasCanvases = await container.evaluate((el: Element) => {
+      return el.querySelectorAll('canvas').length > 0
+    })
+
+    // If 3D components exist, wait more for WebGL to fully render
+    if (hasCanvases) {
+      await page.waitForTimeout(1000)
+    }
 
     if (mode === 'frame') {
       // Capture just the .frame element
@@ -82,12 +110,35 @@ async function captureFrames(
         results.set(`${frameId}.png`, buffer)
       }
     } else if (mode === 'annotated') {
-      // Capture the full container (includes annotations + padding)
-      const buffer = await container.screenshot({ type: 'png' })
-      results.set(`${frameId}_annotated.png`, buffer)
+      // Get bounding box and add extra width to capture full annotations panel
+      const box = await container.boundingBox()
+      if (box) {
+        const buffer = await page.screenshot({
+          type: 'png',
+          clip: {
+            x: box.x,
+            y: box.y,
+            width: box.width + 150, // Extra width for annotations text overflow
+            height: box.height
+          }
+        })
+        results.set(`${frameId}_annotated.png`, buffer)
+      }
     } else if (mode === 'selections') {
+      // Get bounding box for expanded capture
+      const box = await container.boundingBox()
+      if (!box) continue
+
       // First capture base annotated state
-      const baseBuffer = await container.screenshot({ type: 'png' })
+      const baseBuffer = await page.screenshot({
+        type: 'png',
+        clip: {
+          x: box.x,
+          y: box.y,
+          width: box.width + 150,
+          height: box.height
+        }
+      })
       results.set(`${frameId}_annotated.png`, baseBuffer)
 
       // Get all annotation items
@@ -111,12 +162,35 @@ async function captureFrames(
           }
         })
 
-        const buffer = await container.screenshot({ type: 'png' })
+        const buffer = await page.screenshot({
+          type: 'png',
+          clip: {
+            x: box.x,
+            y: box.y,
+            width: box.width + 150,
+            height: box.height
+          }
+        })
         results.set(`${frameId}_ann${annotationNum}.png`, buffer)
       }
 
       // Clear selection
       await page.click('#app')
+    }
+
+    // After capturing, scroll frame out of view to release WebGL contexts
+    // This prevents context exhaustion when rendering many frames with 3D components
+    if (hasCanvases) {
+      // Scroll far down past this frame to push it out of view
+      await page.evaluate((id) => {
+        const el = document.querySelector(`[data-frame-id="${id}"]`)
+        if (el) {
+          const rect = el.getBoundingClientRect()
+          window.scrollBy(0, rect.height + 200)
+        }
+      }, frameId)
+      // Wait for inView polling to detect out-of-view state
+      await page.waitForTimeout(700)
     }
   }
 

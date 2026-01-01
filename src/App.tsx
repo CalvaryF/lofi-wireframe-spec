@@ -24,6 +24,23 @@ const SPEC_FILES = Object.keys(specModules)
 const HEADER_HEIGHT = 60
 const SCROLL_PADDING = 24
 
+// Expose scroll function for headless renderer
+declare global {
+  interface Window {
+    scrollToFrame?: (frameId: string) => boolean
+  }
+}
+
+window.scrollToFrame = (frameId: string): boolean => {
+  const el = document.querySelector(`[data-frame-id="${frameId}"]`)
+  if (!el) return false
+  const rect = el.getBoundingClientRect()
+  const targetTop = HEADER_HEIGHT + SCROLL_PADDING
+  const top = window.scrollY + rect.top - targetTop
+  window.scrollTo({ top: Math.max(0, top), behavior: 'instant' })
+  return true
+}
+
 interface NavItem {
   id: string
   element: Element

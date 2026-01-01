@@ -34,7 +34,7 @@ export async function getBrowser(): Promise<Browser> {
 export async function createContext(): Promise<BrowserContext> {
   const b = await getBrowser()
   return b.newContext({
-    viewport: { width: 1920, height: 1080 },
+    viewport: { width: 3000, height: 1080 },
   })
 }
 

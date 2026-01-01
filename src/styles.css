@@ -268,18 +268,27 @@ body {
   flex-direction: column;
   gap: 2px;
   padding-top: 2px;
+  flex: 1;
+  min-width: 0; /* Allow flex child to shrink below content size */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
 .annotation-title {
   font-size: 13px;
   font-weight: 500;
   color: var(--foreground);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 .annotation-description {
   font-size: 12px;
   color: var(--muted-foreground);
   line-height: 1.4;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
 }
 
 /* Frame - the screen/canvas */

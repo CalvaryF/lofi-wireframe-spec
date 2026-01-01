@@ -258,6 +258,7 @@ Map:
 Globe3D:
   width: 400
   height: 300
+  style: wireframe | terrain                       # rendering style
   trajectory:
     fn: greatCircle | polar | equatorial | random  # trajectory function
     waypoints: [[40.7, -74.0], [51.5, -0.1]]       # [lat, lon] pairs (for custom)
@@ -265,6 +266,13 @@ Globe3D:
   vehicle: 0.5                    # position along path (0-1)
   camera: overview | follow | side | track         # camera preset
 ```
+
+**Style:**
+
+| Style | Description |
+|-------|-------------|
+| `wireframe` | Lat/lon grid lines (default) |
+| `terrain` | Random terrain blobs like 2D Map |
 
 **Trajectory functions:**
 
@@ -302,10 +310,11 @@ Globe3D:
     vehicle: 0.4
     camera: follow
 
-# Polar satellite orbit
+# Terrain style with polar orbit
 - Globe3D:
     width: 300
     height: 300
+    style: terrain
     trajectory:
       fn: polar
     vehicle: 0.2
@@ -313,7 +322,8 @@ Globe3D:
 ```
 
 **Visual elements:**
-- Wireframe sphere with lat/lon grid
+- Wireframe: lat/lon grid lines on sphere
+- Terrain: random blob patches (like 2D Map)
 - Colored trajectory line (elevated above surface)
 - Cone vehicle pointing in direction of travel
 - Auto-rotation in overview mode

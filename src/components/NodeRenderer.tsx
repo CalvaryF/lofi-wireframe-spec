@@ -335,6 +335,7 @@ export function NodeRenderer({
         height={node.props.height}
         trajectories={[node.trajectory]}
         camera={node.props.camera}
+        style={node.props.style}
       />
     )
   }

@@ -3,7 +3,7 @@ import { PerspectiveCamera, OrbitControls } from '@react-three/drei'
 import { GlobeScene } from './GlobeScene'
 import { useInView } from '../../../hooks/useInView'
 import { useWebGLSlot } from '../../../hooks/useWebGLSlot'
-import type { Globe3DTrajectoryData, Globe3DCameraPreset } from '../../../types'
+import type { Globe3DTrajectoryData, Globe3DCameraPreset, Globe3DStyle } from '../../../types'
 
 const colorMap: Record<string, string> = {
   blue: 'hsl(210, 50%, 40%)',
@@ -21,13 +21,15 @@ interface Globe3DProps {
   height?: number
   trajectories: Globe3DTrajectoryData[]
   camera?: Globe3DCameraPreset
+  style?: Globe3DStyle
 }
 
 export function Globe3D({
   width = 400,
   height = 300,
   trajectories,
-  camera = 'overview'
+  camera = 'overview',
+  style = 'wireframe'
 }: Globe3DProps) {
   const [containerRef, inView] = useInView<HTMLDivElement>()
   const { hasSlot, onContextCreated } = useWebGLSlot(inView)
@@ -60,7 +62,7 @@ export function Globe3D({
       >
         {canRender ? (
           <Canvas
-            gl={{ preserveDrawingBuffer: true }}
+            gl={{ preserveDrawingBuffer: true, toneMapping: 0 }}
             onCreated={({ gl }) => {
               const ctx = gl.getContext()
               if (ctx) onContextCreated(ctx)
@@ -71,6 +73,7 @@ export function Globe3D({
               trajectories={trajectories}
               colors={trajectoryColors}
               camera={camera}
+              style={style}
             />
             <OrbitControls
               enablePan={false}

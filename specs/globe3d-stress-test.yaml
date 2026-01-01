@@ -73,6 +73,134 @@ frames:
                           fn: random
                         vehicle: 0.4
 
+  # Globe styles (wireframe vs terrain)
+  - Frame:
+      id: GlobeStyles
+      description: "Wireframe vs terrain rendering styles"
+      size: [900, 450]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Globe Styles", style: h1 }
+        - Box:
+            layout: row
+            gap: 24
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "style: wireframe (default)", style: caption }
+                    - Globe3D:
+                        width: 280
+                        height: 280
+                        style: wireframe
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.5
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "style: terrain", style: caption }
+                    - Globe3D:
+                        width: 280
+                        height: 280
+                        style: terrain
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.5
+                        vehicle: 0.4
+
+  # Terrain globe with different flight routes
+  - Frame:
+      id: TerrainFlights
+      description: "Various flight routes on terrain globe"
+      size: [1100, 450]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Flight Routes on Terrain Globe", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "Transatlantic", style: caption }
+                    - Globe3D:
+                        width: 220
+                        height: 220
+                        style: terrain
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.6
+                        vehicle: 0.35
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "Polar Route", style: caption }
+                    - Globe3D:
+                        width: 220
+                        height: 220
+                        style: terrain
+                        trajectory:
+                          fn: polar
+                          altitude: 0.5
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "Equatorial", style: caption }
+                    - Globe3D:
+                        width: 220
+                        height: 220
+                        style: terrain
+                        trajectory:
+                          fn: equatorial
+                          altitude: 0.4
+                        vehicle: 0.7
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "Random Route", style: caption }
+                    - Globe3D:
+                        width: 220
+                        height: 220
+                        style: terrain
+                        trajectory:
+                          fn: random
+                          altitude: 0.7
+                        vehicle: 0.4
+
   # Camera presets
   - Frame:
       id: CameraPresets

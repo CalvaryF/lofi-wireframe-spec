@@ -215,6 +215,9 @@ export type Globe3DTrajectoryFn = 'greatCircle' | 'polar' | 'equatorial' | 'rand
 // Camera preset types
 export type Globe3DCameraPreset = 'follow' | 'side' | 'track' | 'overview'
 
+// Globe style types
+export type Globe3DStyle = 'wireframe' | 'terrain'
+
 // Marker on globe trajectory
 export interface Globe3DMarker {
   position: number | 'start' | 'end'
@@ -226,6 +229,7 @@ export interface Globe3DNode extends BaseNode {
   Globe3D: {
     width?: number
     height?: number
+    style?: Globe3DStyle  // 'wireframe' (default) or 'terrain'
     trajectory?: {
       fn?: Globe3DTrajectoryFn
       waypoints?: [number, number][]  // [lat, lon] pairs

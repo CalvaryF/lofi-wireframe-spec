@@ -20,6 +20,7 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const canvasAnimationRef = useRef<number | null>(null)
   const { selectedAnnotation, hoveredAnnotation, isAnnotationHovered, isAnnotationSelected } = useAnnotationContext()
 
   // Collect annotations and create a lookup map (annotation object -> number)
@@ -106,9 +107,64 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
         clone.classList.add('annotation-highlight-clone')
 
         overlay.appendChild(clone)
+
+        // Cancel any existing animation loop
+        if (canvasAnimationRef.current) {
+          cancelAnimationFrame(canvasAnimationRef.current)
+        }
+
+        // Track current clone for potential re-cloning
+        let currentClone = clone
+
+        function copyCanvasFrames() {
+          const originalCanvases = selectedEl.querySelectorAll('canvas')
+          const clonedCanvases = currentClone.querySelectorAll('canvas')
+
+          // Re-clone if original has canvases that clone doesn't (late loading)
+          if (originalCanvases.length > 0 && clonedCanvases.length !== originalCanvases.length) {
+            const newClone = selectedEl.cloneNode(true) as HTMLElement
+            newClone.style.position = 'absolute'
+            newClone.style.top = currentClone.style.top
+            newClone.style.left = currentClone.style.left
+            newClone.style.width = currentClone.style.width
+            newClone.style.height = currentClone.style.height
+            newClone.style.margin = '0'
+            newClone.classList.add('annotation-highlight-clone')
+            overlay.replaceChild(newClone, currentClone)
+            currentClone = newClone
+          }
+
+          // Copy canvas content
+          const updatedClonedCanvases = currentClone.querySelectorAll('canvas')
+          originalCanvases.forEach((originalCanvas, i) => {
+            const clonedCanvas = updatedClonedCanvases[i]
+            if (clonedCanvas && originalCanvas.width > 0 && originalCanvas.height > 0) {
+              // Sync buffer dimensions before drawing
+              if (clonedCanvas.width !== originalCanvas.width || clonedCanvas.height !== originalCanvas.height) {
+                clonedCanvas.width = originalCanvas.width
+                clonedCanvas.height = originalCanvas.height
+              }
+              const ctx = clonedCanvas.getContext('2d')
+              if (ctx) {
+                ctx.clearRect(0, 0, clonedCanvas.width, clonedCanvas.height)
+                ctx.drawImage(originalCanvas, 0, 0)
+              }
+            }
+          })
+          canvasAnimationRef.current = requestAnimationFrame(copyCanvasFrames)
+        }
+
+        // Start the animation loop
+        copyCanvasFrames()
       }
     } else {
       frame.classList.remove('dimmed')
+
+      // Cancel animation loop when deselecting
+      if (canvasAnimationRef.current) {
+        cancelAnimationFrame(canvasAnimationRef.current)
+        canvasAnimationRef.current = null
+      }
     }
 
     annotatedElements.forEach(el => {
@@ -139,6 +195,14 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
 
       overlay.appendChild(marker)
     })
+
+    // Cleanup animation loop on effect re-run or unmount
+    return () => {
+      if (canvasAnimationRef.current) {
+        cancelAnimationFrame(canvasAnimationRef.current)
+        canvasAnimationRef.current = null
+      }
+    }
   }, [annotations, frameId, isAnnotationHovered, isAnnotationSelected, hoveredAnnotation, selectedAnnotation])
 
   // Draw connecting line only for selected annotations (not hovered)

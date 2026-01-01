@@ -16,7 +16,15 @@ import type {
   ChartDataPoint,
   ChartSeries,
   ChartFn,
-  ChartColor
+  ChartColor,
+  Globe3DNode,
+  Globe3DTrajectoryFn,
+  Globe3DPoint,
+  Globe3DTrajectoryData,
+  Scatter3DNode,
+  Scatter3DFn,
+  Scatter3DPoint,
+  Scatter3DSeriesData
 } from './types'
 
 // Check if a string is PascalCase (component) vs lowercase (primitive)
@@ -57,6 +65,16 @@ function isMap(node: SpecNode): node is MapNode {
 // Check if node is Chart
 function isChart(node: SpecNode): node is ChartNode {
   return 'Chart' in node
+}
+
+// Check if node is Globe3D
+function isGlobe3D(node: SpecNode): node is Globe3DNode {
+  return 'Globe3D' in node
+}
+
+// Check if node is Scatter3D
+function isScatter3D(node: SpecNode): node is Scatter3DNode {
+  return 'Scatter3D' in node
 }
 
 // Generate map trajectory points from helper function
@@ -201,6 +219,270 @@ function sampleFunction(
   }
 
   return data
+}
+
+// ============ Globe3D Data Generation ============
+
+// Convert lat/lon to 3D cartesian coordinates on unit sphere
+function latLonToCartesian(lat: number, lon: number): { x: number; y: number; z: number } {
+  const latRad = (lat * Math.PI) / 180
+  const lonRad = (lon * Math.PI) / 180
+  return {
+    x: Math.cos(latRad) * Math.cos(lonRad),
+    y: Math.sin(latRad),
+    z: Math.cos(latRad) * Math.sin(lonRad)
+  }
+}
+
+// Spherical linear interpolation for great circle paths
+function slerp(
+  start: { lat: number; lon: number },
+  end: { lat: number; lon: number },
+  t: number
+): { lat: number; lon: number } {
+  // Convert to radians
+  const lat1 = (start.lat * Math.PI) / 180
+  const lon1 = (start.lon * Math.PI) / 180
+  const lat2 = (end.lat * Math.PI) / 180
+  const lon2 = (end.lon * Math.PI) / 180
+
+  // Convert to cartesian
+  const x1 = Math.cos(lat1) * Math.cos(lon1)
+  const y1 = Math.sin(lat1)
+  const z1 = Math.cos(lat1) * Math.sin(lon1)
+
+  const x2 = Math.cos(lat2) * Math.cos(lon2)
+  const y2 = Math.sin(lat2)
+  const z2 = Math.cos(lat2) * Math.sin(lon2)
+
+  // Dot product for angle
+  const dot = x1 * x2 + y1 * y2 + z1 * z2
+  const omega = Math.acos(Math.max(-1, Math.min(1, dot)))
+
+  if (Math.abs(omega) < 0.0001) {
+    // Points are very close, linear interpolation
+    return {
+      lat: start.lat + (end.lat - start.lat) * t,
+      lon: start.lon + (end.lon - start.lon) * t
+    }
+  }
+
+  const sinOmega = Math.sin(omega)
+  const a = Math.sin((1 - t) * omega) / sinOmega
+  const b = Math.sin(t * omega) / sinOmega
+
+  const x = a * x1 + b * x2
+  const y = a * y1 + b * y2
+  const z = a * z1 + b * z2
+
+  // Convert back to lat/lon
+  const lat = Math.asin(y) * (180 / Math.PI)
+  const lon = Math.atan2(z, x) * (180 / Math.PI)
+
+  return { lat, lon }
+}
+
+// Generate globe trajectory points from function type
+function generateGlobeTrajectory(
+  fn: Globe3DTrajectoryFn,
+  waypoints?: [number, number][]
+): Globe3DPoint[] {
+  const points: Globe3DPoint[] = []
+
+  switch (fn) {
+    case 'greatCircle': {
+      // NYC to London arc
+      const start = { lat: 40.7, lon: -74.0 }
+      const end = { lat: 51.5, lon: -0.1 }
+      const samples = 30
+      for (let i = 0; i <= samples; i++) {
+        const t = i / samples
+        const { lat, lon } = slerp(start, end, t)
+        const cart = latLonToCartesian(lat, lon)
+        points.push({ lat, lon, ...cart })
+      }
+      break
+    }
+    case 'polar': {
+      // Path over north pole (LAX to Moscow style)
+      const waypts: [number, number][] = [
+        [34.0, -118.2], // LA
+        [60.0, -140.0], // Alaska area
+        [80.0, -180.0], // Near pole
+        [75.0, 100.0],  // Siberia
+        [55.8, 37.6]    // Moscow
+      ]
+      return generateGlobeTrajectory('custom', waypts)
+    }
+    case 'equatorial': {
+      // Path roughly along equator
+      const samples = 36
+      for (let i = 0; i <= samples; i++) {
+        const t = i / samples
+        const lat = 5 * Math.sin(t * Math.PI * 2) // Slight wobble
+        const lon = -180 + 360 * t
+        const cart = latLonToCartesian(lat, lon)
+        points.push({ lat, lon, ...cart })
+      }
+      break
+    }
+    case 'random': {
+      // Random path with 5-8 waypoints
+      const numWaypoints = 5 + Math.floor(Math.random() * 4)
+      const randomWaypoints: [number, number][] = []
+      for (let i = 0; i < numWaypoints; i++) {
+        randomWaypoints.push([
+          Math.random() * 140 - 70,  // lat: -70 to 70
+          Math.random() * 360 - 180  // lon: -180 to 180
+        ])
+      }
+      return generateGlobeTrajectory('custom', randomWaypoints)
+    }
+    case 'custom': {
+      if (!waypoints || waypoints.length < 2) {
+        return generateGlobeTrajectory('greatCircle')
+      }
+      // Interpolate between waypoints using great circle paths
+      const samplesPerSegment = 15
+      for (let w = 0; w < waypoints.length - 1; w++) {
+        const [lat1, lon1] = waypoints[w]
+        const [lat2, lon2] = waypoints[w + 1]
+        const start = { lat: lat1, lon: lon1 }
+        const end = { lat: lat2, lon: lon2 }
+        for (let i = 0; i <= samplesPerSegment; i++) {
+          if (i === 0 && w > 0) continue // Avoid duplicate points
+          const t = i / samplesPerSegment
+          const { lat, lon } = slerp(start, end, t)
+          const cart = latLonToCartesian(lat, lon)
+          points.push({ lat, lon, ...cart })
+        }
+      }
+      break
+    }
+  }
+
+  return points
+}
+
+// ============ Scatter3D Data Generation ============
+
+// Generate 3D scatter points from function type
+function generateScatterPoints(
+  fn: Scatter3DFn,
+  samples: number,
+  noise: number = 0
+): Scatter3DPoint[] {
+  const points: Scatter3DPoint[] = []
+
+  switch (fn) {
+    case 'random': {
+      for (let i = 0; i < samples; i++) {
+        points.push({
+          x: Math.random() * 2 - 1,
+          y: Math.random() * 2 - 1,
+          z: Math.random() * 2 - 1
+        })
+      }
+      break
+    }
+    case 'sphere': {
+      // Fibonacci sphere for even distribution
+      const goldenRatio = (1 + Math.sqrt(5)) / 2
+      for (let i = 0; i < samples; i++) {
+        const theta = 2 * Math.PI * i / goldenRatio
+        const phi = Math.acos(1 - 2 * (i + 0.5) / samples)
+        points.push({
+          x: Math.sin(phi) * Math.cos(theta),
+          y: Math.cos(phi),
+          z: Math.sin(phi) * Math.sin(theta)
+        })
+      }
+      break
+    }
+    case 'helix': {
+      const turns = 3
+      for (let i = 0; i < samples; i++) {
+        const t = i / (samples - 1)
+        const angle = t * turns * 2 * Math.PI
+        points.push({
+          x: Math.cos(angle) * 0.8,
+          y: t * 2 - 1,  // -1 to 1
+          z: Math.sin(angle) * 0.8
+        })
+      }
+      break
+    }
+    case 'cube': {
+      // Points along edges of a cube
+      const edges: [[number, number, number], [number, number, number]][] = [
+        // Bottom face edges
+        [[-1, -1, -1], [1, -1, -1]], [[1, -1, -1], [1, -1, 1]],
+        [[1, -1, 1], [-1, -1, 1]], [[-1, -1, 1], [-1, -1, -1]],
+        // Top face edges
+        [[-1, 1, -1], [1, 1, -1]], [[1, 1, -1], [1, 1, 1]],
+        [[1, 1, 1], [-1, 1, 1]], [[-1, 1, 1], [-1, 1, -1]],
+        // Vertical edges
+        [[-1, -1, -1], [-1, 1, -1]], [[1, -1, -1], [1, 1, -1]],
+        [[1, -1, 1], [1, 1, 1]], [[-1, -1, 1], [-1, 1, 1]]
+      ]
+      const pointsPerEdge = Math.ceil(samples / 12)
+      for (const [start, end] of edges) {
+        for (let i = 0; i <= pointsPerEdge; i++) {
+          const t = i / pointsPerEdge
+          points.push({
+            x: start[0] + (end[0] - start[0]) * t,
+            y: start[1] + (end[1] - start[1]) * t,
+            z: start[2] + (end[2] - start[2]) * t
+          })
+        }
+      }
+      break
+    }
+    case 'cluster': {
+      // Gaussian cluster at random center
+      const cx = Math.random() * 1.2 - 0.6
+      const cy = Math.random() * 1.2 - 0.6
+      const cz = Math.random() * 1.2 - 0.6
+      const spread = 0.3
+      for (let i = 0; i < samples; i++) {
+        // Box-Muller transform for Gaussian
+        const u1 = Math.random()
+        const u2 = Math.random()
+        const u3 = Math.random()
+        const u4 = Math.random()
+        points.push({
+          x: cx + spread * Math.sqrt(-2 * Math.log(u1 || 0.001)) * Math.cos(2 * Math.PI * u2),
+          y: cy + spread * Math.sqrt(-2 * Math.log(u1 || 0.001)) * Math.sin(2 * Math.PI * u2),
+          z: cz + spread * Math.sqrt(-2 * Math.log(u3 || 0.001)) * Math.cos(2 * Math.PI * u4)
+        })
+      }
+      break
+    }
+    case 'plane': {
+      // z = sin(x) * cos(y) surface
+      const gridSize = Math.ceil(Math.sqrt(samples))
+      for (let i = 0; i < gridSize; i++) {
+        for (let j = 0; j < gridSize; j++) {
+          const x = (i / (gridSize - 1)) * 2 - 1
+          const y = (j / (gridSize - 1)) * 2 - 1
+          const z = Math.sin(x * Math.PI) * Math.cos(y * Math.PI) * 0.5
+          points.push({ x, y, z })
+        }
+      }
+      break
+    }
+  }
+
+  // Apply noise
+  if (noise > 0) {
+    for (const p of points) {
+      p.x += (Math.random() - 0.5) * noise * 2
+      p.y += (Math.random() - 0.5) * noise * 2
+      p.z += (Math.random() - 0.5) * noise * 2
+    }
+  }
+
+  return points
 }
 
 // Check if an object is an $each iteration block
@@ -433,6 +715,65 @@ function resolveNode(
 
     return {
       type: 'chart',
+      props,
+      series
+    }
+  }
+
+  // Handle Globe3D
+  if (isGlobe3D(node)) {
+    const props = node.Globe3D
+
+    // Generate trajectory
+    let trajectoryPoints: Globe3DPoint[] = []
+    if (props.trajectory?.waypoints) {
+      trajectoryPoints = generateGlobeTrajectory('custom', props.trajectory.waypoints)
+    } else if (props.trajectory?.fn) {
+      trajectoryPoints = generateGlobeTrajectory(props.trajectory.fn)
+    } else {
+      trajectoryPoints = generateGlobeTrajectory('greatCircle')
+    }
+
+    const trajectory: Globe3DTrajectoryData = {
+      points: trajectoryPoints,
+      vehicle: props.vehicle,
+      markers: props.markers
+    }
+
+    return {
+      type: 'globe3d',
+      props,
+      trajectory
+    }
+  }
+
+  // Handle Scatter3D
+  if (isScatter3D(node)) {
+    const props = node.Scatter3D
+    const samples = props.samples || 50
+
+    // Build series array
+    const series: Scatter3DSeriesData[] = []
+
+    if (props.series && props.series.length > 0) {
+      // Multi-series mode
+      props.series.forEach((s, index) => {
+        series.push({
+          points: generateScatterPoints(s.fn, samples, s.noise || 0),
+          label: s.label,
+          color: s.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length]
+        })
+      })
+    } else if (props.fn) {
+      // Single series mode
+      series.push({
+        points: generateScatterPoints(props.fn, samples, props.noise || 0),
+        color: 'blue'
+      })
+    }
+
+    return {
+      type: 'scatter3d',
       props,
       series
     }

@@ -5,6 +5,7 @@ import { Icon } from './primitives/Icon'
 import { Cursor } from './primitives/Cursor'
 import { Map } from './primitives/Map'
 import { Chart } from './primitives/Chart'
+import { Scatter3D } from './primitives/Scatter3D'
 
 // Border collapse context
 interface CollapseContext {
@@ -309,6 +310,16 @@ export function NodeRenderer({
   if (node.type === 'chart') {
     return (
       <Chart
+        width={node.props.width}
+        height={node.props.height}
+        series={node.series}
+      />
+    )
+  }
+
+  if (node.type === 'scatter3d') {
+    return (
+      <Scatter3D
         width={node.props.width}
         height={node.props.height}
         series={node.series}

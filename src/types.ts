@@ -179,8 +179,8 @@ export interface ChartNode extends BaseNode {
   }
 }
 
-// A spec node can be Frame, Box, Text, Icon, Cursor, Map, Chart, or a component instance
-export type SpecNode = FrameNode | BoxNode | TextNode | IconNode | CursorNode | MapNode | ChartNode | ComponentInstance
+// A spec node can be Frame, Box, Text, Icon, Cursor, Map, Chart, Globe3D, Scatter3D, or a component instance
+export type SpecNode = FrameNode | BoxNode | TextNode | IconNode | CursorNode | MapNode | ChartNode | Globe3DNode | Scatter3DNode | ComponentInstance
 
 // Component definition
 export interface ComponentVariant {
@@ -207,6 +207,91 @@ export interface ChartDataPoint {
   y: number
 }
 
+// ============ Globe3D Types ============
+
+// Trajectory function types for globe
+export type Globe3DTrajectoryFn = 'greatCircle' | 'polar' | 'equatorial' | 'random' | 'custom'
+
+// Camera preset types
+export type Globe3DCameraPreset = 'follow' | 'side' | 'track' | 'overview'
+
+// Marker on globe trajectory
+export interface Globe3DMarker {
+  position: number | 'start' | 'end'
+  label?: string
+}
+
+// Globe3D node definition
+export interface Globe3DNode extends BaseNode {
+  Globe3D: {
+    width?: number
+    height?: number
+    trajectory?: {
+      fn?: Globe3DTrajectoryFn
+      waypoints?: [number, number][]  // [lat, lon] pairs
+    }
+    vehicle?: number
+    markers?: Globe3DMarker[]
+    camera?: Globe3DCameraPreset
+    rotation?: number
+  }
+}
+
+// 3D point for trajectory (resolved)
+export interface Globe3DPoint {
+  lat: number
+  lon: number
+  x: number
+  y: number
+  z: number
+}
+
+// Resolved trajectory data for Globe3D
+export interface Globe3DTrajectoryData {
+  points: Globe3DPoint[]
+  vehicle?: number
+  markers?: Globe3DMarker[]
+}
+
+// ============ Scatter3D Types ============
+
+// Scatter function types
+export type Scatter3DFn = 'random' | 'sphere' | 'helix' | 'cube' | 'cluster' | 'plane'
+
+// Scatter3D series definition
+export interface Scatter3DSeries {
+  fn: Scatter3DFn
+  label?: string
+  color?: ChartColor
+  noise?: number
+}
+
+// Scatter3D node definition
+export interface Scatter3DNode extends BaseNode {
+  Scatter3D: {
+    width?: number
+    height?: number
+    fn?: Scatter3DFn
+    samples?: number
+    noise?: number
+    series?: Scatter3DSeries[]
+  }
+}
+
+// 3D point data
+export interface Scatter3DPoint {
+  x: number
+  y: number
+  z: number
+}
+
+// Resolved series data for Scatter3D
+export interface Scatter3DSeriesData {
+  points: Scatter3DPoint[]
+  label?: string
+  color: ChartColor
+}
+
 // Chart data series (resolved line with data)
 export interface ChartSeries {
   data: ChartDataPoint[]
@@ -231,3 +316,5 @@ export type ResolvedNode =
   | { type: 'cursor'; props: CursorNode['Cursor'] }
   | { type: 'map'; props: MapNode['Map']; trajectories: MapTrajectoryData[] }
   | { type: 'chart'; props: ChartNode['Chart']; series: ChartSeries[] }
+  | { type: 'globe3d'; props: Globe3DNode['Globe3D']; trajectory: Globe3DTrajectoryData }
+  | { type: 'scatter3d'; props: Scatter3DNode['Scatter3D']; series: Scatter3DSeriesData[] }

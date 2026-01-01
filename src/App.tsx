@@ -3,6 +3,7 @@ import { parseComponents, parseWireframe, resolveFrames } from './parser'
 import { useAnnotationNavigation } from './hooks/useAnnotationNavigation'
 import { FramesContainer } from './components/FramesContainer'
 import { ComponentGallery } from './components/gallery/ComponentGallery'
+import { FrameProvider, useNotifyFrameChange } from './contexts/FrameContext'
 import type { ResolvedNode } from './types'
 
 type GalleryComponents = Record<string, { variants: Record<string, unknown[]> }>
@@ -25,8 +26,11 @@ interface NavItem {
   element: Element
 }
 
-export default function App() {
-  const [specFile, setSpecFile] = useState('wireframe.yaml')
+function AppContent() {
+  const [specFile, setSpecFile] = useState(() => {
+    const saved = localStorage.getItem('specFile')
+    return saved && SPEC_FILES.includes(saved) ? saved : 'wireframe.yaml'
+  })
   const [navItems, setNavItems] = useState<NavItem[]>([])
   const [activeIndex, setActiveIndex] = useState(0)
   const [error, setError] = useState<string | null>(null)
@@ -38,6 +42,9 @@ export default function App() {
   const containerRef = useRef<HTMLDivElement>(null)
   const lastComponentsRef = useRef('')
   const lastWireframeRef = useRef('')
+  const isScrollingProgrammatically = useRef(false)
+  const indexChangeSource = useRef<'scroll' | 'nav'>('nav')
+  const notifyFrameChange = useNotifyFrameChange()
 
   const {
     selectedAnnotation,
@@ -54,6 +61,11 @@ export default function App() {
     setSelectedAnnotation(globalIndex)
     setCursor(globalIndex)
   }, [setSelectedAnnotation, setCursor])
+
+  // Persist spec file selection
+  useEffect(() => {
+    localStorage.setItem('specFile', specFile)
+  }, [specFile])
 
   const loadAndRender = useCallback(async () => {
     try {
@@ -109,17 +121,42 @@ export default function App() {
     loadAndRender()
   }, [loadAndRender])
 
+  // Notify 3D components to re-check visibility when frame changes
+  useEffect(() => {
+    notifyFrameChange()
+  }, [activeIndex, notifyFrameChange])
+
   // Scroll to active item and set implicit annotation cursor
   useEffect(() => {
     if (!navItems[activeIndex]) return
 
-    const el = navItems[activeIndex].element
-    const rect = el.getBoundingClientRect()
-    const top = window.scrollY + rect.top - HEADER_HEIGHT - SCROLL_PADDING
-
-    // Smooth scroll only when navigating via annotations, instant otherwise
     const fromAnnotation = shouldSkipFrameReset()
-    window.scrollTo({ top, behavior: fromAnnotation ? 'smooth' : 'instant' })
+
+    // Only scroll if the index change came from nav (keyboard/click), not from scrolling
+    if (indexChangeSource.current === 'nav') {
+      const el = navItems[activeIndex].element
+      const rect = el.getBoundingClientRect()
+      const targetTop = HEADER_HEIGHT + SCROLL_PADDING
+
+      // Only scroll if frame isn't already at the target position (within tolerance)
+      const isAlreadyAtTarget = Math.abs(rect.top - targetTop) < 5
+      if (!isAlreadyAtTarget) {
+        const top = window.scrollY + rect.top - targetTop
+
+        // Mark as programmatic scroll to prevent scroll handler from fighting
+        isScrollingProgrammatically.current = true
+
+        window.scrollTo({ top, behavior: fromAnnotation ? 'smooth' : 'instant' })
+
+        // Reset flag after scroll completes (use timeout for smooth scroll)
+        setTimeout(() => {
+          isScrollingProgrammatically.current = false
+        }, fromAnnotation ? 500 : 50)
+      }
+    }
+
+    // Reset source for next change
+    indexChangeSource.current = 'nav'
 
     // Skip resetting annotation if frame change was from annotation navigation
     if (fromAnnotation) {
@@ -230,6 +267,53 @@ export default function App() {
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection])
 
+  // Update activeIndex based on scroll position (user-initiated scroll only)
+  useEffect(() => {
+    if (navItems.length === 0) return
+
+    let ticking = false
+    const handleScroll = () => {
+      // Skip if this is a programmatic scroll
+      if (isScrollingProgrammatically.current) return
+      if (ticking) return
+      ticking = true
+
+      requestAnimationFrame(() => {
+        ticking = false
+        // Double-check in case flag changed during frame
+        if (isScrollingProgrammatically.current) return
+
+        const targetTop = HEADER_HEIGHT + SCROLL_PADDING
+
+        // Find which frame is closest to the target position
+        let closestIndex = 0
+        let closestDistance = Infinity
+
+        navItems.forEach((item, index) => {
+          const rect = item.element.getBoundingClientRect()
+          const distance = Math.abs(rect.top - targetTop)
+
+          if (distance < closestDistance) {
+            closestDistance = distance
+            closestIndex = index
+          }
+        })
+
+        setActiveIndex(prev => {
+          if (prev !== closestIndex) {
+            // Mark that this change came from scrolling, not nav
+            indexChangeSource.current = 'scroll'
+            return closestIndex
+          }
+          return prev
+        })
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [navItems])
+
   // Handle annotation selection scroll (React components handle highlighting)
   useEffect(() => {
     if (!containerRef.current || selectedAnnotation === null) return
@@ -329,7 +413,10 @@ export default function App() {
         <select
           id="spec-select"
           value={specFile}
-          onChange={(e) => setSpecFile(e.target.value)}
+          onChange={(e) => {
+            setSpecFile(e.target.value)
+            e.target.blur()
+          }}
         >
           {SPEC_FILES.map(file => (
             <option key={file} value={file}>{file}</option>
@@ -386,5 +473,13 @@ export default function App() {
         </div>
       </div>
     </>
+  )
+}
+
+export default function App() {
+  return (
+    <FrameProvider>
+      <AppContent />
+    </FrameProvider>
   )
 }

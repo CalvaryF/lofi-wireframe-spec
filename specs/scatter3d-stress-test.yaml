@@ -1,0 +1,453 @@
+# Scatter3D Stress Test - showcasing all 3D scatter plot variations
+
+frames:
+  # All function types
+  - Frame:
+      id: ScatterFunctions
+      description: "All available scatter distribution functions"
+      size: [1200, 450]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Scatter3D Function Types", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "random", style: caption }
+                    - Scatter3D:
+                        width: 160
+                        height: 160
+                        fn: random
+                        samples: 80
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "sphere", style: caption }
+                    - Scatter3D:
+                        width: 160
+                        height: 160
+                        fn: sphere
+                        samples: 80
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "helix", style: caption }
+                    - Scatter3D:
+                        width: 160
+                        height: 160
+                        fn: helix
+                        samples: 80
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "cube", style: caption }
+                    - Scatter3D:
+                        width: 160
+                        height: 160
+                        fn: cube
+                        samples: 80
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "cluster", style: caption }
+                    - Scatter3D:
+                        width: 160
+                        height: 160
+                        fn: cluster
+                        samples: 80
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "plane", style: caption }
+                    - Scatter3D:
+                        width: 160
+                        height: 160
+                        fn: plane
+                        samples: 80
+
+  # Sample count variations
+  - Frame:
+      id: SampleCounts
+      description: "Different sample counts showing density variations"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Sample Count Variations", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "20 samples", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: random
+                        samples: 20
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "50 samples", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: random
+                        samples: 50
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "100 samples", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: random
+                        samples: 100
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "200 samples", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: random
+                        samples: 200
+
+  # Multi-series with all colors
+  - Frame:
+      id: MultiSeriesColors
+      description: "Multi-series scatter plots with color palette"
+      size: [1100, 450]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Multi-Series & Colors", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "All 6 Colors", style: caption }
+                    - Scatter3D:
+                        width: 280
+                        height: 220
+                        samples: 30
+                        series:
+                          - { fn: cluster, label: "Blue", color: blue }
+                          - { fn: cluster, label: "Green", color: green }
+                          - { fn: cluster, label: "Orange", color: orange }
+                          - { fn: cluster, label: "Purple", color: purple }
+                          - { fn: cluster, label: "Red", color: red }
+                          - { fn: cluster, label: "Teal", color: teal }
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Classification Demo", style: caption }
+                    - Scatter3D:
+                        width: 280
+                        height: 220
+                        samples: 50
+                        series:
+                          - { fn: cluster, label: "Class A", color: blue }
+                          - { fn: cluster, label: "Class B", color: orange }
+                          - { fn: cluster, label: "Class C", color: green }
+              - Box:
+                  layout: column
+                  gap: 8
+                  outline: thin
+                  padding: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Mixed Functions", style: caption }
+                    - Scatter3D:
+                        width: 280
+                        height: 220
+                        samples: 40
+                        series:
+                          - { fn: helix, label: "Helix", color: purple }
+                          - { fn: sphere, label: "Sphere", color: teal }
+
+  # Noise variations
+  - Frame:
+      id: NoiseVariations
+      description: "Effect of noise parameter on scatter distributions"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Noise Parameter", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "helix, noise: 0", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: helix
+                        samples: 60
+                        noise: 0
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "helix, noise: 0.2", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: helix
+                        samples: 60
+                        noise: 0.2
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "helix, noise: 0.5", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: helix
+                        samples: 60
+                        noise: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "helix, noise: 1.0", style: caption }
+                    - Scatter3D:
+                        width: 180
+                        height: 160
+                        fn: helix
+                        samples: 60
+                        noise: 1.0
+
+  # Size variations
+  - Frame:
+      id: SizeVariations
+      description: "Different chart sizes"
+      size: [900, 500]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Size Variations", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            align: end
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "100x100", style: caption }
+                    - Scatter3D:
+                        width: 100
+                        height: 100
+                        fn: sphere
+                        samples: 40
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "150x150", style: caption }
+                    - Scatter3D:
+                        width: 150
+                        height: 150
+                        fn: sphere
+                        samples: 50
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "200x200", style: caption }
+                    - Scatter3D:
+                        width: 200
+                        height: 200
+                        fn: sphere
+                        samples: 60
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "280x220", style: caption }
+                    - Scatter3D:
+                        width: 280
+                        height: 220
+                        fn: sphere
+                        samples: 80
+
+  # Dashboard context
+  - Frame:
+      id: DashboardContext
+      description: "Scatter3D in a realistic dashboard layout"
+      size: [1200, 700]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: row
+            grow: 1
+            children:
+              # Sidebar
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  children:
+                    - Text: { content: "Analytics", style: h2 }
+                    - Box: { padding: 8 }
+                    - Text: { content: "Overview", style: body }
+                    - Text: { content: "Clusters", style: body }
+                    - Text: { content: "Trends", style: body }
+                    - Box: { grow: 1 }
+                    - Text: { content: "Settings", style: caption }
+
+              # Main content
+              - Box:
+                  layout: column
+                  padding: 24
+                  gap: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "3D Cluster Analysis", style: h1 }
+                    - Box:
+                        layout: row
+                        gap: 16
+                        children:
+                          - Box:
+                              layout: column
+                              gap: 8
+                              outline: thin
+                              padding: 16
+                              grow: 1
+                              children:
+                                - Text: { content: "Customer Segments", style: h2 }
+                                - Scatter3D:
+                                    width: 400
+                                    height: 300
+                                    samples: 60
+                                    series:
+                                      - { fn: cluster, label: "Enterprise", color: blue }
+                                      - { fn: cluster, label: "SMB", color: green }
+                                      - { fn: cluster, label: "Consumer", color: orange }
+                          - Box:
+                              layout: column
+                              gap: 12
+                              children:
+                                - Box:
+                                    outline: thin
+                                    padding: 16
+                                    children:
+                                      - Text: { content: "Metrics", style: h2 }
+                                      - Box: { padding: 4 }
+                                      - Text: { content: "Total Points: 180", style: body }
+                                      - Text: { content: "Clusters: 3", style: body }
+                                      - Text: { content: "Silhouette: 0.72", style: caption }
+                                - Box:
+                                    outline: thin
+                                    padding: 16
+                                    children:
+                                      - Text: { content: "Actions", style: h2 }
+                                      - Box: { padding: 4 }
+                                      - Box:
+                                          padding: [8, 12]
+                                          outline: thin
+                                          children:
+                                            - Text: { content: "Export Data", style: body }
+                                      - Box: { padding: 4 }
+                                      - Box:
+                                          padding: [8, 12]
+                                          outline: thin
+                                          children:
+                                            - Text: { content: "Run Analysis", style: body }

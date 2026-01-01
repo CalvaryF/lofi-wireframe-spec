@@ -282,10 +282,22 @@ function slerp(
   return { lat, lon }
 }
 
+// Calculate parabolic arc elevation for flight paths
+// Returns elevation multiplier (1.0 = surface, higher = above surface)
+function calculateFlightElevation(t: number, altitude: number): number {
+  // t is 0-1 along the path
+  // Parabola: peaks at t=0.5, zero at t=0 and t=1
+  // elevation = 1.0 + altitude * maxHeight * (1 - 4*(t-0.5)^2)
+  const maxHeight = 0.4 // Max arc height as fraction of radius
+  const parabola = 1 - 4 * Math.pow(t - 0.5, 2)
+  return 1.0 + altitude * maxHeight * parabola
+}
+
 // Generate globe trajectory points from function type
 function generateGlobeTrajectory(
   fn: Globe3DTrajectoryFn,
-  waypoints?: [number, number][]
+  waypoints?: [number, number][],
+  altitude: number = 0
 ): Globe3DPoint[] {
   const points: Globe3DPoint[] = []
 
@@ -299,7 +311,8 @@ function generateGlobeTrajectory(
         const t = i / samples
         const { lat, lon } = slerp(start, end, t)
         const cart = latLonToCartesian(lat, lon)
-        points.push({ lat, lon, ...cart })
+        const elevation = calculateFlightElevation(t, altitude)
+        points.push({ lat, lon, ...cart, elevation })
       }
       break
     }
@@ -312,7 +325,7 @@ function generateGlobeTrajectory(
         [75.0, 100.0],  // Siberia
         [55.8, 37.6]    // Moscow
       ]
-      return generateGlobeTrajectory('custom', waypts)
+      return generateGlobeTrajectory('custom', waypts, altitude)
     }
     case 'equatorial': {
       // Path roughly along equator
@@ -322,7 +335,8 @@ function generateGlobeTrajectory(
         const lat = 5 * Math.sin(t * Math.PI * 2) // Slight wobble
         const lon = -180 + 360 * t
         const cart = latLonToCartesian(lat, lon)
-        points.push({ lat, lon, ...cart })
+        const elevation = calculateFlightElevation(t, altitude)
+        points.push({ lat, lon, ...cart, elevation })
       }
       break
     }
@@ -336,14 +350,18 @@ function generateGlobeTrajectory(
           Math.random() * 360 - 180  // lon: -180 to 180
         ])
       }
-      return generateGlobeTrajectory('custom', randomWaypoints)
+      return generateGlobeTrajectory('custom', randomWaypoints, altitude)
     }
     case 'custom': {
       if (!waypoints || waypoints.length < 2) {
-        return generateGlobeTrajectory('greatCircle')
+        return generateGlobeTrajectory('greatCircle', undefined, altitude)
       }
       // Interpolate between waypoints using great circle paths
       const samplesPerSegment = 15
+      const totalSegments = waypoints.length - 1
+      let pointIndex = 0
+      const totalPoints = totalSegments * samplesPerSegment + 1
+
       for (let w = 0; w < waypoints.length - 1; w++) {
         const [lat1, lon1] = waypoints[w]
         const [lat2, lon2] = waypoints[w + 1]
@@ -351,10 +369,14 @@ function generateGlobeTrajectory(
         const end = { lat: lat2, lon: lon2 }
         for (let i = 0; i <= samplesPerSegment; i++) {
           if (i === 0 && w > 0) continue // Avoid duplicate points
-          const t = i / samplesPerSegment
-          const { lat, lon } = slerp(start, end, t)
+          const segT = i / samplesPerSegment
+          const { lat, lon } = slerp(start, end, segT)
           const cart = latLonToCartesian(lat, lon)
-          points.push({ lat, lon, ...cart })
+          // Calculate global t for elevation
+          const globalT = pointIndex / (totalPoints - 1)
+          const elevation = calculateFlightElevation(globalT, altitude)
+          points.push({ lat, lon, ...cart, elevation })
+          pointIndex++
         }
       }
       break
@@ -723,15 +745,16 @@ function resolveNode(
   // Handle Globe3D
   if (isGlobe3D(node)) {
     const props = node.Globe3D
+    const altitude = props.trajectory?.altitude ?? 0
 
     // Generate trajectory
     let trajectoryPoints: Globe3DPoint[] = []
     if (props.trajectory?.waypoints) {
-      trajectoryPoints = generateGlobeTrajectory('custom', props.trajectory.waypoints)
+      trajectoryPoints = generateGlobeTrajectory('custom', props.trajectory.waypoints, altitude)
     } else if (props.trajectory?.fn) {
-      trajectoryPoints = generateGlobeTrajectory(props.trajectory.fn)
+      trajectoryPoints = generateGlobeTrajectory(props.trajectory.fn, undefined, altitude)
     } else {
-      trajectoryPoints = generateGlobeTrajectory('greatCircle')
+      trajectoryPoints = generateGlobeTrajectory('greatCircle', undefined, altitude)
     }
 
     const trajectory: Globe3DTrajectoryData = {

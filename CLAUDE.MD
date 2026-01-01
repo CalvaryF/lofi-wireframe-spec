@@ -250,6 +250,74 @@ Map:
 - Triangle vehicle pointing in direction of travel
 - Red flag markers at waypoints
 
+### Globe3D
+
+3D geographic globe with flight paths and vehicle tracking. Useful for transatlantic routes, satellite orbits, and global visualization.
+
+```yaml
+Globe3D:
+  width: 400
+  height: 300
+  trajectory:
+    fn: greatCircle | polar | equatorial | random  # trajectory function
+    waypoints: [[40.7, -74.0], [51.5, -0.1]]       # [lat, lon] pairs (for custom)
+    altitude: 0.5                                   # arc height above sphere (0-1)
+  vehicle: 0.5                    # position along path (0-1)
+  camera: overview | follow | side | track         # camera preset
+```
+
+**Trajectory functions:**
+
+| Function | Description |
+|----------|-------------|
+| `greatCircle` | NYC to London arc (default) |
+| `polar` | LAX to Moscow over north pole |
+| `equatorial` | Path roughly along equator |
+| `random` | Random waypoints connected by great circles |
+
+**Camera presets:**
+
+| Preset | Description |
+|--------|-------------|
+| `overview` | Fixed view with auto-rotate (default) |
+| `follow` | Camera behind and above vehicle |
+| `side` | Camera perpendicular to trajectory |
+| `track` | Camera looking down from above |
+
+**Altitude:**
+- `0` - Path hugs the globe surface (default)
+- `0.5` - Path arcs moderately above surface
+- `1.0` - Maximum arc height (40% of radius)
+
+**Examples:**
+
+```yaml
+# Transatlantic flight with altitude arc
+- Globe3D:
+    width: 350
+    height: 280
+    trajectory:
+      fn: greatCircle
+      altitude: 0.6
+    vehicle: 0.4
+    camera: follow
+
+# Polar satellite orbit
+- Globe3D:
+    width: 300
+    height: 300
+    trajectory:
+      fn: polar
+    vehicle: 0.2
+    camera: overview
+```
+
+**Visual elements:**
+- Wireframe sphere with lat/lon grid
+- Colored trajectory line (elevated above surface)
+- Cone vehicle pointing in direction of travel
+- Auto-rotation in overview mode
+
 ### Chart
 
 For data visualization in dashboards. Charts sample mathematical functions to generate placeholder data.
@@ -644,7 +712,7 @@ This spec meets AI where it's strong.
 ## AI Assistant Guidelines
 
 - Always read existing wireframe files before suggesting changes
-- Use the seven primitives (Frame, Box, Text, Icon, Cursor, Map, Chart) and components - no custom elements
+- Use the primitives (Frame, Box, Text, Icon, Cursor, Map, Chart, Globe3D, Scatter3D) and components - no custom elements
 - Keep `outline` semantic-free (visual aid only)
 - Preserve `{{propName}}` substitution pattern in components
 - Suggest variants for state differences, not conditional logic
@@ -654,6 +722,7 @@ This spec meets AI where it's strong.
 - Use Icon with Lucide names (kebab-case) for visual elements
 - Use Cursor to indicate interaction points and document user flows
 - Use Map with trajectory functions for fleet/vehicle tracking interfaces
+- Use Globe3D with trajectory functions for flight paths, satellite orbits, and global visualizations
 
 ## Summary
 

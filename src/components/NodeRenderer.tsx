@@ -6,6 +6,7 @@ import { Cursor } from './primitives/Cursor'
 import { Map } from './primitives/Map'
 import { Chart } from './primitives/Chart'
 import { Scatter3D } from './primitives/Scatter3D'
+import { Globe3D } from './primitives/Globe3D'
 
 // Border collapse context
 interface CollapseContext {
@@ -323,6 +324,17 @@ export function NodeRenderer({
         width={node.props.width}
         height={node.props.height}
         series={node.series}
+      />
+    )
+  }
+
+  if (node.type === 'globe3d') {
+    return (
+      <Globe3D
+        width={node.props.width}
+        height={node.props.height}
+        trajectories={[node.trajectory]}
+        camera={node.props.camera}
       />
     )
   }

@@ -229,6 +229,7 @@ export interface Globe3DNode extends BaseNode {
     trajectory?: {
       fn?: Globe3DTrajectoryFn
       waypoints?: [number, number][]  // [lat, lon] pairs
+      altitude?: number  // 0-1 arc height above sphere (0 = surface, 1 = max arc)
     }
     vehicle?: number
     markers?: Globe3DMarker[]
@@ -244,6 +245,7 @@ export interface Globe3DPoint {
   x: number
   y: number
   z: number
+  elevation: number  // Radius multiplier (1.0 = surface, higher = above surface)
 }
 
 // Resolved trajectory data for Globe3D
@@ -251,6 +253,7 @@ export interface Globe3DTrajectoryData {
   points: Globe3DPoint[]
   vehicle?: number
   markers?: Globe3DMarker[]
+  label?: string
 }
 
 // ============ Scatter3D Types ============

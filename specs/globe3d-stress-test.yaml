@@ -1,0 +1,624 @@
+# Globe3D Stress Test - showcasing all 3D globe variations
+
+frames:
+  # All trajectory function types
+  - Frame:
+      id: TrajectoryFunctions
+      description: "All available trajectory functions"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Globe3D Trajectory Functions", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "greatCircle", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "polar", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: polar
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "equatorial", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: equatorial
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "random", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: random
+                        vehicle: 0.4
+
+  # Camera presets
+  - Frame:
+      id: CameraPresets
+      description: "Different camera angles and tracking modes"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Camera Presets", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "overview (default)", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.5
+                        camera: overview
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "follow", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.5
+                        camera: follow
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "side", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.5
+                        camera: side
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "track", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.5
+                        camera: track
+
+  # Vehicle position variations
+  - Frame:
+      id: VehiclePositions
+      description: "Vehicle at different positions along trajectory"
+      size: [1100, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Vehicle Position (0.0 - 1.0)", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "vehicle: 0.0", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.0
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "vehicle: 0.25", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.25
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "vehicle: 0.5", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "vehicle: 0.75", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.75
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "vehicle: 1.0", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 1.0
+
+  # Size variations
+  - Frame:
+      id: SizeVariations
+      description: "Different globe sizes"
+      size: [900, 500]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Size Variations", style: h1 }
+        - Box:
+            layout: row
+            gap: 16
+            align: end
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "100x100", style: caption }
+                    - Globe3D:
+                        width: 100
+                        height: 100
+                        trajectory:
+                          fn: polar
+                        vehicle: 0.3
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "150x150", style: caption }
+                    - Globe3D:
+                        width: 150
+                        height: 150
+                        trajectory:
+                          fn: polar
+                        vehicle: 0.3
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "200x200", style: caption }
+                    - Globe3D:
+                        width: 200
+                        height: 200
+                        trajectory:
+                          fn: polar
+                        vehicle: 0.3
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 8
+                  children:
+                    - Text: { content: "280x220", style: caption }
+                    - Globe3D:
+                        width: 280
+                        height: 220
+                        trajectory:
+                          fn: polar
+                        vehicle: 0.3
+
+  # Path only (no vehicle)
+  - Frame:
+      id: PathOnly
+      description: "Trajectories without vehicle markers"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Path Only (No Vehicle)", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "greatCircle", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "polar", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: polar
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "equatorial", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: equatorial
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "random", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: random
+
+  # Flight altitude (arc above sphere)
+  - Frame:
+      id: FlightAltitude
+      description: "Trajectory altitude variations for flight paths"
+      size: [1100, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Flight Altitude (0.0 - 1.0)", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "altitude: 0 (surface)", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "altitude: 0.25", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.25
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "altitude: 0.5", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.5
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "altitude: 0.75", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.75
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "altitude: 1.0", style: caption }
+                    - Globe3D:
+                        width: 160
+                        height: 160
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 1.0
+                        vehicle: 0.5
+
+  # Different trajectory types with altitude
+  - Frame:
+      id: TrajectoryWithAltitude
+      description: "Various trajectory types with flight altitude"
+      size: [1000, 400]
+      layout: column
+      padding: 24
+      gap: 16
+      children:
+        - Text: { content: "Trajectory Types with Altitude", style: h1 }
+        - Box:
+            layout: row
+            gap: 12
+            grow: 1
+            children:
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "greatCircle + altitude", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: greatCircle
+                          altitude: 0.7
+                        vehicle: 0.5
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "polar + altitude", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: polar
+                          altitude: 0.5
+                        vehicle: 0.4
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "random + altitude", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: random
+                          altitude: 0.8
+                        vehicle: 0.6
+              - Box:
+                  layout: column
+                  gap: 4
+                  outline: thin
+                  padding: 12
+                  grow: 1
+                  children:
+                    - Text: { content: "equatorial + altitude", style: caption }
+                    - Globe3D:
+                        width: 180
+                        height: 180
+                        trajectory:
+                          fn: equatorial
+                          altitude: 0.4
+                        vehicle: 0.3
+
+  # Dashboard context
+  - Frame:
+      id: DashboardContext
+      description: "Globe3D in a realistic dashboard layout"
+      size: [1200, 600]
+      layout: column
+      padding: 0
+      children:
+        - Box:
+            layout: row
+            grow: 1
+            children:
+              # Sidebar
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 8
+                  outline: thin
+                  children:
+                    - Text: { content: "Flight Ops", style: h2 }
+                    - Box: { padding: 8 }
+                    - Text: { content: "Active Flights", style: body }
+                    - Text: { content: "Routes", style: body }
+                    - Text: { content: "History", style: body }
+                    - Box: { grow: 1 }
+                    - Text: { content: "Settings", style: caption }
+
+              # Main content
+              - Box:
+                  layout: column
+                  padding: 24
+                  gap: 16
+                  grow: 1
+                  children:
+                    - Text: { content: "Global Flight Tracker", style: h1 }
+                    - Box:
+                        layout: row
+                        gap: 16
+                        children:
+                          - Box:
+                              layout: column
+                              gap: 8
+                              outline: thin
+                              padding: 16
+                              grow: 1
+                              children:
+                                - Text: { content: "Transatlantic Routes", style: h2 }
+                                - Globe3D:
+                                    width: 350
+                                    height: 280
+                                    trajectory:
+                                      fn: greatCircle
+                                    vehicle: 0.6
+                          - Box:
+                              layout: column
+                              gap: 12
+                              children:
+                                - Box:
+                                    outline: thin
+                                    padding: 16
+                                    children:
+                                      - Text: { content: "Flight Status", style: h2 }
+                                      - Box: { padding: 4 }
+                                      - Text: { content: "BA-117: En Route", style: body }
+                                      - Text: { content: "ETA: 2h 34m", style: body }
+                                      - Text: { content: "Alt: 38,000 ft", style: caption }
+                                - Box:
+                                    outline: thin
+                                    padding: 16
+                                    children:
+                                      - Text: { content: "Actions", style: h2 }
+                                      - Box: { padding: 4 }
+                                      - Box:
+                                          padding: [8, 12]
+                                          outline: thin
+                                          children:
+                                            - Text: { content: "Track Flight", style: body }
+                                      - Box: { padding: 4 }
+                                      - Box:
+                                          padding: [8, 12]
+                                          outline: thin
+                                          children:
+                                            - Text: { content: "View Details", style: body }

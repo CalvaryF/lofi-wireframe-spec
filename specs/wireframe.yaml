@@ -942,3 +942,92 @@ frames:
                                 - { fn: sin, label: "Deliveries", color: blue, noise: 0.15 }
                                 - { fn: cos, label: "Fuel (gal)", color: orange, noise: 0.1 }
                                 - { fn: random, label: "Delays", color: red, noise: 0.3 }
+
+  # 7. Globe3D Showcase - 3D geographic visualization
+  - Frame:
+      id: Globe3DShowcase
+      description: "3D globe visualization demonstrating flight paths and satellite trajectories"
+      size: [1000, 700]
+      layout: column
+      padding: 0
+      children:
+        # Header
+        - Box:
+            layout: row
+            padding: 16
+            gap: 16
+            align: center
+            outline: thin
+            children:
+              - Icon: { name: "globe" }
+              - Text: { content: "3D Globe Visualization", style: h1 }
+              - Box: { grow: 1 }
+              - Box:
+                  padding: 8
+                  outline: thin
+                  children:
+                    - Icon: { name: "info" }
+
+        # Main content
+        - Box:
+            layout: row
+            padding: 24
+            gap: 24
+            grow: 1
+            children:
+              # Great Circle Route
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  children:
+                    - Text: { content: "Great Circle Route", style: h2 }
+                    - Globe3D:
+                        width: 280
+                        height: 250
+                        trajectory:
+                          fn: greatCircle
+                        vehicle: 0.4
+                    - Box:
+                        annotation: { title: "NYC to London", description: "Shortest path between two points on a sphere. Aircraft and ships follow great circle routes." }
+                        children:
+                          - Text: { content: "NYC → London flight path", style: caption }
+
+              # Polar Orbit
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  children:
+                    - Text: { content: "Polar Orbit", style: h2 }
+                    - Globe3D:
+                        width: 280
+                        height: 250
+                        trajectory:
+                          fn: polar
+                        vehicle: 0.6
+                    - Box:
+                        annotation: { title: "Satellite Track", description: "Polar orbits pass over both poles, allowing coverage of the entire Earth as it rotates." }
+                        children:
+                          - Text: { content: "Earth observation satellite", style: caption }
+
+              # Equatorial
+              - Box:
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  children:
+                    - Text: { content: "Equatorial Orbit", style: h2 }
+                    - Globe3D:
+                        width: 280
+                        height: 250
+                        trajectory:
+                          fn: equatorial
+                        vehicle: 0.3
+                    - Box:
+                        annotation: { title: "Geostationary Path", description: "Satellites in equatorial orbits can maintain fixed position relative to ground." }
+                        children:
+                          - Text: { content: "Communications satellite", style: caption }

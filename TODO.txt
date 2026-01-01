@@ -10,7 +10,6 @@
 - Tree view
 - Procedures
 - P&ID
-- To imges 
 - To figma
 - click on-screen marker to select annotation, click on selected to deselect
 - video / perception engineering workflows

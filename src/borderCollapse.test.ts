@@ -1,14 +1,14 @@
 import { describe, it, expect } from 'vitest'
 import {
-  RenderContext,
-  defaultContext,
+  CollapseContext,
+  defaultCollapse,
   getPadding,
   hasOutline,
   hasGrow,
   hasLeadingOutline,
   hasTrailingOutline,
   computeChildContext
-} from './render'
+} from './components/NodeRenderer'
 import type { ResolvedNode, BoxNode } from './types'
 
 // Helper to create a box node
@@ -140,7 +140,8 @@ describe('computeChildContext - sibling collapse', () => {
       false, // parent has no outline
       true, // parent has grow
       prevChild,
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for sibling collapse
     )
 
     expect(ctx.collapseTop).toBe(true)
@@ -160,7 +161,8 @@ describe('computeChildContext - sibling collapse', () => {
       false,
       true,
       prevChild,
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for sibling collapse
     )
 
     expect(ctx.collapseLeft).toBe(true)
@@ -180,7 +182,8 @@ describe('computeChildContext - sibling collapse', () => {
       false,
       true,
       prevChild,
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for sibling collapse
     )
 
     expect(ctx.collapseTop).toBe(false)
@@ -200,7 +203,8 @@ describe('computeChildContext - sibling collapse', () => {
       false,
       true,
       prevChild,
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for sibling collapse
     )
 
     expect(ctx.collapseTop).toBe(false)
@@ -221,7 +225,8 @@ describe('computeChildContext - parent-child collapse (growing parent)', () => {
       true, // parent has outline
       true, // parent has grow
       null,
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for first child top collapse
     )
 
     expect(ctx.collapseTop).toBe(true)
@@ -240,13 +245,14 @@ describe('computeChildContext - parent-child collapse (growing parent)', () => {
       true,
       true, // parent has grow
       box({}),
-      defaultContext
+      defaultCollapse,
+      true // anyChildGrows (this child has grow)
     )
 
     expect(ctx.collapseBottom).toBe(true)
   })
 
-  it('last child WITHOUT grow does NOT collapse bottom when parent has grow', () => {
+  it('last child WITHOUT grow does NOT collapse bottom when parent has grow and no sibling grows', () => {
     const child = box({ outline: 'thin' }) // no grow
 
     const ctx = computeChildContext(
@@ -259,10 +265,31 @@ describe('computeChildContext - parent-child collapse (growing parent)', () => {
       true,
       true, // parent has grow
       box({}),
-      defaultContext
+      defaultCollapse,
+      false // no child grows
     )
 
     expect(ctx.collapseBottom).toBe(false)
+  })
+
+  it('last child WITHOUT grow DOES collapse bottom when a sibling has grow', () => {
+    const child = box({ outline: 'thin' }) // no grow
+
+    const ctx = computeChildContext(
+      child,
+      1,
+      2,
+      'column',
+      0,
+      undefined,
+      true,
+      true, // parent has grow
+      box({ grow: 1 }), // previous sibling has grow
+      defaultCollapse,
+      true // anyChildGrows = true (sibling has grow)
+    )
+
+    expect(ctx.collapseBottom).toBe(true)
   })
 
   it('all children collapse left/right with outlined parent in column layout', () => {
@@ -278,7 +305,8 @@ describe('computeChildContext - parent-child collapse (growing parent)', () => {
       true,
       true,
       box({}),
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for cross-axis collapse
     )
 
     expect(ctx.collapseLeft).toBe(true)
@@ -298,7 +326,8 @@ describe('computeChildContext - parent-child collapse (growing parent)', () => {
       true,
       true,
       null,
-      defaultContext
+      defaultCollapse,
+      false
     )
 
     expect(ctx.collapseTop).toBe(false)
@@ -320,7 +349,8 @@ describe('computeChildContext - parent-child collapse (content-sized parent)', (
       true, // parent has outline
       false, // parent has NO grow (content-sized)
       box({}),
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows = false, but parent is content-sized so it collapses
     )
 
     expect(ctx.collapseBottom).toBe(true)
@@ -339,7 +369,8 @@ describe('computeChildContext - parent-child collapse (content-sized parent)', (
       true, // parent has outline
       false, // parent has NO grow (content-sized)
       box({}),
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows = false, but parent is content-sized so it collapses
     )
 
     expect(ctx.collapseRight).toBe(true)
@@ -349,7 +380,7 @@ describe('computeChildContext - parent-child collapse (content-sized parent)', (
 describe('computeChildContext - inherited collapse', () => {
   it('inherits collapse from parent context through non-outlined container', () => {
     const child = box({ outline: 'thin' })
-    const parentCtx: RenderContext = {
+    const parentCtx: CollapseContext = {
       collapseTop: true,
       collapseLeft: true,
       collapseBottom: false,
@@ -366,16 +397,17 @@ describe('computeChildContext - inherited collapse', () => {
       false, // parent has NO outline - passes through context
       true,
       null,
-      parentCtx
+      parentCtx,
+      false // anyChildGrows not relevant for leading edge/cross-axis
     )
 
     expect(ctx.collapseTop).toBe(true)
     expect(ctx.collapseLeft).toBe(true)
   })
 
-  it('does NOT inherit bottom collapse without grow when parent has grow', () => {
+  it('does NOT inherit bottom collapse without grow when parent has grow and no sibling grows', () => {
     const child = box({ outline: 'thin' }) // no grow
-    const parentCtx: RenderContext = {
+    const parentCtx: CollapseContext = {
       collapseTop: false,
       collapseLeft: false,
       collapseBottom: true,
@@ -392,7 +424,8 @@ describe('computeChildContext - inherited collapse', () => {
       false,
       true, // parent has grow
       null,
-      parentCtx
+      parentCtx,
+      false // no child grows
     )
 
     expect(ctx.collapseBottom).toBe(false)
@@ -400,7 +433,7 @@ describe('computeChildContext - inherited collapse', () => {
 
   it('inherits bottom collapse WITH grow when parent has grow', () => {
     const child = box({ outline: 'thin', grow: 1 })
-    const parentCtx: RenderContext = {
+    const parentCtx: CollapseContext = {
       collapseTop: false,
       collapseLeft: false,
       collapseBottom: true,
@@ -417,7 +450,34 @@ describe('computeChildContext - inherited collapse', () => {
       false,
       true, // parent has grow
       null,
-      parentCtx
+      parentCtx,
+      true // anyChildGrows (this child has grow)
+    )
+
+    expect(ctx.collapseBottom).toBe(true)
+  })
+
+  it('inherits bottom collapse when sibling has grow even if current child does not', () => {
+    const child = box({ outline: 'thin' }) // no grow
+    const parentCtx: CollapseContext = {
+      collapseTop: false,
+      collapseLeft: false,
+      collapseBottom: true,
+      collapseRight: false
+    }
+
+    const ctx = computeChildContext(
+      child,
+      1, // last child
+      2,
+      'column',
+      0,
+      undefined,
+      false,
+      true, // parent has grow
+      box({ grow: 1 }), // sibling has grow
+      parentCtx,
+      true // anyChildGrows = true (sibling has grow)
     )
 
     expect(ctx.collapseBottom).toBe(true)
@@ -425,7 +485,7 @@ describe('computeChildContext - inherited collapse', () => {
 
   it('inherits bottom collapse without grow when parent is content-sized', () => {
     const child = box({ outline: 'thin' }) // no grow
-    const parentCtx: RenderContext = {
+    const parentCtx: CollapseContext = {
       collapseTop: false,
       collapseLeft: false,
       collapseBottom: true,
@@ -442,7 +502,8 @@ describe('computeChildContext - inherited collapse', () => {
       false,
       false, // parent has NO grow (content-sized)
       null,
-      parentCtx
+      parentCtx,
+      false // anyChildGrows = false, but parent is content-sized
     )
 
     expect(ctx.collapseBottom).toBe(true)
@@ -463,7 +524,8 @@ describe('computeChildContext - row layout specifics', () => {
       true,
       true,
       null,
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for first child leading edge
     )
 
     expect(ctx.collapseLeft).toBe(true)
@@ -482,13 +544,14 @@ describe('computeChildContext - row layout specifics', () => {
       true,
       true, // parent has grow
       box({}),
-      defaultContext
+      defaultCollapse,
+      true // anyChildGrows (this child has grow)
     )
 
     expect(ctx.collapseRight).toBe(true)
   })
 
-  it('last child WITHOUT grow does NOT collapse right when parent has grow', () => {
+  it('last child WITHOUT grow does NOT collapse right when parent has grow and no sibling grows', () => {
     const child = box({ outline: 'thin' })
 
     const ctx = computeChildContext(
@@ -501,10 +564,31 @@ describe('computeChildContext - row layout specifics', () => {
       true,
       true, // parent has grow
       box({}),
-      defaultContext
+      defaultCollapse,
+      false // no child grows
     )
 
     expect(ctx.collapseRight).toBe(false)
+  })
+
+  it('last child WITHOUT grow DOES collapse right when a sibling has grow', () => {
+    const child = box({ outline: 'thin' })
+
+    const ctx = computeChildContext(
+      child,
+      1,
+      2,
+      'row',
+      0,
+      undefined,
+      true,
+      true, // parent has grow
+      box({ grow: 1 }), // previous sibling has grow
+      defaultCollapse,
+      true // anyChildGrows = true (sibling has grow)
+    )
+
+    expect(ctx.collapseRight).toBe(true)
   })
 
   it('all children collapse top/bottom with outlined parent in row layout', () => {
@@ -520,7 +604,8 @@ describe('computeChildContext - row layout specifics', () => {
       true,
       true,
       box({}),
-      defaultContext
+      defaultCollapse,
+      false // anyChildGrows not relevant for cross-axis collapse
     )
 
     expect(ctx.collapseTop).toBe(true)

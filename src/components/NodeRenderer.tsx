@@ -8,46 +8,46 @@ import { Chart } from './primitives/Chart'
 import { Scatter3D } from './primitives/Scatter3D'
 import { Globe3D } from './primitives/Globe3D'
 
-// Border collapse context
-interface CollapseContext {
+// Border collapse context (exported for testing)
+export interface CollapseContext {
   collapseTop: boolean
   collapseLeft: boolean
   collapseBottom: boolean
   collapseRight: boolean
 }
 
-const defaultCollapse: CollapseContext = {
+export const defaultCollapse: CollapseContext = {
   collapseTop: false,
   collapseLeft: false,
   collapseBottom: false,
   collapseRight: false
 }
 
-// Helper to get padding values
-function getPadding(padding?: Padding): { top: number; right: number; bottom: number; left: number } {
+// Helper to get padding values (exported for testing)
+export function getPadding(padding?: Padding): { top: number; right: number; bottom: number; left: number } {
   if (!padding) return { top: 0, right: 0, bottom: 0, left: 0 }
   if (typeof padding === 'number') return { top: padding, right: padding, bottom: padding, left: padding }
   return { top: padding[0], right: padding[1], bottom: padding[0], left: padding[1] }
 }
 
-// Check if a node has an outline
-function hasOutline(node: ResolvedNode): boolean {
+// Check if a node has an outline (exported for testing)
+export function hasOutline(node: ResolvedNode): boolean {
   if (node.type === 'box') {
     return node.props.outline !== undefined && node.props.outline !== 'none'
   }
   return false
 }
 
-// Check if a node grows
-function hasGrow(node: ResolvedNode): boolean {
+// Check if a node grows (exported for testing)
+export function hasGrow(node: ResolvedNode): boolean {
   if (node.type === 'box') {
     return node.props.grow === 1
   }
   return false
 }
 
-// Check for leading outline
-function hasLeadingOutline(node: ResolvedNode, direction: 'top' | 'left'): boolean {
+// Check for leading outline (exported for testing)
+export function hasLeadingOutline(node: ResolvedNode, direction: 'top' | 'left'): boolean {
   if (hasOutline(node)) return true
 
   if (node.type === 'box' || node.type === 'frame') {
@@ -79,8 +79,8 @@ function hasLeadingOutline(node: ResolvedNode, direction: 'top' | 'left'): boole
   return false
 }
 
-// Check for trailing outline
-function hasTrailingOutline(node: ResolvedNode, direction: 'bottom' | 'right'): boolean {
+// Check for trailing outline (exported for testing)
+export function hasTrailingOutline(node: ResolvedNode, direction: 'bottom' | 'right'): boolean {
   if (hasOutline(node)) return true
 
   if (node.type === 'box' || node.type === 'frame') {
@@ -112,8 +112,8 @@ function hasTrailingOutline(node: ResolvedNode, direction: 'bottom' | 'right'): 
   return false
 }
 
-// Compute child context for border collapse
-function computeChildContext(
+// Compute child context for border collapse (exported for testing)
+export function computeChildContext(
   child: ResolvedNode,
   index: number,
   totalChildren: number,
@@ -123,7 +123,8 @@ function computeChildContext(
   parentHasOutline: boolean,
   parentHasGrow: boolean,
   prevChild: ResolvedNode | null,
-  parentContext: CollapseContext
+  parentContext: CollapseContext,
+  anyChildGrows: boolean
 ): CollapseContext {
   const isColumn = parentLayout !== 'row'
   const hasGap = (parentGap ?? 0) > 0
@@ -153,13 +154,15 @@ function computeChildContext(
   if (parentHasOutline) {
     if (isColumn) {
       if (isFirst && pad.top === 0 && hasLeadingOutline(child, 'top')) collapseTop = true
-      const childTouchesBottom = !parentHasGrow || hasGrow(child)
+      // Last child touches bottom if parent is content-sized OR any child grows
+      const childTouchesBottom = !parentHasGrow || anyChildGrows
       if (isLast && childTouchesBottom && pad.bottom === 0 && hasTrailingOutline(child, 'bottom')) collapseBottom = true
       if (pad.left === 0 && hasLeadingOutline(child, 'left')) collapseLeft = true
       if (pad.right === 0 && hasTrailingOutline(child, 'right')) collapseRight = true
     } else {
       if (isFirst && pad.left === 0 && hasLeadingOutline(child, 'left')) collapseLeft = true
-      const childTouchesRight = !parentHasGrow || hasGrow(child)
+      // Last child touches right if parent is content-sized OR any child grows
+      const childTouchesRight = !parentHasGrow || anyChildGrows
       if (isLast && childTouchesRight && pad.right === 0 && hasTrailingOutline(child, 'right')) collapseRight = true
       if (pad.top === 0 && hasLeadingOutline(child, 'top')) collapseTop = true
       if (pad.bottom === 0 && hasTrailingOutline(child, 'bottom')) collapseBottom = true
@@ -168,7 +171,8 @@ function computeChildContext(
 
   // Inherit from parent context
   if (!parentHasOutline) {
-    const childTouchesTrailing = !parentHasGrow || hasGrow(child)
+    // Last child touches trailing edge if parent is content-sized OR any child grows
+    const childTouchesTrailing = !parentHasGrow || anyChildGrows
     if (isColumn) {
       if (isFirst && pad.top === 0 && parentContext.collapseTop) collapseTop = true
       if (isLast && childTouchesTrailing && pad.bottom === 0 && parentContext.collapseBottom) collapseBottom = true
@@ -205,6 +209,8 @@ export function NodeRenderer({
 
     // Render children with collapse context
     let prevChild: ResolvedNode | null = null
+    // Check if any child has grow - needed for trailing edge collapse detection
+    const anyChildGrows = node.children.some(c => hasGrow(c))
     const childElements = node.children.map((child, index) => {
       const childContext = computeChildContext(
         child,
@@ -216,7 +222,8 @@ export function NodeRenderer({
         nodeHasOutline,
         nodeHasGrow,
         prevChild,
-        nodeHasOutline ? defaultCollapse : collapseContext
+        nodeHasOutline ? defaultCollapse : collapseContext,
+        anyChildGrows
       )
       prevChild = child
 

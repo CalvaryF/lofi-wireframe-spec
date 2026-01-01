@@ -1,6 +1,14 @@
-import { createElement } from 'react'
+import { createElement, useMemo } from 'react'
 import { icons } from 'lucide'
 import type { MapTrajectoryData, MapMarker } from '../../types'
+
+// Simple seeded random for consistent terrain
+function seededRandom(seed: number) {
+  return () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff
+    return seed / 0x7fffffff
+  }
+}
 
 interface MapProps {
   width?: number
@@ -35,19 +43,19 @@ function getPositionOnPath(points: [number, number][], t: number): { x: number; 
   return { x, y, angle }
 }
 
-// Generate terrain blobs
-function generateTerrainBlobs(width: number, height: number): string[] {
+// Generate terrain blobs with seeded random for consistency
+function generateTerrainBlobs(width: number, height: number, random: () => number): string[] {
   const blobs: string[] = []
   for (let b = 0; b < 3; b++) {
-    const cx = width * (0.2 + Math.random() * 0.6)
-    const cy = height * (0.2 + Math.random() * 0.6)
-    const baseRadius = Math.min(width, height) * (0.15 + Math.random() * 0.2)
+    const cx = width * (0.2 + random() * 0.6)
+    const cy = height * (0.2 + random() * 0.6)
+    const baseRadius = Math.min(width, height) * (0.15 + random() * 0.2)
 
     const points = 12
     let blobPath = ''
     for (let i = 0; i <= points; i++) {
       const angle = (i / points) * Math.PI * 2
-      const noise = 0.7 + Math.random() * 0.6
+      const noise = 0.7 + random() * 0.6
       const r = baseRadius * noise
       const x = cx + r * Math.cos(angle)
       const y = cy + r * Math.sin(angle)
@@ -61,7 +69,12 @@ function generateTerrainBlobs(width: number, height: number): string[] {
 
 export function Map({ width = 400, height = 300, trajectories }: MapProps) {
   const flagIconData = icons['Flag' as keyof typeof icons]
-  const terrainBlobs = generateTerrainBlobs(width, height)
+
+  // Memoize terrain blobs with seeded random for consistent rendering
+  const terrainBlobs = useMemo(() => {
+    const random = seededRandom(width * 1000 + height)
+    return generateTerrainBlobs(width, height, random)
+  }, [width, height])
 
   return (
     <div

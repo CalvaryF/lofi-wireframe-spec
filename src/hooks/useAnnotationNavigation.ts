@@ -25,14 +25,19 @@ export function useAnnotationNavigation() {
 
   const navigateAnnotation = useCallback((
     direction: 'up' | 'down',
-    totalAnnotations: number
+    totalAnnotations: number,
+    frameLastIndex?: number
   ) => {
     setSelectedAnnotation(prev => {
       let next: number
 
       if (prev === null) {
-        // Reveal implicit cursor position
-        next = annotationCursorRef.current ?? 0
+        // Starting navigation - pick first or last based on direction
+        if (direction === 'up' && frameLastIndex !== undefined) {
+          next = frameLastIndex
+        } else {
+          next = annotationCursorRef.current ?? 0
+        }
       } else {
         // Navigate from current selection
         if (direction === 'down') {

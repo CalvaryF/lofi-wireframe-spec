@@ -1,4 +1,4 @@
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useCallback } from 'react'
 import type { ResolvedNode } from '../types'
 import { Frame } from './Frame'
 import { AnnotationProvider, useAnnotationContext } from '../contexts/AnnotationContext'
@@ -6,6 +6,7 @@ import { AnnotationProvider, useAnnotationContext } from '../contexts/Annotation
 interface FramesContainerProps {
   frames: ResolvedNode[]
   selectedAnnotationIndex: number | null
+  onAnnotationClick?: (globalIndex: number) => void
 }
 
 // Collect all annotations from frames for index mapping
@@ -45,14 +46,26 @@ function collectAllAnnotations(frames: ResolvedNode[]): Array<{ frameId: string;
 function FramesContainerInner({
   frames,
   selectedAnnotationIndex,
-  allAnnotations
+  allAnnotations,
+  onAnnotationClick
 }: {
   frames: ResolvedNode[]
   selectedAnnotationIndex: number | null
   allAnnotations: Array<{ frameId: string; number: number }>
+  onAnnotationClick?: (globalIndex: number) => void
 }) {
   const containerRef = useRef<HTMLDivElement>(null)
   const { setSelectedAnnotation } = useAnnotationContext()
+
+  // Convert (frameId, number) click to global index and bubble up
+  const handleAnnotationClick = useCallback((frameId: string, number: number) => {
+    const globalIndex = allAnnotations.findIndex(
+      a => a.frameId === frameId && a.number === number
+    )
+    if (globalIndex !== -1) {
+      onAnnotationClick?.(globalIndex)
+    }
+  }, [allAnnotations, onAnnotationClick])
 
   // Sync selectedAnnotationIndex with context
   useEffect(() => {
@@ -101,6 +114,7 @@ function FramesContainerInner({
           <Frame
             key={frame.props.id || index}
             node={frame as ResolvedNode & { type: 'frame' }}
+            onAnnotationClick={handleAnnotationClick}
           />
         )
       })}
@@ -163,7 +177,7 @@ function drawArrowBetweenElements(
   return svg
 }
 
-export function FramesContainer({ frames, selectedAnnotationIndex }: FramesContainerProps) {
+export function FramesContainer({ frames, selectedAnnotationIndex, onAnnotationClick }: FramesContainerProps) {
   // Memoize annotation collection to avoid recalculating on every render
   const allAnnotations = useMemo(() => collectAllAnnotations(frames), [frames])
 
@@ -173,6 +187,7 @@ export function FramesContainer({ frames, selectedAnnotationIndex }: FramesConta
         frames={frames}
         selectedAnnotationIndex={selectedAnnotationIndex}
         allAnnotations={allAnnotations}
+        onAnnotationClick={onAnnotationClick}
       />
     </AnnotationProvider>
   )

@@ -41,12 +41,19 @@ export default function App() {
 
   const {
     selectedAnnotation,
+    setSelectedAnnotation,
     setCursor,
     navigateAnnotation,
     clearSelection,
     markFrameChangeFromAnnotation,
     shouldSkipFrameReset,
   } = useAnnotationNavigation()
+
+  // Handle annotation click - update hook state so keyboard nav continues from here
+  const handleAnnotationClick = useCallback((globalIndex: number) => {
+    setSelectedAnnotation(globalIndex)
+    setCursor(globalIndex)
+  }, [setSelectedAnnotation, setCursor])
 
   const loadAndRender = useCallback(async () => {
     try {
@@ -109,10 +116,13 @@ export default function App() {
     const el = navItems[activeIndex].element
     const rect = el.getBoundingClientRect()
     const top = window.scrollY + rect.top - HEADER_HEIGHT - SCROLL_PADDING
-    window.scrollTo({ top, behavior: 'smooth' })
+
+    // Smooth scroll only when navigating via annotations, instant otherwise
+    const fromAnnotation = shouldSkipFrameReset()
+    window.scrollTo({ top, behavior: fromAnnotation ? 'smooth' : 'instant' })
 
     // Skip resetting annotation if frame change was from annotation navigation
-    if (shouldSkipFrameReset()) {
+    if (fromAnnotation) {
       return
     }
 
@@ -151,15 +161,25 @@ export default function App() {
 
       // Shift+Up/Down: navigate annotations
       if (e.shiftKey && (e.key === 'ArrowDown' || e.key === 'ArrowUp')) {
-        if (!showAnnotations) return
+        if (!showAnnotations || !containerRef.current) return
         e.preventDefault()
 
-        const allAnnotations = containerRef.current?.querySelectorAll('.annotation-item[data-annotation]')
-        if (!allAnnotations || allAnnotations.length === 0) return
+        const allAnnotations = containerRef.current.querySelectorAll('.annotation-item[data-annotation]')
+        if (allAnnotations.length === 0) return
+
+        // Find last annotation index of current frame for Shift+Up starting position
+        const frameId = navItems[activeIndex]?.id
+        const frame = containerRef.current.querySelector(`.frame-container[data-frame-id="${frameId}"]`)
+        const frameAnnotations = frame?.querySelectorAll('.annotation-item[data-annotation]')
+        const lastFrameAnnotation = frameAnnotations?.[frameAnnotations.length - 1]
+        const frameLastIndex = lastFrameAnnotation
+          ? Array.from(allAnnotations).indexOf(lastFrameAnnotation)
+          : undefined
 
         navigateAnnotation(
           e.key === 'ArrowDown' ? 'down' : 'up',
-          allAnnotations.length
+          allAnnotations.length,
+          frameLastIndex
         )
         return
       }
@@ -352,6 +372,7 @@ export default function App() {
             <FramesContainer
               frames={frames}
               selectedAnnotationIndex={selectedAnnotation}
+              onAnnotationClick={handleAnnotationClick}
             />
           ) : (
             <div className="loading">Loading wireframes...</div>

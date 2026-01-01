@@ -5,15 +5,15 @@ interface AnnotationContextValue {
   hoveredAnnotation: { frameId: string; number: number } | null
   setHoveredAnnotation: (annotation: { frameId: string; number: number } | null) => void
 
-  // Selected annotation (from keyboard)
+  // Selected annotation (from keyboard or click)
   selectedAnnotation: { frameId: string; number: number } | null
   setSelectedAnnotation: (annotation: { frameId: string; number: number } | null) => void
 
-  // Combined "active" annotation (hovered takes precedence over selected)
-  activeAnnotation: { frameId: string; number: number } | null
+  // Check if a specific annotation is hovered
+  isAnnotationHovered: (frameId: string, number: number) => boolean
 
-  // Check if a specific annotation is active
-  isAnnotationActive: (frameId: string, number: number) => boolean
+  // Check if a specific annotation is selected
+  isAnnotationSelected: (frameId: string, number: number) => boolean
 }
 
 const AnnotationContext = createContext<AnnotationContextValue | null>(null)
@@ -22,15 +22,20 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
   const [hoveredAnnotation, setHoveredAnnotation] = useState<{ frameId: string; number: number } | null>(null)
   const [selectedAnnotation, setSelectedAnnotation] = useState<{ frameId: string; number: number } | null>(null)
 
-  // Hovered takes precedence over selected for visual highlighting
-  const activeAnnotation = hoveredAnnotation ?? selectedAnnotation
-
-  const isAnnotationActive = useCallback(
+  const isAnnotationHovered = useCallback(
     (frameId: string, number: number) => {
-      if (!activeAnnotation) return false
-      return activeAnnotation.frameId === frameId && activeAnnotation.number === number
+      if (!hoveredAnnotation) return false
+      return hoveredAnnotation.frameId === frameId && hoveredAnnotation.number === number
     },
-    [activeAnnotation]
+    [hoveredAnnotation]
+  )
+
+  const isAnnotationSelected = useCallback(
+    (frameId: string, number: number) => {
+      if (!selectedAnnotation) return false
+      return selectedAnnotation.frameId === frameId && selectedAnnotation.number === number
+    },
+    [selectedAnnotation]
   )
 
   return (
@@ -40,8 +45,8 @@ export function AnnotationProvider({ children }: { children: ReactNode }) {
         setHoveredAnnotation,
         selectedAnnotation,
         setSelectedAnnotation,
-        activeAnnotation,
-        isAnnotationActive,
+        isAnnotationHovered,
+        isAnnotationSelected,
       }}
     >
       {children}

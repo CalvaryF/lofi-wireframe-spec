@@ -9,25 +9,26 @@ interface CollectedAnnotation {
 interface AnnotationsPanelProps {
   annotations: CollectedAnnotation[]
   frameId: string
+  onAnnotationClick?: (frameId: string, number: number) => void
 }
 
-export function AnnotationsPanel({ annotations, frameId }: AnnotationsPanelProps) {
-  const { setHoveredAnnotation, isAnnotationActive, selectedAnnotation } = useAnnotationContext()
+export function AnnotationsPanel({ annotations, frameId, onAnnotationClick }: AnnotationsPanelProps) {
+  const { setHoveredAnnotation, isAnnotationHovered, isAnnotationSelected } = useAnnotationContext()
 
   return (
     <div className="annotations-panel">
       {annotations.map(ann => {
-        const isActive = isAnnotationActive(frameId, ann.number)
-        const isKeyboardSelected = selectedAnnotation?.frameId === frameId &&
-                                    selectedAnnotation?.number === ann.number
+        const isHovered = isAnnotationHovered(frameId, ann.number)
+        const isSelected = isAnnotationSelected(frameId, ann.number)
 
         return (
           <div
             key={ann.number}
-            className={`annotation-item${isActive ? ' highlighted' : ''}${isKeyboardSelected ? ' keyboard-selected' : ''}`}
+            className={`annotation-item${isHovered ? ' hovered' : ''}${isSelected ? ' selected' : ''}`}
             data-annotation={ann.number}
             onMouseEnter={() => setHoveredAnnotation({ frameId, number: ann.number })}
             onMouseLeave={() => setHoveredAnnotation(null)}
+            onClick={() => onAnnotationClick?.(frameId, ann.number)}
           >
             <span className="annotation-number">{ann.number}</span>
             <div className="annotation-content">

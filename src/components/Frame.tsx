@@ -12,14 +12,15 @@ interface CollectedAnnotation {
 
 interface FrameProps {
   node: ResolvedNode & { type: 'frame' }
+  onAnnotationClick?: (frameId: string, number: number) => void
 }
 
-export function Frame({ node }: FrameProps) {
+export function Frame({ node, onAnnotationClick }: FrameProps) {
   const frameId = node.props.id || 'Untitled'
   const containerRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
-  const { activeAnnotation, isAnnotationActive } = useAnnotationContext()
+  const { selectedAnnotation, hoveredAnnotation, isAnnotationHovered, isAnnotationSelected } = useAnnotationContext()
 
   // Collect annotations and create a lookup map (annotation object -> number)
   const { annotations, annotationMap } = useMemo(() => {
@@ -96,9 +97,11 @@ export function Frame({ node }: FrameProps) {
       marker.textContent = number
       marker.dataset.annotation = number
 
-      // Check if this annotation is active (hovered or selected)
-      if (isAnnotationActive(frameId, parseInt(number))) {
-        marker.classList.add('highlighted')
+      const num = parseInt(number)
+      if (isAnnotationSelected(frameId, num)) {
+        marker.classList.add('selected')
+      } else if (isAnnotationHovered(frameId, num)) {
+        marker.classList.add('hovered')
       }
 
       // Position relative to frame-wrapper
@@ -110,9 +113,9 @@ export function Frame({ node }: FrameProps) {
 
       overlay.appendChild(marker)
     })
-  }, [annotations, frameId, isAnnotationActive, activeAnnotation])
+  }, [annotations, frameId, isAnnotationHovered, isAnnotationSelected, hoveredAnnotation, selectedAnnotation])
 
-  // Draw connecting line when annotation is active
+  // Draw connecting line only for selected annotations (not hovered)
   useEffect(() => {
     if (!containerRef.current) return
 
@@ -122,14 +125,14 @@ export function Frame({ node }: FrameProps) {
     // Always clear the line first
     lineSvg.innerHTML = ''
 
-    // Only draw if this frame has the active annotation
-    if (!activeAnnotation || activeAnnotation.frameId !== frameId) return
+    // Only draw if this frame has the selected annotation
+    if (!selectedAnnotation || selectedAnnotation.frameId !== frameId) return
 
     const marker = containerRef.current.querySelector(
-      `.annotation-marker[data-annotation="${activeAnnotation.number}"]`
+      `.annotation-marker[data-annotation="${selectedAnnotation.number}"]`
     ) as HTMLElement
     const panelItem = containerRef.current.querySelector(
-      `.annotation-item[data-annotation="${activeAnnotation.number}"] .annotation-number`
+      `.annotation-item[data-annotation="${selectedAnnotation.number}"] .annotation-number`
     ) as HTMLElement
 
     if (!marker || !panelItem) return
@@ -144,7 +147,7 @@ export function Frame({ node }: FrameProps) {
     line.setAttribute('x2', String(panelRect.left - containerRect.left))
     line.setAttribute('y2', String(panelRect.top - containerRect.top + 10))
     lineSvg.appendChild(line)
-  }, [activeAnnotation, frameId])
+  }, [selectedAnnotation, frameId])
 
   // Create wrapper node for frame content
   const wrapperNode: ResolvedNode = {
@@ -190,7 +193,7 @@ export function Frame({ node }: FrameProps) {
       </div>
 
       {annotations.length > 0 && (
-        <AnnotationsPanel annotations={annotations} frameId={frameId} />
+        <AnnotationsPanel annotations={annotations} frameId={frameId} onAnnotationClick={onAnnotationClick} />
       )}
 
       <svg className="annotation-line" style={{ width: '100%', height: '100%', top: 0, left: 0 }} />

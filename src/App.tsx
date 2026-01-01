@@ -29,8 +29,16 @@ interface NavItem {
   element: Element
 }
 
+// Check for external spec ID from query param (used by render API)
+function getExternalSpecId(): string | null {
+  const params = new URLSearchParams(window.location.search)
+  return params.get('spec')
+}
+
 function AppContent() {
+  const [externalSpecId] = useState(getExternalSpecId)
   const [specFile, setSpecFile] = useState(() => {
+    if (externalSpecId) return 'external' // Don't use localStorage when external
     const saved = localStorage.getItem('specFile')
     return saved && SPEC_FILES.includes(saved) ? saved : 'wireframe.yaml'
   })
@@ -111,12 +119,49 @@ function AppContent() {
       setError(null)
       setCursor(null)
 
-      // Always fetch components
+      let componentsYaml: string
+      let wireframeYaml: string
+
+      if (externalSpecId) {
+        // Load from render API (external spec)
+        const [compRes, specRes] = await Promise.all([
+          fetch(`/api/specs/${externalSpecId}?type=components`).catch(() => null),
+          fetch(`/api/specs/${externalSpecId}?type=wireframe`),
+        ])
+
+        if (!specRes.ok) {
+          throw new Error(`Failed to load external spec: ${specRes.status}`)
+        }
+        wireframeYaml = await specRes.text()
+
+        // Use external components if provided, otherwise fall back to default
+        if (compRes && compRes.ok) {
+          componentsYaml = await compRes.text()
+        } else {
+          const defaultCompRes = await fetch('/specs/components.yaml')
+          if (!defaultCompRes.ok) {
+            throw new Error(`Failed to load components.yaml: ${defaultCompRes.status}`)
+          }
+          componentsYaml = await defaultCompRes.text()
+        }
+
+        const components = parseComponents(componentsYaml)
+        const wireframe = parseWireframe(wireframeYaml)
+        const resolvedFrames = resolveFrames(wireframe, components)
+
+        setIsComponentGallery(false)
+        setFrames(resolvedFrames)
+        setNavTitle('External Spec')
+        setActiveIndex(0)
+        return
+      }
+
+      // Normal mode: fetch from /specs/
       const componentsRes = await fetch('/specs/components.yaml')
       if (!componentsRes.ok) {
         throw new Error(`Failed to load components.yaml: ${componentsRes.status}`)
       }
-      const componentsYaml = await componentsRes.text()
+      componentsYaml = await componentsRes.text()
       const components = parseComponents(componentsYaml)
 
       if (specFile === 'components.yaml') {
@@ -135,7 +180,7 @@ function AppContent() {
         if (!wireframeRes.ok) {
           throw new Error(`Failed to load ${specFile}: ${wireframeRes.status}`)
         }
-        const wireframeYaml = await wireframeRes.text()
+        wireframeYaml = await wireframeRes.text()
 
         // Update refs to prevent hot reload from re-triggering
         lastComponentsRef.current = componentsYaml
@@ -153,7 +198,7 @@ function AppContent() {
       console.error('Error loading specs:', err)
       setError(err instanceof Error ? err.message : String(err))
     }
-  }, [specFile, setCursor])
+  }, [specFile, externalSpecId, setCursor])
 
   // Initial load and when spec changes
   useEffect(() => {
@@ -422,9 +467,9 @@ function AppContent() {
     return () => clearTimeout(timer)
   }, [galleryComponents, isComponentGallery])
 
-  // Hot reload polling
+  // Hot reload polling (disabled in external spec mode)
   useEffect(() => {
-    if (!import.meta.hot) return
+    if (!import.meta.hot || externalSpecId) return
 
     const checkForChanges = async () => {
       try {
@@ -450,7 +495,7 @@ function AppContent() {
 
     const interval = setInterval(checkForChanges, 500)
     return () => clearInterval(interval)
-  }, [specFile, loadAndRender])
+  }, [specFile, externalSpecId, loadAndRender])
 
   return (
     <>

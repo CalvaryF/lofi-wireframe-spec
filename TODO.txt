@@ -1,3 +1,4 @@
+- add axes and gridlines to charts
 - Table component
 - Value table
 - Workbook sidebar
@@ -9,6 +10,11 @@
 - Tree view
 - Procedures
 - P&ID
+- To imges 
+- To figma
+- click on-screen marker to select annotation, click on selected to deselect
+- video / perception engineering workflows
+- first person view for geo map
 
 - Adding context and descriptions to designs
 - Giving feedback on deisgns (so LLMs can update them autonomously)

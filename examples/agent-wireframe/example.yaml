@@ -1,0 +1,112 @@
+frames:
+  - Frame:
+      id: ExampleScreen
+      size: [400, 600]
+      layout: column
+      padding: 0
+      description: A simple example showing common patterns
+      annotations:
+        - element: Header
+          title: Header Bar
+          description: Contains navigation and title
+        - element: ContentCard
+          title: Main Content
+          description: Primary information display area
+        - element: ActionButton
+          title: Call to Action
+          description: Primary action button at bottom
+      children:
+        # Header
+        - Box:
+            id: Header
+            layout: row
+            padding: 16
+            gap: 12
+            align: center
+            outline: thin
+            children:
+              - Icon: { name: arrow-left }
+              - Text: { content: "Example Screen", style: h2 }
+              - Box: { grow: 1 }
+              - Icon: { name: more-vertical }
+
+        # Content area
+        - Box:
+            layout: column
+            padding: 24
+            gap: 16
+            grow: 1
+            children:
+              # Card
+              - Box:
+                  id: ContentCard
+                  layout: column
+                  padding: 16
+                  gap: 12
+                  outline: thin
+                  children:
+                    - Box:
+                        layout: row
+                        gap: 8
+                        align: center
+                        children:
+                          - Icon: { name: info }
+                          - Text: { content: "Information", style: h2 }
+                    - Text:
+                        content: "This is an example card with some descriptive text. It shows how to combine elements."
+                        style: body
+                    - Box:
+                        layout: row
+                        gap: 8
+                        children:
+                          - Box:
+                              padding: [4, 8]
+                              outline: thin
+                              children:
+                                - Text: { content: "Tag 1", style: caption }
+                          - Box:
+                              padding: [4, 8]
+                              outline: thin
+                              children:
+                                - Text: { content: "Tag 2", style: caption }
+
+              # Stats row
+              - Box:
+                  layout: row
+                  gap: 16
+                  children:
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        layout: column
+                        gap: 4
+                        children:
+                          - Text: { content: "128", style: h1 }
+                          - Text: { content: "Items", style: caption }
+                    - Box:
+                        grow: 1
+                        padding: 12
+                        outline: thin
+                        layout: column
+                        gap: 4
+                        children:
+                          - Text: { content: "24", style: h1 }
+                          - Text: { content: "Active", style: caption }
+
+        # Bottom action
+        - Box:
+            padding: 16
+            outline: thin
+            children:
+              - Box:
+                  id: ActionButton
+                  padding: [12, 24]
+                  outline: thick
+                  layout: row
+                  gap: 8
+                  align: center
+                  justify: center
+                  children:
+                    - Icon: { name: plus }
+                    - Text: { content: "Add New Item", style: body }

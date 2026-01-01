@@ -125,6 +125,18 @@ body {
   z-index: 60;
 }
 
+/* Dimmed frame state when annotation is selected */
+.frame.dimmed {
+  opacity: 0.5;
+}
+
+/* Highlighted clone in overlay */
+.annotation-highlight-clone {
+  pointer-events: none;
+  background: white;
+  box-shadow: 0 0 0 1px hsl(0, 50%, 50%);
+}
+
 /* Frame label */
 .frame-header {
   display: flex;

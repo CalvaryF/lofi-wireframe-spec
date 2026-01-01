@@ -155,7 +155,10 @@ export default function App() {
       // Toggle annotations
       if (e.key === 'a' || e.key === 'A') {
         e.preventDefault()
-        setShowAnnotations(prev => !prev)
+        setShowAnnotations(prev => {
+          if (prev) clearSelection() // Clear selection when hiding
+          return !prev
+        })
         return
       }
 
@@ -334,7 +337,10 @@ export default function App() {
         </select>
         <button
           className={`toolbar-button ${showAnnotations ? 'active' : ''}`}
-          onClick={() => setShowAnnotations(!showAnnotations)}
+          onClick={() => {
+            if (showAnnotations) clearSelection()
+            setShowAnnotations(!showAnnotations)
+          }}
           title="Toggle annotations (A)"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

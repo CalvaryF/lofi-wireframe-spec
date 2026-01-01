@@ -78,9 +78,38 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
     overlay.innerHTML = ''
 
     const annotatedElements = frame.querySelectorAll('[data-annotation-number]')
-    if (annotatedElements.length === 0) return
+    if (annotatedElements.length === 0) {
+      frame.classList.remove('dimmed')
+      return
+    }
 
     const frameRect = frame.getBoundingClientRect()
+    const hasSelectionInThisFrame = selectedAnnotation?.frameId === frameId
+
+    // Handle dimming and highlight clone
+    if (hasSelectionInThisFrame && selectedAnnotation) {
+      frame.classList.add('dimmed')
+
+      // Find and clone the selected element
+      const selectedEl = frame.querySelector(`[data-annotation-number="${selectedAnnotation.number}"]`) as HTMLElement
+      if (selectedEl) {
+        const elRect = selectedEl.getBoundingClientRect()
+        const clone = selectedEl.cloneNode(true) as HTMLElement
+
+        // Position clone absolutely over the original
+        clone.style.position = 'absolute'
+        clone.style.top = `${elRect.top - frameRect.top}px`
+        clone.style.left = `${elRect.left - frameRect.left}px`
+        clone.style.width = `${elRect.width}px`
+        clone.style.height = `${elRect.height}px`
+        clone.style.margin = '0'
+        clone.classList.add('annotation-highlight-clone')
+
+        overlay.appendChild(clone)
+      }
+    } else {
+      frame.classList.remove('dimmed')
+    }
 
     annotatedElements.forEach(el => {
       const htmlEl = el as HTMLElement

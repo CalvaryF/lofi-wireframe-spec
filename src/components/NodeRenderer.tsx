@@ -194,6 +194,7 @@ interface NodeRendererProps {
   frameId: string
   collapseContext?: CollapseContext
   annotationMap: WeakMap<object, number>
+  path?: number[]  // Tracks position in tree for comment targeting
 }
 
 export function NodeRenderer({
@@ -201,6 +202,7 @@ export function NodeRenderer({
   frameId,
   collapseContext = defaultCollapse,
   annotationMap,
+  path = [],
 }: NodeRendererProps) {
   if (node.type === 'box') {
     const nodeHasOutline = hasOutline(node)
@@ -234,6 +236,7 @@ export function NodeRenderer({
           frameId={frameId}
           collapseContext={childContext}
           annotationMap={annotationMap}
+          path={[...path, index]}
         />
       )
     })
@@ -260,6 +263,7 @@ export function NodeRenderer({
         collapseLeft={collapseContext.collapseLeft}
         collapseBottom={collapseContext.collapseBottom}
         collapseRight={collapseContext.collapseRight}
+        path={path}
       >
         {childElements}
       </Box>
@@ -270,12 +274,14 @@ export function NodeRenderer({
     const annotationNumber = node.props.annotation ? annotationMap.get(node.props.annotation) : undefined
     return (
       <Text
+        id={node.props.id}
         content={node.props.content}
         style={node.props.style}
         align={node.props.align}
         annotation={node.props.annotation}
         annotationNumber={annotationNumber}
         frameId={frameId}
+        path={path}
       />
     )
   }
@@ -284,10 +290,12 @@ export function NodeRenderer({
     const annotationNumber = node.props.annotation ? annotationMap.get(node.props.annotation) : undefined
     return (
       <Icon
+        id={node.props.id}
         name={node.props.name}
         annotation={node.props.annotation}
         annotationNumber={annotationNumber}
         frameId={frameId}
+        path={path}
       />
     )
   }

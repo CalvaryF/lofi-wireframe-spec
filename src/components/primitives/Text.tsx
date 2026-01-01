@@ -1,12 +1,14 @@
 import type { TextStyle, TextAlign, Annotation } from '../../types'
 
 interface TextProps {
+  id?: string
   content: string
   style?: TextStyle
   align?: TextAlign
   annotation?: Annotation
   annotationNumber?: number
   frameId?: string
+  path?: number[]  // Tracks position in tree for comment targeting
 }
 
 function textStyleClass(style?: TextStyle): string {
@@ -20,7 +22,7 @@ function textStyleClass(style?: TextStyle): string {
   }
 }
 
-export function Text({ content, style, align, annotation, annotationNumber }: TextProps) {
+export function Text({ id, content, style, align, annotation, annotationNumber, path }: TextProps) {
   const className = `text ${textStyleClass(style)}`
 
   const inlineStyle: React.CSSProperties = {}
@@ -33,6 +35,9 @@ export function Text({ content, style, align, annotation, annotationNumber }: Te
     <span
       className={className}
       style={Object.keys(inlineStyle).length > 0 ? inlineStyle : undefined}
+      data-id={id}
+      data-path={path?.join('-')}
+      data-element-type="text"
       data-annotation-number={annotation ? annotationNumber : undefined}
     >
       {content}

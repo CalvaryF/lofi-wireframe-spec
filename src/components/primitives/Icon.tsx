@@ -3,13 +3,15 @@ import { icons } from 'lucide'
 import type { Annotation } from '../../types'
 
 interface IconProps {
+  id?: string
   name: string
   annotation?: Annotation
   annotationNumber?: number
   frameId?: string // kept for interface consistency
+  path?: number[]  // Tracks position in tree for comment targeting
 }
 
-export function Icon({ name, annotation, annotationNumber }: IconProps) {
+export function Icon({ id, name, annotation, annotationNumber, path }: IconProps) {
   // If name is empty, render nothing
   const trimmedName = name?.trim()
   if (!trimmedName) {
@@ -28,6 +30,9 @@ export function Icon({ name, annotation, annotationNumber }: IconProps) {
   return (
     <span
       className="icon"
+      data-id={id}
+      data-path={path?.join('-')}
+      data-element-type="icon"
       data-annotation-number={annotation ? annotationNumber : undefined}
     >
       <svg

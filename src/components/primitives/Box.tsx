@@ -18,6 +18,7 @@ interface BoxProps {
   annotation?: Annotation
   annotationNumber?: number
   frameId?: string
+  path?: number[]  // Tracks position in tree for comment targeting
   // Border collapse
   collapseTop?: boolean
   collapseLeft?: boolean
@@ -77,6 +78,7 @@ export function Box({
   link,
   annotation,
   annotationNumber,
+  path,
   collapseTop,
   collapseLeft,
   collapseBottom,
@@ -148,6 +150,8 @@ export function Box({
       className={classNames.join(' ')}
       style={style}
       data-id={id}
+      data-path={path?.join('-')}
+      data-element-type="box"
       data-link-target={link?.target}
       data-annotation-number={annotation ? annotationNumber : undefined}
       title={link ? `Link to: ${link.target}` : undefined}

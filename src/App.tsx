@@ -4,10 +4,11 @@ import { useAnnotationNavigation } from './hooks/useAnnotationNavigation'
 import { FramesContainer } from './components/FramesContainer'
 import { ComponentGallery } from './components/gallery/ComponentGallery'
 import { FrameProvider, useNotifyFrameChange } from './contexts/FrameContext'
+import { CommentProvider, useCommentContext } from './contexts/CommentContext'
 import { captureFrame, captureAllFrames, downloadBlob, generateFilename } from './utils/export'
 import { ExportDropdown } from './components/ExportDropdown'
 import type { ExportOptions } from './components/ExportDropdown'
-import type { ResolvedNode } from './types'
+import type { ResolvedNode, Comment } from './types'
 
 type GalleryComponents = Record<string, { variants: Record<string, unknown[]> }>
 
@@ -83,6 +84,12 @@ function AppContent() {
     markFrameChangeFromAnnotation,
     shouldSkipFrameReset,
   } = useAnnotationNavigation()
+
+  const {
+    commentMode,
+    setCommentMode,
+    initializeComments,
+  } = useCommentContext()
 
   // Handle annotation click - update hook state so keyboard nav continues from here
   const handleAnnotationClick = useCallback((globalIndex: number) => {
@@ -227,6 +234,18 @@ function AppContent() {
     notifyFrameChange()
   }, [activeIndex, notifyFrameChange])
 
+  // Initialize comments from loaded frames
+  useEffect(() => {
+    if (frames.length === 0) return
+    const commentsMap = new Map<string, Comment[]>()
+    for (const frame of frames) {
+      if (frame.type === 'frame' && frame.comments && frame.comments.length > 0) {
+        commentsMap.set(frame.props.id, frame.comments)
+      }
+    }
+    initializeComments(commentsMap)
+  }, [frames, initializeComments])
+
   // Scroll to active item and set implicit annotation cursor
   useEffect(() => {
     if (!navItems[activeIndex]) return
@@ -297,6 +316,13 @@ function AppContent() {
           if (prev) clearSelection() // Clear selection when hiding
           return !prev
         })
+        return
+      }
+
+      // Toggle comment mode
+      if (e.key === 'c' || e.key === 'C') {
+        e.preventDefault()
+        setCommentMode(!commentMode)
         return
       }
 
@@ -373,7 +399,7 @@ function AppContent() {
 
     document.addEventListener('keydown', handleKeyDown)
     return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection, handleExportFrame])
+  }, [navItems.length, specFile, showAnnotations, selectedAnnotation, navigateAnnotation, clearSelection, handleExportFrame, commentMode, setCommentMode])
 
   // Update activeIndex based on scroll position (user-initiated scroll only)
   useEffect(() => {
@@ -543,6 +569,15 @@ function AppContent() {
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
             </svg>
           </button>
+          <button
+            className={`toolbar-button ${commentMode ? 'active' : ''}`}
+            onClick={() => setCommentMode(!commentMode)}
+            title="Toggle comment mode (C)"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+            </svg>
+          </button>
           <ExportDropdown
             onExport={handleExportFrame}
             disabled={isComponentGallery || navItems.length === 0}
@@ -567,7 +602,7 @@ function AppContent() {
           ))}
         </nav>
 
-        <div id="app" ref={containerRef} className={showAnnotations ? '' : 'hide-annotations'} onClick={clearSelection}>
+        <div id="app" ref={containerRef} className={`${showAnnotations ? '' : 'hide-annotations'} ${commentMode ? 'comment-mode' : ''}`} onClick={clearSelection}>
           {error ? (
             <div className="error">
               <div>Error loading wireframes</div>
@@ -593,7 +628,9 @@ function AppContent() {
 export default function App() {
   return (
     <FrameProvider>
-      <AppContent />
+      <CommentProvider>
+        <AppContent />
+      </CommentProvider>
     </FrameProvider>
   )
 }

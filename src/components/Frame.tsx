@@ -1,8 +1,10 @@
-import { useEffect, useRef, useMemo } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import type { ResolvedNode } from '../types'
 import { NodeRenderer } from './NodeRenderer'
 import { AnnotationsPanel } from './AnnotationsPanel'
+import { CommentInputModal } from './CommentInputModal'
 import { useAnnotationContext } from '../contexts/AnnotationContext'
+import { useCommentContext } from '../contexts/CommentContext'
 
 interface CollectedAnnotation {
   number: number
@@ -20,8 +22,25 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const frameRef = useRef<HTMLDivElement>(null)
   const overlayRef = useRef<HTMLDivElement>(null)
+  const commentOverlayRef = useRef<HTMLDivElement>(null)
   const canvasAnimationRef = useRef<number | null>(null)
   const { selectedAnnotation, hoveredAnnotation, isAnnotationHovered, isAnnotationSelected } = useAnnotationContext()
+  const {
+    commentMode,
+    pendingComment,
+    setPendingComment,
+    getCommentsForFrame,
+    addComment,
+    deleteComment,
+    isCommentHovered,
+    hoveredComment,
+    isCommentSelected,
+    selectedComment,
+    setSelectedComment,
+  } = useCommentContext()
+
+  const [modalPosition, setModalPosition] = useState<{ x: number; y: number } | null>(null)
+  const comments = getCommentsForFrame(frameId)
 
   // Collect annotations and create a lookup map (annotation object -> number)
   const { annotations, annotationMap } = useMemo(() => {
@@ -239,6 +258,133 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
     lineSvg.appendChild(line)
   }, [selectedAnnotation, frameId])
 
+  // Handle click in comment mode
+  const handleFrameClick = (e: React.MouseEvent) => {
+    if (!commentMode) return
+
+    // Find nearest element with data-path (all elements should have this now)
+    const target = e.target as HTMLElement
+    const elementWithPath = target.closest('[data-path]') as HTMLElement | null
+
+    if (elementWithPath) {
+      const path = elementWithPath.getAttribute('data-path')
+      const existingId = elementWithPath.getAttribute('data-id')
+      const elementType = elementWithPath.getAttribute('data-element-type') || 'box'
+
+      if (path) {
+        // Calculate modal position near the clicked element
+        const rect = elementWithPath.getBoundingClientRect()
+        const frameRect = frameRef.current?.getBoundingClientRect()
+        if (frameRect) {
+          setModalPosition({
+            x: rect.right - frameRect.left + 10,
+            y: rect.top - frameRect.top,
+          })
+        }
+        // Pass path, existingId, and elementType for ID generation
+        setPendingComment({ frameId, path, existingId: existingId || undefined, elementType })
+        e.stopPropagation()
+      }
+    }
+  }
+
+  // Handle saving a comment
+  const handleSaveComment = (text: string) => {
+    if (pendingComment) {
+      addComment(
+        pendingComment.frameId,
+        pendingComment.path,
+        pendingComment.elementType,
+        text,
+        pendingComment.existingId
+      )
+      setPendingComment(null)
+      setModalPosition(null)
+    }
+  }
+
+  // Handle canceling comment
+  const handleCancelComment = () => {
+    setPendingComment(null)
+    setModalPosition(null)
+  }
+
+  // Position comment markers after DOM is rendered
+  useEffect(() => {
+    if (!frameRef.current || !commentOverlayRef.current) return
+
+    const frame = frameRef.current
+    const overlay = commentOverlayRef.current
+    overlay.innerHTML = ''
+
+    if (comments.length === 0) return
+
+    const frameRect = frame.getBoundingClientRect()
+
+    comments.forEach(comment => {
+      // Try to find element by path first (for new comments), then by ID (for loaded comments)
+      let el: HTMLElement | null = null
+      if (comment.path) {
+        el = frame.querySelector(`[data-path="${comment.path}"]`) as HTMLElement
+      }
+      if (!el) {
+        el = frame.querySelector(`[data-id="${comment.elementId}"]`) as HTMLElement
+      }
+      if (!el) return
+
+      const elRect = el.getBoundingClientRect()
+      const isSelected = isCommentSelected(frameId, comment.elementId)
+
+      // Create marker container
+      const markerContainer = document.createElement('div')
+      markerContainer.className = `comment-marker-container ${isSelected ? 'expanded' : ''}`
+
+      const marker = document.createElement('span')
+      marker.className = 'comment-marker'
+      marker.dataset.elementId = comment.elementId
+      marker.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>`
+
+      // Click handler to toggle selection
+      marker.addEventListener('click', (e) => {
+        e.stopPropagation()
+        if (isCommentSelected(frameId, comment.elementId)) {
+          setSelectedComment(null)
+        } else {
+          setSelectedComment({ frameId, elementId: comment.elementId })
+        }
+      })
+
+      markerContainer.appendChild(marker)
+
+      // If selected, show the comment popover
+      if (isSelected) {
+        const popover = document.createElement('div')
+        popover.className = 'comment-popover'
+        popover.innerHTML = `
+          <div class="comment-popover-text">${comment.text}</div>
+          <button class="comment-popover-delete" title="Delete comment">×</button>
+        `
+        // Delete handler
+        const deleteBtn = popover.querySelector('.comment-popover-delete')
+        deleteBtn?.addEventListener('click', (e) => {
+          e.stopPropagation()
+          deleteComment(frameId, comment.elementId)
+        })
+        markerContainer.appendChild(popover)
+      }
+
+      // Position top-right of element
+      const top = (elRect.top - frameRect.top) - 8
+      const left = (elRect.right - frameRect.left) - 8
+
+      markerContainer.style.position = 'absolute'
+      markerContainer.style.top = `${top}px`
+      markerContainer.style.left = `${left}px`
+
+      overlay.appendChild(markerContainer)
+    })
+  }, [comments, frameId, isCommentHovered, hoveredComment, isCommentSelected, selectedComment, setSelectedComment, deleteComment])
+
   // Create wrapper node for frame content
   const wrapperNode: ResolvedNode = {
     type: 'box',
@@ -279,7 +425,12 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
         </div>
         <div className="frame-body">
           <div className="frame-content-area">
-            <div className="frame" style={frameStyle} ref={frameRef}>
+            <div
+              className={`frame ${commentMode ? 'comment-mode' : ''}`}
+              style={frameStyle}
+              ref={frameRef}
+              onClick={handleFrameClick}
+            >
               <NodeRenderer
                 node={wrapperNode}
                 frameId={frameId}
@@ -287,6 +438,16 @@ export function Frame({ node, onAnnotationClick }: FrameProps) {
               />
             </div>
             <div className="annotation-markers-overlay" ref={overlayRef} />
+            <div className="comment-markers-overlay" ref={commentOverlayRef} />
+
+            {/* Comment input */}
+            {pendingComment && pendingComment.frameId === frameId && modalPosition && (
+              <CommentInputModal
+                position={modalPosition}
+                onSave={handleSaveComment}
+                onCancel={handleCancelComment}
+              />
+            )}
           </div>
 
           {annotations.length > 0 && (

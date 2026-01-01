@@ -650,7 +650,8 @@ function resolveNode(
     return {
       type: 'frame',
       props,
-      children: resolvedChildren
+      children: resolvedChildren,
+      comments: props.comments || []
     }
   }
 

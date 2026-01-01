@@ -28,6 +28,12 @@ export interface Annotation {
   description?: string
 }
 
+// Comment for user feedback on elements
+export interface Comment {
+  elementId: string
+  text: string
+}
+
 // Base node that all nodes extend
 export interface BaseNode {
   id?: string
@@ -44,6 +50,7 @@ export interface FrameNode extends BaseNode {
     gap?: number
     padding?: Padding
     children?: SpecNode[]
+    comments?: Comment[]
   }
 }
 
@@ -71,6 +78,7 @@ export interface BoxNode extends BaseNode {
 // Text node
 export interface TextNode extends BaseNode {
   Text: {
+    id?: string
     content: string
     style?: TextStyle
     align?: TextAlign
@@ -81,6 +89,7 @@ export interface TextNode extends BaseNode {
 // Icon node (Lucide icons)
 export interface IconNode extends BaseNode {
   Icon: {
+    id?: string
     name: string  // Lucide icon name (e.g., "settings", "user", "home")
     annotation?: Annotation
   }
@@ -329,7 +338,7 @@ export interface MapTrajectoryData {
 
 // Parsed and resolved node (after component expansion)
 export type ResolvedNode =
-  | { type: 'frame'; props: FrameNode['Frame']; children: ResolvedNode[] }
+  | { type: 'frame'; props: FrameNode['Frame']; children: ResolvedNode[]; comments: Comment[] }
   | { type: 'box'; props: BoxNode['Box']; children: ResolvedNode[] }
   | { type: 'text'; props: TextNode['Text'] }
   | { type: 'icon'; props: IconNode['Icon'] }
